@@ -34,7 +34,7 @@ func TestClient(t *testing.T) {
 		UInt32    uint32
 		UInt64    uint64
 
-		Created time.Time `json:"created,2006-01-02-15:04:05"`
+		Created time.Time `json:"created,unixMilli"` // nolint: staticcheck
 	}{
 		Name:    strPtr("booss"),
 		Age:     120,

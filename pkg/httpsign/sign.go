@@ -22,10 +22,10 @@ const (
 	digest        = "digest"
 )
 
-var headers = []string{requestTarget, nonce, digest}
+var headers = []string{requestTarget, nonce, digest} // nolint: gochecknoglobals
 
 // Sign a http request with selected header and return a signed request
-// Use with http client only
+// Use with http client only.
 func Sign(r *http.Request, keyID string, secret []byte) (*http.Request, error) {
 	// Set digest to body
 	digestBody, err := calculateDigest(r)
@@ -35,7 +35,7 @@ func Sign(r *http.Request, keyID string, secret []byte) (*http.Request, error) {
 	r.Header.Set(digest, digestBody)
 	// Set nonce
 	currentNonce := time.Now().UnixNano() / int64(time.Millisecond)
-	r.Header.Set(nonce, strconv.FormatInt(currentNonce, 10))
+	r.Header.Set(nonce, strconv.FormatInt(currentNonce, 10)) // nolint: gomnd
 	// Create sign string
 	var signBuffer bytes.Buffer
 	for i, h := range headers {

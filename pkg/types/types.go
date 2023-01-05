@@ -24,7 +24,7 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("code %d, message: %s", e.Code, e.Message)
 }
 
-// BigInt is helper use to marshal,unmarhsal bigInt as json string (with double quote)
+// BigInt is helper use to marshal,unmarhsal bigInt as json string (with double quote).
 type BigInt big.Int
 
 func (b BigInt) String() string {
@@ -53,7 +53,7 @@ func (b *BigInt) Int() *big.Int {
 	return (*big.Int)(b)
 }
 
-// Bytes is a helper to unmarshal hex encode string (without 0x prefix, ethereum common type require 0x)
+// Bytes is a helper to unmarshal hex encode string (without 0x prefix, ethereum common type require 0x).
 type Bytes []byte
 
 func (b Bytes) MarshalJSON() ([]byte, error) {
@@ -75,7 +75,7 @@ func (b *Bytes) UnmarshalJSON(data []byte) error {
 }
 
 func unquote(data []byte) []byte {
-	if len(data) < 2 {
+	if len(data) < 2 { // nolint: gomnd
 		return data
 	}
 	if (data[0] == '\'' && data[len(data)-1] == '\'') ||
@@ -85,7 +85,7 @@ func unquote(data []byte) []byte {
 	return data
 }
 
-// Duration is a helper type to unmarshal json duration string
+// Duration is a helper type to unmarshal json duration string.
 type Duration time.Duration
 
 func (d Duration) MarshalJSON() ([]byte, error) {

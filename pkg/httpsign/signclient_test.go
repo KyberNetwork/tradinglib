@@ -1,17 +1,18 @@
-package httpsign
+package httpsign_test
 
 import (
 	"io"
 	"net/http"
 	"testing"
 
+	"github.com/KyberNetwork/tradinglib/pkg/httpsign"
 	"github.com/stretchr/testify/require"
 )
 
 func TestRequest(t *testing.T) {
 	t.Skip()
 	client := http.Client{
-		Transport: NewTransport(http.DefaultTransport,
+		Transport: httpsign.NewTransport(http.DefaultTransport,
 			"..",
 			[]byte("..")),
 	}

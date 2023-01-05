@@ -1,0 +1,31 @@
+run:
+  deadline: 5m
+
+linters:
+  enable-all: true
+  disable:
+    - maligned
+    - interfacer
+    - scopelint
+    - gomoddirectives
+    - nolintlint
+    - exhaustivestruct
+    - wrapcheck
+    - varnamelen
+    - golint
+    - paralleltest
+    - exhaustruct
+    - wsl
+    - nlreturn
+    - tagliatelle
+    - goerr113
+linters-settings:
+  funlen:
+    # Checks the number of lines in a function.
+    # If lower than 0, disable the check.
+    # Default: 60
+    lines: 80
+    # Checks the number of statements in a function.
+    # If lower than 0, disable the check.
+    # Default: 40
+    statements: 50

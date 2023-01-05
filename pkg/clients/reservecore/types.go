@@ -13,13 +13,15 @@ type SetRate int
 //go:generate stringer -type=ExchangeID -linecomment
 type ExchangeID uint64
 
-type AssetID uint64
-type TradingPairID uint64
-type TradingByID uint64
-type AssetExchangeID uint64
-type AssetAddressID uint64
-type SettingChangeID uint64
-type FeedWeightID uint64
+type (
+	AssetID         uint64
+	TradingPairID   uint64
+	TradingByID     uint64
+	AssetExchangeID uint64
+	AssetAddressID  uint64
+	SettingChangeID uint64
+	FeedWeightID    uint64
+)
 
 type PWIEquation struct {
 	A                   float64 `json:"a"`
@@ -34,7 +36,7 @@ type AssetPWI struct {
 	Bid PWIEquation `json:"bid"`
 }
 
-// RebalanceQuadratic is params of quadratic equation
+// RebalanceQuadratic is params of quadratic equation.
 type RebalanceQuadratic struct {
 	SizeA       float64 `json:"size_a"`
 	SizeB       float64 `json:"size_b"`
@@ -88,7 +90,7 @@ type TradingPair struct {
 	StaleThreshold  float64       `json:"stale_threshold"`
 }
 
-// StableParam is params of stablize action
+// StableParam is params of stablize action.
 type StableParam struct {
 	PriceUpdateThreshold float64 `json:"price_update_threshold"`
 	AskSpread            float64 `json:"ask_spread"`
@@ -174,7 +176,7 @@ type Asset struct {
 	StableCoin            StableCoin          `json:"stablecoin"`
 }
 
-// ExchangeBalance is balance of a token of an exchange
+// ExchangeBalance is balance of a token of an exchange.
 type ExchangeBalance struct {
 	ExchangeID    ExchangeID         `json:"exchange_id"`
 	Available     float64            `json:"available"`
@@ -184,12 +186,12 @@ type ExchangeBalance struct {
 	Error         string             `json:"error"`
 }
 
-// Total return total amount
+// Total return total amount.
 func (eb *ExchangeBalance) Total() float64 {
 	return eb.Available + eb.Locked
 }
 
-// Lock lock amount coin
+// Lock amount coin.
 func (eb *ExchangeBalance) Lock(amount float64) {
 	if amount > eb.Available {
 		return
@@ -198,10 +200,10 @@ func (eb *ExchangeBalance) Lock(amount float64) {
 	eb.Locked += amount
 }
 
-// Version indicate fetched data version
+// Version indicate fetched data version.
 type Version uint64
 
-// AuthdataBalance is balance for a token in reservesetting authata
+// AuthdataBalance is balance for a token in reservesetting authata.
 type AuthdataBalance struct {
 	Valid        bool              `json:"valid"`
 	AssetID      AssetID           `json:"asset_id"`
@@ -211,7 +213,7 @@ type AuthdataBalance struct {
 	Symbol       string            `json:"symbol"`
 }
 
-// PendingActivities is pending activities for authdata
+// PendingActivities is pending activities for authdata.
 type PendingActivities struct {
 	SetRates []ActivityRecord `json:"set_rates"`
 	Withdraw []ActivityRecord `json:"withdraw"`
@@ -219,13 +221,13 @@ type PendingActivities struct {
 	Trades   []ActivityRecord `json:"trades"`
 }
 
-// ActivityID specify an activity
+// ActivityID specify an activity.
 type ActivityID struct {
 	Timepoint uint64
 	EID       string
 }
 
-// ActivityParams is params for activity
+// ActivityParams is params for activity.
 type ActivityParams struct {
 	// deposit, withdraw params
 	Exchange  ExchangeID `json:"exchange,omitempty"`
@@ -249,7 +251,7 @@ type ActivityParams struct {
 	TradingPairID TradingPairID `json:"trading_pair_id,omitempty"`
 }
 
-// ActivityResult is result of an activity
+// ActivityResult is result of an activity.
 type ActivityResult struct {
 	Tx       string `json:"tx,omitempty"`
 	Nonce    uint64 `json:"nonce,omitempty"`
@@ -273,9 +275,10 @@ type ActivityResult struct {
 
 type Timestamp string
 
-// ActivityRecord object
+// ActivityRecord object.
 type ActivityRecord struct {
-	OrgTime        uint64          `json:"org_time"` // origin timestamp - timestamp of the first activity (in case it has many activities like override or replace)
+	OrgTime uint64 `json:"org_time"` // origin timestamp - timestamp of the first activity
+	// (in case it has many activities like override or replace)
 	Action         string          `json:"action,omitempty"`
 	ID             ActivityID      `json:"id,omitempty"`
 	EID            string          `json:"eid"`
@@ -288,7 +291,7 @@ type ActivityRecord struct {
 	LastTime       uint64          `json:"last_time"`           // activity finished time
 }
 
-// AuthDataResponseV3 is auth data format for reservesetting
+// AuthDataResponseV3 is auth data format for reservesetting.
 type AuthDataResponseV3 struct {
 	Balances          []AuthdataBalance `json:"balances"`
 	PendingActivities PendingActivities `json:"pending_activities"`
@@ -302,7 +305,7 @@ type BinanceMainAccountBalance struct {
 	Locked  string  `json:"locked"`
 }
 
-// FeedConfiguration feed configuration
+// FeedConfiguration feed configuration.
 type FeedConfiguration struct {
 	Name                 string  `json:"name" db:"name"`
 	SetRate              SetRate `json:"set_rate" db:"set_rate"`
@@ -320,7 +323,7 @@ type Exchange struct {
 	Disable         bool       `json:"disable"`
 }
 
-// Order accross multiple exchanges
+// Order across multiple exchanges.
 type Order struct {
 	ID            string        `json:"id,omitempty"` // standard id across multiple exchanges
 	Symbol        string        `json:"symbol,omitempty"`
@@ -344,19 +347,19 @@ type RequestOrder struct {
 	Symbol string `json:"symbol"`
 }
 
-// CancelOrderRequest type
+// CancelOrderRequest type.
 type CancelOrderRequest struct {
 	ExchangeID ExchangeID     `json:"exchange_id"`
 	Orders     []RequestOrder `json:"orders"`
 }
 
-// CancelOrderResult is response when calling cancel an order
+// CancelOrderResult is response when calling cancel an order.
 type CancelOrderResult struct {
 	Success bool   `json:"success"`
 	Error   string `json:"error"`
 }
 
-// AssetPriceFactorResponse is on element in asset price factor list output in getPriceFactors
+// AssetPriceFactorResponse is on element in asset price factor list output in getPriceFactors.
 type AssetPriceFactorResponse struct {
 	Timestamp uint64  `json:"timestamp"`
 	AfpMid    float64 `json:"afp_mid"`
@@ -382,14 +385,14 @@ type PriceFactorResponse struct {
 	Data       []*AssetPriceFactorListResponse `json:"data"`
 }
 
-// DepositRequest type
+// DepositRequest type.
 type DepositRequest struct {
 	ExchangeID ExchangeID `json:"exchange"`
 	Amount     *big.Int   `json:"amount"`
 	Asset      AssetID    `json:"asset"`
 }
 
-// WithdrawRequest type
+// WithdrawRequest type.
 type WithdrawRequest struct {
 	ExchangeID ExchangeID `json:"exchange"`
 	Asset      AssetID    `json:"asset"`
@@ -406,21 +409,21 @@ type CEXDEXWithdrawRequest struct {
 	Network         string `json:"network"` // default = ethereum
 }
 
-// BorrowTransferRequest type
+// BorrowTransferRequest type.
 type BorrowTransferRequest struct {
 	ExchangeID ExchangeID `json:"exchange"`
 	Asset      AssetID    `json:"asset"`
 	Amount     float64    `json:"amount"`
 }
 
-// TransferRepayRequest type
+// TransferRepayRequest type.
 type TransferRepayRequest struct {
 	ExchangeID ExchangeID `json:"exchange"`
 	Asset      AssetID    `json:"asset"`
 	Amount     float64    `json:"amount"`
 }
 
-// RawAssetMarginBalance raw margin balance data response from binance
+// RawAssetMarginBalance raw margin balance data response from binance.
 type RawAssetMarginBalance struct {
 	Asset    string `json:"asset"`
 	Borrowed string `json:"borrowed"`
@@ -430,7 +433,7 @@ type RawAssetMarginBalance struct {
 	NetAsset string `json:"netAsset"`
 }
 
-// CrossMarginAccountDetails binance margin account info
+// CrossMarginAccountDetails binance margin account info.
 type CrossMarginAccountDetails struct {
 	BorrowEnabled       bool                    `json:"borrowEnabled"`
 	MarginLevel         string                  `json:"marginLevel"`

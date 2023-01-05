@@ -119,18 +119,6 @@ func (q Query) Struct(object interface{}) Query {
 	return q
 }
 
-func (q Query) setBool(key string, value bool, options []string) Query {
-	if !value && isOmitEmpty(options) {
-		return q
-	}
-	if value {
-		q.SetString(key, True)
-	} else {
-		q.SetString(key, False)
-	}
-	return q
-}
-
 func (q Query) setTime(key string, value time.Time, options []string) Query {
 	if len(options) == 0 {
 		q.setString(key, value.String(), options)
@@ -165,7 +153,7 @@ func (q Query) String() string {
 
 var (
 	stringer = reflect.TypeOf((*fmt.Stringer)(nil)).Elem() // nolint: gochecknoglobals
-	timeType = reflect.TypeOf(time.Time{})
+	timeType = reflect.TypeOf(time.Time{})                 // nolint: gochecknoglobals
 )
 
 func unwrapValue(v reflect.Value) reflect.Value {
@@ -198,15 +186,36 @@ func (q Query) setWithStruct(object interface{}) { // nolint: funlen,cyclop
 			fieldValueType = fieldValue.Elem().Type()
 		}
 		if fieldValueType == timeType {
-			q.setTime(keyName, rawValue.(time.Time), option)
+			q.setTime(keyName, rawValue.(time.Time), option) // nolint: forcetypeassert
 			continue
 		}
 		if fieldValueType.Implements(stringer) {
 			q.setString(keyName, rawValue.(fmt.Stringer).String(), option) // nolint: forcetypeassert
 			continue
 		}
-
+		if isEmptyValue(fieldValue) && isOmitEmpty(option) {
+			continue
+		}
 		q.setString(keyName, fmt.Sprint(rawValue), option)
+	}
+}
+
+func isEmptyValue(v reflect.Value) bool {
+	switch v.Kind() { // nolint: exhaustive
+	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
+		return v.Len() == 0
+	case reflect.Bool:
+		return !v.Bool()
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return v.Int() == 0
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return v.Uint() == 0
+	case reflect.Float32, reflect.Float64:
+		return v.Float() == 0
+	case reflect.Interface, reflect.Ptr:
+		return v.IsNil()
+	default:
+		return false
 	}
 }
 

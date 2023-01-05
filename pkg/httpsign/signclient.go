@@ -10,21 +10,21 @@ func NewClient(transport http.RoundTripper, key string, secret []byte) *http.Cli
 	}
 }
 
-func NewTransport(inner http.RoundTripper, key string, secret []byte) HttpSign {
-	return HttpSign{
+func NewTransport(inner http.RoundTripper, key string, secret []byte) HTTPSign {
+	return HTTPSign{
 		inner:  inner,
 		keyID:  key,
 		secret: secret,
 	}
 }
 
-type HttpSign struct {
+type HTTPSign struct {
 	inner  http.RoundTripper
 	keyID  string
 	secret []byte
 }
 
-func (s HttpSign) RoundTrip(request *http.Request) (*http.Response, error) {
+func (s HTTPSign) RoundTrip(request *http.Request) (*http.Response, error) {
 	if len(s.keyID) == 0 {
 		return s.inner.RoundTrip(request)
 	}

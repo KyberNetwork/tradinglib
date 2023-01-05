@@ -7,9 +7,7 @@ import (
 
 func Concat(elements ...string) string {
 	b := strings.Builder{}
-	var (
-		tz = 0
-	)
+	tz := 0
 	for _, e := range elements {
 		tz += len(e)
 	}

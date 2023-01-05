@@ -18,7 +18,6 @@ type Client struct {
 
 // New returns a new Client object.
 func New(baseURL string, useGateway bool, httpClient *http.Client) (*Client, error) {
-
 	return &Client{
 		baseURL:    strings.TrimRight(baseURL, "/"),
 		httpClient: httpClient,
@@ -49,20 +48,22 @@ func (c *Client) doRequest(req *http.Request, out interface{}) error {
 }
 
 // ListAssets returns a list of assets.
-func (c *Client) ListAssets() (assets []Asset, err error) {
+func (c *Client) ListAssets() ([]Asset, error) {
+	var assets []Asset
 	req, err := httpclient.NewRequest(http.MethodGet, c.baseURL, "/v3/asset", nil, nil)
 	if err != nil {
 		return nil, err
 	}
 	err = c.shouldSuccessRequest(req, &assets)
 	if err != nil {
-		return
+		return nil, err
 	}
-	return
+	return assets, nil
 }
 
 // GetAuthData returns auth data snapshot for given `timestamp`.
-func (c *Client) GetAuthData(timestamp int64) (authData AuthDataResponseV3, err error) {
+func (c *Client) GetAuthData(timestamp int64) (AuthDataResponseV3, error) {
+	var authData AuthDataResponseV3
 	req, err := httpclient.NewRequest(http.MethodGet, c.baseURL, "/v3/authdata",
 		httpclient.NewQuery().Int64("timestamp", timestamp), nil)
 	if err != nil {
@@ -73,7 +74,8 @@ func (c *Client) GetAuthData(timestamp int64) (authData AuthDataResponseV3, err 
 }
 
 // GetSetRateStatus returns set-rate status.
-func (c *Client) GetSetRateStatus() (status bool, err error) {
+func (c *Client) GetSetRateStatus() (bool, error) {
+	var status bool
 	req, err := httpclient.NewRequest(http.MethodGet, c.baseURL, "/v3/set-rate-status", nil, nil)
 	if err != nil {
 		return false, err
@@ -83,7 +85,8 @@ func (c *Client) GetSetRateStatus() (status bool, err error) {
 }
 
 // GetRebalanceStatus returns rebalance status.
-func (c *Client) GetRebalanceStatus() (status bool, err error) {
+func (c *Client) GetRebalanceStatus() (bool, error) {
+	var status bool
 	req, err := httpclient.NewRequest(http.MethodGet, c.baseURL, "/v3/rebalance-status", nil, nil)
 	if err != nil {
 		return false, err
@@ -93,7 +96,8 @@ func (c *Client) GetRebalanceStatus() (status bool, err error) {
 }
 
 // GetMainBalance returns balance of binance account.
-func (c *Client) GetMainBalance() (balance []BinanceMainAccountBalance, err error) {
+func (c *Client) GetMainBalance() ([]BinanceMainAccountBalance, error) {
+	var balance []BinanceMainAccountBalance
 	req, err := httpclient.NewRequest(http.MethodGet, c.baseURL, "/v3/binance/main", nil, nil)
 	if err != nil {
 		return nil, err
@@ -103,7 +107,8 @@ func (c *Client) GetMainBalance() (balance []BinanceMainAccountBalance, err erro
 }
 
 // GetFeedConfiguration returns configuration for feed data.
-func (c *Client) GetFeedConfiguration() (config FeedConfiguration, err error) {
+func (c *Client) GetFeedConfiguration() (FeedConfiguration, error) {
+	var config FeedConfiguration
 	req, err := httpclient.NewRequest(http.MethodGet, c.baseURL, "/v3/feed-configurations", nil, nil)
 	if err != nil {
 		return config, err
@@ -113,7 +118,8 @@ func (c *Client) GetFeedConfiguration() (config FeedConfiguration, err error) {
 }
 
 // ListExchanges returns a list of supported exchanges.
-func (c *Client) ListExchanges() (out []Exchange, err error) {
+func (c *Client) ListExchanges() ([]Exchange, error) {
+	var out []Exchange
 	req, err := httpclient.NewRequest(http.MethodGet, c.baseURL, "/v3/exchange", nil, nil)
 	if err != nil {
 		return out, err
@@ -123,7 +129,8 @@ func (c *Client) ListExchanges() (out []Exchange, err error) {
 }
 
 // GetOpenOrders returns a list of open orders.
-func (c *Client) GetOpenOrders() (out map[ExchangeID][]Order, err error) {
+func (c *Client) GetOpenOrders() (map[ExchangeID][]Order, error) {
+	var out map[ExchangeID][]Order
 	req, err := httpclient.NewRequest(http.MethodGet, c.baseURL, "/v3/open-orders", nil, nil)
 	if err != nil {
 		return out, err
@@ -133,7 +140,8 @@ func (c *Client) GetOpenOrders() (out map[ExchangeID][]Order, err error) {
 }
 
 // CancelOrders cancel orders.
-func (c *Client) CancelOrders(data CancelOrderRequest) (out map[string]CancelOrderResult, err error) {
+func (c *Client) CancelOrders(data CancelOrderRequest) (map[string]CancelOrderResult, error) {
+	var out map[string]CancelOrderResult
 	req, err := httpclient.NewPostJSON(c.baseURL, "/v3/cancel-orders", nil, data)
 	if err != nil {
 		return out, err
@@ -143,7 +151,8 @@ func (c *Client) CancelOrders(data CancelOrderRequest) (out map[string]CancelOrd
 }
 
 // GetPriceFactor returns a list of price factors.
-func (c *Client) GetPriceFactor(from int64, to int64) (out PriceFactorResponse, err error) {
+func (c *Client) GetPriceFactor(from int64, to int64) (PriceFactorResponse, error) {
+	var out PriceFactorResponse
 	req, err := httpclient.NewRequest(http.MethodGet, c.baseURL, "/v3/price-factor",
 		httpclient.NewQuery().Int64("from", from).Int64("to", to),
 		nil)
@@ -217,8 +226,9 @@ func (c *Client) WithdrawWithLimitedPermission(accountID string, data CEXDEXWith
 	return res.ID, nil
 }
 
-// GetWithdrawActivityStatus get withdraw activity status
-func (c *Client) GetWithdrawActivityStatus(eid string) (out ActivityRecord, err error) {
+// GetWithdrawActivityStatus get withdraw activity status.
+func (c *Client) GetWithdrawActivityStatus(eid string) (ActivityRecord, error) {
+	var out ActivityRecord
 	req, err := httpclient.NewRequest(http.MethodGet, c.baseURL, sb.Concat(c.cexDataPrefix(), "/activity"),
 		httpclient.NewQuery("eid", eid),
 		nil)
@@ -229,7 +239,7 @@ func (c *Client) GetWithdrawActivityStatus(eid string) (out ActivityRecord, err 
 	return out, err
 }
 
-// BorrowTransferMargin borrow and transfer from margin to spot account
+// BorrowTransferMargin borrow and transfer from margin to spot account.
 func (c *Client) BorrowTransferMargin(data BorrowTransferRequest) (string, error) {
 	req, err := httpclient.NewPostJSON(c.baseURL, "/v3/margin/borrow-and-transfer", nil, data)
 	if err != nil {
@@ -246,7 +256,7 @@ func (c *Client) BorrowTransferMargin(data BorrowTransferRequest) (string, error
 	return res.ID, nil
 }
 
-// TransferRepayMargin transfer and repay from spot to margin account
+// TransferRepayMargin transfer and repay from spot to margin account.
 func (c *Client) TransferRepayMargin(data TransferRepayRequest) (string, error) {
 	req, err := httpclient.NewPostJSON(c.baseURL, "/v3/margin/transfer-and-repay", nil, data)
 	if err != nil {
@@ -263,8 +273,9 @@ func (c *Client) TransferRepayMargin(data TransferRepayRequest) (string, error) 
 	return res.ID, nil
 }
 
-// GetMarginAccountInfo get margin account info
-func (c *Client) GetMarginAccountInfo(exchange ExchangeID) (out CrossMarginAccountDetails, err error) {
+// GetMarginAccountInfo get margin account info.
+func (c *Client) GetMarginAccountInfo(exchange ExchangeID) (CrossMarginAccountDetails, error) {
+	var out CrossMarginAccountDetails
 	req, err := httpclient.NewRequest(http.MethodGet, c.baseURL, "/v3/margin/account",
 		httpclient.NewQuery("exchange", int64(exchange)),
 		nil)
@@ -275,8 +286,9 @@ func (c *Client) GetMarginAccountInfo(exchange ExchangeID) (out CrossMarginAccou
 	return out, err
 }
 
-// GetCrossMarginData get cross margin data
-func (c *Client) GetCrossMarginData(exchange ExchangeID) (out []CrossMarginData, err error) {
+// GetCrossMarginData get cross margin data.
+func (c *Client) GetCrossMarginData(exchange ExchangeID) ([]CrossMarginData, error) {
+	var out []CrossMarginData
 	req, err := httpclient.NewRequest(http.MethodGet, c.baseURL, "/v3/margin/account",
 		httpclient.NewQuery("exchange", int64(exchange)),
 		nil)
@@ -293,7 +305,8 @@ type MarginConfig struct {
 }
 
 // GetMarginConfig returns margin config.
-func (c *Client) GetMarginConfig() (out MarginConfig, err error) {
+func (c *Client) GetMarginConfig() (MarginConfig, error) {
+	var out MarginConfig
 	req, err := httpclient.NewRequest(http.MethodGet, c.baseURL, "/v3/margin-config", nil, nil)
 	if err != nil {
 		return out, err
@@ -308,7 +321,8 @@ type PerpetualConfig struct {
 }
 
 // GetPerpetualConfig returns perpetual config.
-func (c *Client) GetPerpetualConfig() (out PerpetualConfig, err error) {
+func (c *Client) GetPerpetualConfig() (PerpetualConfig, error) {
+	var out PerpetualConfig
 	req, err := httpclient.NewRequest(http.MethodGet, c.baseURL, "/v3/perpetual-config", nil, nil)
 	if err != nil {
 		return out, err
@@ -323,7 +337,8 @@ type MarginLevelThresholdResponse struct {
 }
 
 // GetMarginLevelThreshold returns margin level threshold config.
-func (c *Client) GetMarginLevelThreshold() (out MarginLevelThresholdResponse, err error) {
+func (c *Client) GetMarginLevelThreshold() (MarginLevelThresholdResponse, error) {
+	var out MarginLevelThresholdResponse
 	req, err := httpclient.NewRequest(http.MethodGet, c.baseURL, "/v3/margin-level-threshold",
 		nil, nil)
 	if err != nil {
@@ -333,7 +348,7 @@ func (c *Client) GetMarginLevelThreshold() (out MarginLevelThresholdResponse, er
 	return out, err
 }
 
-// TradeRequest form
+// TradeRequest form.
 type TradeRequest struct {
 	Pair   TradingPairID `json:"pair"`
 	Amount float64       `json:"amount"`
@@ -352,7 +367,8 @@ type TradeResponse struct {
 }
 
 // Trade makes a trade on a CEX.
-func (c *Client) Trade(data TradeRequest) (trade TradeResponse, err error) {
+func (c *Client) Trade(data TradeRequest) (TradeResponse, error) {
+	var trade TradeResponse
 	req, err := httpclient.NewPostJSON(c.baseURL, "/v3/trade", nil, data)
 	if err != nil {
 		return trade, err
