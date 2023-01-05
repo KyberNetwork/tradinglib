@@ -25,14 +25,13 @@ func New(baseURL string, useGateway bool, httpClient *http.Client) (*Client, err
 	}, nil
 }
 
-type response struct {
-	Reason  string      `json:"reason,omitempty"`
-	Success bool        `json:"success"`
-	Data    interface{} `json:"data"`
+type dataResponse struct {
+	commonResponse
+	Data interface{} `json:"data"`
 }
 
 func (c *Client) shouldSuccessRequest(req *http.Request, out interface{}) error {
-	res := response{Data: out}
+	res := dataResponse{Data: out}
 	err := httpclient.DoHTTPRequest(c.httpClient, req, &res)
 	if err != nil {
 		return err
@@ -358,12 +357,11 @@ type TradeRequest struct {
 
 // TradeResponse ...
 type TradeResponse struct {
+	commonResponse
 	ID        string  `json:"id"`
 	Done      string  `json:"done"`
 	Remaining float64 `json:"remaining"`
 	Finished  float64 `json:"finished"`
-	Reason    string  `json:"reason"`
-	Success   bool    `json:"success"`
 }
 
 // Trade makes a trade on a CEX.

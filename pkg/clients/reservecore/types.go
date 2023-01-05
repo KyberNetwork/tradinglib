@@ -458,6 +458,6 @@ type CrossMarginData struct {
 }
 
 type idResponse struct {
-	ID string `json:"id"`
 	commonResponse
+	ID string `json:"id"`
 }
