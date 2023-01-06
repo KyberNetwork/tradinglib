@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-const _ChainIDName = "ethereumoptimismcronosbscetctomognosispolygonbttcfantomkccmoonbeamkavacantoklaytnfusionarbitrumceloavaxaurora"
-const _ChainIDLowerName = "ethereumoptimismcronosbscetctomognosispolygonbttcfantomkccmoonbeamkavacantoklaytnfusionarbitrumceloavaxaurora"
+const _ChainIDName = "ethereumoptimismcronosbscetctomognosisvelaspolygonbttcfantomkccmoonbeamkavacantoklaytnethwfusionarbitrumcelooasisavaxaurora"
+const _ChainIDLowerName = "ethereumoptimismcronosbscetctomognosisvelaspolygonbttcfantomkccmoonbeamkavacantoklaytnethwfusionarbitrumcelooasisavaxaurora"
 
 var _ChainIDMap = map[ChainID]string{
 	1:          _ChainIDName[0:8],
@@ -20,19 +20,22 @@ var _ChainIDMap = map[ChainID]string{
 	61:         _ChainIDName[25:28],
 	88:         _ChainIDName[28:32],
 	100:        _ChainIDName[32:38],
-	137:        _ChainIDName[38:45],
-	199:        _ChainIDName[45:49],
-	250:        _ChainIDName[49:55],
-	321:        _ChainIDName[55:58],
-	1284:       _ChainIDName[58:66],
-	2222:       _ChainIDName[66:70],
-	7700:       _ChainIDName[70:75],
-	8217:       _ChainIDName[75:81],
-	32659:      _ChainIDName[81:87],
-	42161:      _ChainIDName[87:95],
-	42220:      _ChainIDName[95:99],
-	43114:      _ChainIDName[99:103],
-	1313161554: _ChainIDName[103:109],
+	106:        _ChainIDName[38:43],
+	137:        _ChainIDName[43:50],
+	199:        _ChainIDName[50:54],
+	250:        _ChainIDName[54:60],
+	321:        _ChainIDName[60:63],
+	1284:       _ChainIDName[63:71],
+	2222:       _ChainIDName[71:75],
+	7700:       _ChainIDName[75:80],
+	8217:       _ChainIDName[80:86],
+	10001:      _ChainIDName[86:90],
+	32659:      _ChainIDName[90:96],
+	42161:      _ChainIDName[96:104],
+	42220:      _ChainIDName[104:108],
+	42262:      _ChainIDName[108:113],
+	43114:      _ChainIDName[113:117],
+	1313161554: _ChainIDName[117:123],
 }
 
 func (i ChainID) String() string {
@@ -53,6 +56,7 @@ func _ChainIDNoOp() {
 	_ = x[ETC-(61)]
 	_ = x[Tomo-(88)]
 	_ = x[Gnosis-(100)]
+	_ = x[Velas-(106)]
 	_ = x[Polygon-(137)]
 	_ = x[BTTC-(199)]
 	_ = x[Fantom-(250)]
@@ -61,14 +65,16 @@ func _ChainIDNoOp() {
 	_ = x[Kava-(2222)]
 	_ = x[Canto-(7700)]
 	_ = x[Klaytn-(8217)]
+	_ = x[EthereumPow-(10001)]
 	_ = x[Fusion-(32659)]
 	_ = x[Arbitrum-(42161)]
 	_ = x[Celo-(42220)]
+	_ = x[Oasis-(42262)]
 	_ = x[Avax-(43114)]
 	_ = x[Aurora-(1313161554)]
 }
 
-var _ChainIDValues = []ChainID{Ethereum, Optimism, Cronos, BSC, ETC, Tomo, Gnosis, Polygon, BTTC, Fantom, KCC, Moonbeam, Kava, Canto, Klaytn, Fusion, Arbitrum, Celo, Avax, Aurora}
+var _ChainIDValues = []ChainID{Ethereum, Optimism, Cronos, BSC, ETC, Tomo, Gnosis, Velas, Polygon, BTTC, Fantom, KCC, Moonbeam, Kava, Canto, Klaytn, EthereumPow, Fusion, Arbitrum, Celo, Oasis, Avax, Aurora}
 
 var _ChainIDNameToValueMap = map[string]ChainID{
 	_ChainIDName[0:8]:          Ethereum,
@@ -85,32 +91,38 @@ var _ChainIDNameToValueMap = map[string]ChainID{
 	_ChainIDLowerName[28:32]:   Tomo,
 	_ChainIDName[32:38]:        Gnosis,
 	_ChainIDLowerName[32:38]:   Gnosis,
-	_ChainIDName[38:45]:        Polygon,
-	_ChainIDLowerName[38:45]:   Polygon,
-	_ChainIDName[45:49]:        BTTC,
-	_ChainIDLowerName[45:49]:   BTTC,
-	_ChainIDName[49:55]:        Fantom,
-	_ChainIDLowerName[49:55]:   Fantom,
-	_ChainIDName[55:58]:        KCC,
-	_ChainIDLowerName[55:58]:   KCC,
-	_ChainIDName[58:66]:        Moonbeam,
-	_ChainIDLowerName[58:66]:   Moonbeam,
-	_ChainIDName[66:70]:        Kava,
-	_ChainIDLowerName[66:70]:   Kava,
-	_ChainIDName[70:75]:        Canto,
-	_ChainIDLowerName[70:75]:   Canto,
-	_ChainIDName[75:81]:        Klaytn,
-	_ChainIDLowerName[75:81]:   Klaytn,
-	_ChainIDName[81:87]:        Fusion,
-	_ChainIDLowerName[81:87]:   Fusion,
-	_ChainIDName[87:95]:        Arbitrum,
-	_ChainIDLowerName[87:95]:   Arbitrum,
-	_ChainIDName[95:99]:        Celo,
-	_ChainIDLowerName[95:99]:   Celo,
-	_ChainIDName[99:103]:       Avax,
-	_ChainIDLowerName[99:103]:  Avax,
-	_ChainIDName[103:109]:      Aurora,
-	_ChainIDLowerName[103:109]: Aurora,
+	_ChainIDName[38:43]:        Velas,
+	_ChainIDLowerName[38:43]:   Velas,
+	_ChainIDName[43:50]:        Polygon,
+	_ChainIDLowerName[43:50]:   Polygon,
+	_ChainIDName[50:54]:        BTTC,
+	_ChainIDLowerName[50:54]:   BTTC,
+	_ChainIDName[54:60]:        Fantom,
+	_ChainIDLowerName[54:60]:   Fantom,
+	_ChainIDName[60:63]:        KCC,
+	_ChainIDLowerName[60:63]:   KCC,
+	_ChainIDName[63:71]:        Moonbeam,
+	_ChainIDLowerName[63:71]:   Moonbeam,
+	_ChainIDName[71:75]:        Kava,
+	_ChainIDLowerName[71:75]:   Kava,
+	_ChainIDName[75:80]:        Canto,
+	_ChainIDLowerName[75:80]:   Canto,
+	_ChainIDName[80:86]:        Klaytn,
+	_ChainIDLowerName[80:86]:   Klaytn,
+	_ChainIDName[86:90]:        EthereumPow,
+	_ChainIDLowerName[86:90]:   EthereumPow,
+	_ChainIDName[90:96]:        Fusion,
+	_ChainIDLowerName[90:96]:   Fusion,
+	_ChainIDName[96:104]:       Arbitrum,
+	_ChainIDLowerName[96:104]:  Arbitrum,
+	_ChainIDName[104:108]:      Celo,
+	_ChainIDLowerName[104:108]: Celo,
+	_ChainIDName[108:113]:      Oasis,
+	_ChainIDLowerName[108:113]: Oasis,
+	_ChainIDName[113:117]:      Avax,
+	_ChainIDLowerName[113:117]: Avax,
+	_ChainIDName[117:123]:      Aurora,
+	_ChainIDLowerName[117:123]: Aurora,
 }
 
 var _ChainIDNames = []string{
@@ -121,19 +133,22 @@ var _ChainIDNames = []string{
 	_ChainIDName[25:28],
 	_ChainIDName[28:32],
 	_ChainIDName[32:38],
-	_ChainIDName[38:45],
-	_ChainIDName[45:49],
-	_ChainIDName[49:55],
-	_ChainIDName[55:58],
-	_ChainIDName[58:66],
-	_ChainIDName[66:70],
-	_ChainIDName[70:75],
-	_ChainIDName[75:81],
-	_ChainIDName[81:87],
-	_ChainIDName[87:95],
-	_ChainIDName[95:99],
-	_ChainIDName[99:103],
-	_ChainIDName[103:109],
+	_ChainIDName[38:43],
+	_ChainIDName[43:50],
+	_ChainIDName[50:54],
+	_ChainIDName[54:60],
+	_ChainIDName[60:63],
+	_ChainIDName[63:71],
+	_ChainIDName[71:75],
+	_ChainIDName[75:80],
+	_ChainIDName[80:86],
+	_ChainIDName[86:90],
+	_ChainIDName[90:96],
+	_ChainIDName[96:104],
+	_ChainIDName[104:108],
+	_ChainIDName[108:113],
+	_ChainIDName[113:117],
+	_ChainIDName[117:123],
 }
 
 // ChainIDString retrieves an enum value from the enum constants string name.
