@@ -149,10 +149,8 @@ func TestMustFloatToWei(t *testing.T) {
 		}
 		if test.isPanic {
 			assert.Panics(t, funcCanPanic)
-		} else {
-			if assert.NotPanics(t, funcCanPanic) {
-				assert.Equal(t, test.expect, wei.String())
-			}
+		} else if assert.NotPanics(t, funcCanPanic) {
+			assert.Equal(t, test.expect, wei.String())
 		}
 	}
 }
