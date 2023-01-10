@@ -50,8 +50,9 @@ func FloatToWei(amount float64, decimals int64) (*big.Int, error) {
 	if decimals > math.MaxInt32 {
 		return nil, ErrMaxExponent
 	}
-	d := decimal.NewFromFloatWithExponent(amount, int32(decimals))
-	return d.BigInt(), nil
+	d := decimal.NewFromFloat(amount)
+	expo := decimal.New(1, int32(decimals))
+	return d.Mul(expo).BigInt(), nil
 }
 
 // MustFloatToWei same as FloatToWei but will panic if decimals > maxInt32.
