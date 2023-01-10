@@ -221,6 +221,12 @@ func TestRound(t *testing.T) {
 			roundUp:  false,
 			expect:   44.7,
 		},
+		{
+			value:    44.1249875,
+			tickSize: 0.000001,
+			roundUp:  false,
+			expect:   44.124987,
+		},
 	}
 
 	for _, test := range tests {
