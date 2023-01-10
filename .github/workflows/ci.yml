@@ -1,0 +1,72 @@
+name: Go Project CI
+
+concurrency:
+  group: ci-workflow-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - ci
+  pull_request:
+    branches:
+      - "*"
+
+env:
+  SERVICE: tradinglib
+
+jobs:
+  prepare:
+    runs-on: [ubuntu-22.04]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+  lint:
+    name: Run golangci-lint
+    runs-on: [ubuntu-22.04]
+    needs:
+      - prepare
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.19.x"
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.46.2
+          args: --config=.golangci.yml
+          skip-pkg-cache: true
+          skip-build-cache: true
+
+  test:
+    runs-on: [ubuntu-22.04]
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_USER: test
+          POSTGRES_DB: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    needs:
+      - prepare
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.19.x"
+      - name: Run test
+        run: go test -race -v ./...
