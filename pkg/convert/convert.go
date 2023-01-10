@@ -38,11 +38,11 @@ func AddBPS(amount *big.Int, bps int64) *big.Int {
 }
 
 // WeiToFloat ..
-func WeiToFloat(amount *big.Int, decimals int64) (float64, big.Accuracy) {
+func WeiToFloat(amount *big.Int, decimals int64) float64 {
 	amountFloat := big.NewFloat(0).SetInt(amount)
 	amountFloat.Quo(amountFloat, big.NewFloat(0).SetInt(Exp10(decimals)))
-	output, acc := amountFloat.Float64()
-	return output, acc
+	output, _ := amountFloat.Float64()
+	return output
 }
 
 // FloatToWei ...
@@ -69,27 +69,28 @@ func IntToWei(amount int64, decimals int32) *big.Int {
 	return decimal.New(amount, decimals).BigInt()
 }
 
-func RoundUp(value float64, tickSize float64) float64 {
-	places := int32(math.Abs(math.Round(math.Log10(tickSize))))
-	v := decimal.NewFromFloat(value)
-	rec := v.Round(places)
-	if rec.LessThan(v) {
-		rec = rec.Add(decimal.NewFromFloat(tickSize))
+// Round rounds `value` up or down 1 `tickSize`.
+func Round(value float64, tickSize float64, roundUp bool) float64 {
+	tickSizeD := decimal.NewFromFloat(tickSize)
+	valueD := decimal.NewFromFloat(value)
+
+	valueD = valueD.Div(tickSizeD)
+
+	if roundUp {
+		valueD = valueD.Ceil()
+	} else {
+		valueD = valueD.Floor()
 	}
-	r, _ := rec.Float64()
-	return r
+
+	return valueD.Mul(tickSizeD).InexactFloat64()
 }
 
+// RoundUp rounds `value` up 1 `tickSize`.
+func RoundUp(value float64, tickSize float64) float64 {
+	return Round(value, tickSize, true)
+}
+
+// RoundDown rounds `value` down 1 `tickSize`.
 func RoundDown(value float64, tickSize float64) float64 {
-	places := int32(math.Abs(math.Round(math.Log10(tickSize))))
-	v := decimal.NewFromFloat(value)
-	rec := v.Round(places)
-	if rec.GreaterThan(v) {
-		rec = rec.Sub(decimal.NewFromFloat(tickSize))
-		if rec.IsNegative() {
-			rec = decimal.NewFromInt(0)
-		}
-	}
-	r, _ := rec.Float64()
-	return r
+	return Round(value, tickSize, false)
 }
