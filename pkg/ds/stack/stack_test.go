@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestStackTestSuite(t *testing.T) {
+func TestStack(t *testing.T) {
 	testLen := 10
 
 	s := stack.New[int](testLen)
