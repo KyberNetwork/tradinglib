@@ -27,8 +27,12 @@ func (s *Stack[T]) Len() int {
 
 // Peek views the top element of the stack.
 // nolint: ireturn
-func (s *Stack[T]) Peek() T {
-	return s.elems[len(s.elems)-1]
+func (s *Stack[T]) Peek() (elem T, ok bool) {
+	if s.Empty() {
+		return
+	}
+
+	return s.elems[len(s.elems)-1], true
 }
 
 // Push pushes a new element into the stack.
@@ -39,14 +43,14 @@ func (s *Stack[T]) Push(elem T) {
 // Pop pops the top element from the stack.
 // Panic if the stack is empty.
 // nolint: ireturn
-func (s *Stack[T]) Pop() T {
+func (s *Stack[T]) Pop() (elem T, ok bool) {
 	if s.Empty() {
-		panic("pop from an empty stack")
+		return
 	}
 
 	n := s.Len()
-	elem := s.elems[n-1]
+	elem = s.elems[n-1]
 	s.elems = s.elems[:n-1]
 
-	return elem
+	return elem, true
 }
