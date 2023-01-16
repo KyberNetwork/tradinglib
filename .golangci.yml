@@ -19,6 +19,8 @@ linters:
     - nlreturn
     - tagliatelle
     - goerr113
+    - ireturn
+    - nonamedreturns
 linters-settings:
   funlen:
     # Checks the number of lines in a function.
