@@ -59,11 +59,14 @@ func BigIntFromStd(b *big.Int) *BigInt {
 	return (*BigInt)(b)
 }
 
+// ZxBytes is alias of ethereum Bytes, encode/decode with 0x prefix.
+type ZxBytes = hexutil.Bytes
+
 // Bytes is a helper to unmarshal hex encode string (without 0x prefix, ethereum common type require 0x).
 type Bytes []byte
 
 func (b Bytes) MarshalJSON() ([]byte, error) {
-	return strconv.AppendQuote(nil, hexutil.Encode(b)), nil
+	return strconv.AppendQuote(nil, hex.EncodeToString(b)), nil
 }
 
 func (b Bytes) Bytes() []byte {
