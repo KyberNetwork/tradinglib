@@ -6,6 +6,8 @@ import (
 	"math/big"
 	"strconv"
 	"time"
+
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 type APIError struct {
@@ -53,11 +55,15 @@ func (b *BigInt) Int() *big.Int {
 	return (*big.Int)(b)
 }
 
+func BigIntFromStd(b *big.Int) *BigInt {
+	return (*BigInt)(b)
+}
+
 // Bytes is a helper to unmarshal hex encode string (without 0x prefix, ethereum common type require 0x).
 type Bytes []byte
 
 func (b Bytes) MarshalJSON() ([]byte, error) {
-	return strconv.AppendQuote(nil, hex.EncodeToString(b)), nil
+	return strconv.AppendQuote(nil, hexutil.Encode(b)), nil
 }
 
 func (b Bytes) Bytes() []byte {
@@ -83,6 +89,10 @@ func unquote(data []byte) []byte {
 		data = data[1 : len(data)-1]
 	}
 	return data
+}
+
+func BytesFromRaw(b []byte) Bytes {
+	return b
 }
 
 // Duration is a helper type to unmarshal json duration string.
