@@ -38,9 +38,8 @@ func (bt *BookTickerFanOut) Subscribe(symbol string) <-chan binance.WsMarketStat
 		chans = append(chans, c)
 		bt.fanOutMap.Store(symbol, chans)
 		return c
-	} else {
-		bt.fanOutMap.Store(symbol, []chan binance.WsMarketStatEvent{c})
 	}
+	bt.fanOutMap.Store(symbol, []chan binance.WsMarketStatEvent{c})
 
 	added := false
 	for i := range bt.conns {
