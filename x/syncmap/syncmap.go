@@ -1,31 +1,31 @@
-package mutexmap
+package syncmap
 
 import "sync"
 
-type MutexMap[K comparable, V any] struct {
+type SyncMap[K comparable, V any] struct {
 	data map[K]V
 	l    sync.RWMutex
 }
 
-func New[K comparable, V any]() MutexMap[K, V] {
-	return MutexMap[K, V]{
+func New[K comparable, V any]() SyncMap[K, V] {
+	return SyncMap[K, V]{
 		data: make(map[K]V),
 	}
 }
 
-func (m *MutexMap[K, V]) Store(k K, v V) {
+func (m *SyncMap[K, V]) Store(k K, v V) {
 	m.l.Lock()
 	defer m.l.Unlock()
 	m.data[k] = v
 }
 
-func (m *MutexMap[K, V]) Delete(k K) {
+func (m *SyncMap[K, V]) Delete(k K) {
 	m.l.Lock()
 	defer m.l.Unlock()
 	delete(m.data, k)
 }
 
-func (m *MutexMap[K, V]) Apply(k K, fn func(V) (V, error)) (bool, error) {
+func (m *SyncMap[K, V]) Update(k K, fn func(V) (V, error)) (bool, error) {
 	m.l.Lock()
 	defer m.l.Unlock()
 
@@ -44,7 +44,7 @@ func (m *MutexMap[K, V]) Apply(k K, fn func(V) (V, error)) (bool, error) {
 	return true, nil
 }
 
-func (m *MutexMap[K, V]) Load(k K) (v V, ok bool) {
+func (m *SyncMap[K, V]) Load(k K) (v V, ok bool) {
 	m.l.RLock()
 	defer m.l.RUnlock()
 	v, ok = m.data[k]
