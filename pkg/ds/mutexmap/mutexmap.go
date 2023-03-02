@@ -25,6 +25,25 @@ func (m *MutexMap[K, V]) Delete(k K) {
 	delete(m.data, k)
 }
 
+func (m *MutexMap[K, V]) Apply(k K, fn func(V) (V, error)) (bool, error) {
+	m.l.Lock()
+	defer m.l.Unlock()
+
+	v, ok := m.data[k]
+	if !ok {
+		return false, nil
+	}
+
+	appliedV, err := fn(v)
+	if err != nil {
+		return false, err
+	}
+
+	m.data[k] = appliedV
+
+	return true, nil
+}
+
 func (m *MutexMap[K, V]) Load(k K) (v V, ok bool) {
 	m.l.RLock()
 	defer m.l.RUnlock()
