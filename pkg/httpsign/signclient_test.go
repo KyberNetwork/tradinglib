@@ -4,8 +4,10 @@ import (
 	"io"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/KyberNetwork/tradinglib/pkg/httpsign"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -23,4 +25,13 @@ func TestRequest(t *testing.T) {
 	_ = resp.Body.Close()
 	require.NoError(t, err)
 	t.Log(string(out))
+}
+
+func TestOption(t *testing.T) {
+	timeout := time.Second * 3
+
+	client := httpsign.NewClient(
+		http.DefaultTransport, "..", []byte(".."), httpsign.WithTimeout(timeout),
+	)
+	assert.Equal(t, client.Timeout, timeout)
 }
