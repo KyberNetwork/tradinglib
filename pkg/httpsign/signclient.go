@@ -4,10 +4,20 @@ import (
 	"net/http"
 )
 
-func NewClient(transport http.RoundTripper, key string, secret []byte) *http.Client {
-	return &http.Client{
+func NewClient(transport http.RoundTripper, key string, secret []byte, opts ...Option) *http.Client {
+	c := &http.Client{
 		Transport: NewTransport(transport, key, secret),
 	}
+
+	for i := range opts {
+		if opts[i] == nil {
+			continue
+		}
+
+		opts[i](c)
+	}
+
+	return c
 }
 
 func NewTransport(inner http.RoundTripper, key string, secret []byte) HTTPSign {
