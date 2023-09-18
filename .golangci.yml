@@ -21,6 +21,7 @@ linters:
     - goerr113
     - ireturn
     - nonamedreturns
+    - depguard
 linters-settings:
   funlen:
     # Checks the number of lines in a function.

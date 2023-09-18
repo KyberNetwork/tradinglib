@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/KyberNetwork/tradinglib/x/syncmap"
+	"github.com/sourcegraph/conc/pool"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/sync/errgroup"
 )
 
 func TestSyncMap(t *testing.T) {
@@ -27,29 +27,29 @@ func TestSyncMap(t *testing.T) {
 	}
 
 	sm := syncmap.New[string, int]()
-	errGr := errgroup.Group{}
+	p := pool.New().WithErrors()
 
-	errGr.Go(func() error {
+	p.Go(func() error {
 		for i := range tests {
 			sm.Store(tests[i].k, tests[i].v)
 		}
 		return nil
 	})
-	errGr.Go(func() error {
+	p.Go(func() error {
 		for i := range tests {
 			sm.Store(tests[i].k, tests[i].v)
 		}
 		return nil
 	})
-	errGr.Go(func() error {
+	p.Go(func() error {
 		sm.Load(strconv.Itoa(rand.Intn(testRange))) // nolint: gosec
 		return nil
 	})
-	errGr.Go(func() error {
+	p.Go(func() error {
 		sm.Delete(strconv.Itoa(rand.Intn(testRange))) // nolint: gosec
 		return nil
 	})
-	errGr.Go(func() error {
+	p.Go(func() error {
 		for i := range tests {
 			_, err := sm.Update(tests[i].k, func(v int) (int, error) {
 				if v < 5 {
@@ -61,5 +61,5 @@ func TestSyncMap(t *testing.T) {
 		}
 		return nil
 	})
-	_ = errGr.Wait()
+	_ = p.Wait()
 }
