@@ -1,20 +1,20 @@
 package queue
 
-// QueueIter is not concurrent safe, use with care ^^.
-type QueueIter[T any] struct {
+// Iterator is not concurrent safe, use with care ^^.
+type Iterator[T any] struct {
 	queue *Queue[T]
 	curr  *Node[T]
 	start bool
 }
 
-func NewIter[T any](q *Queue[T]) *QueueIter[T] {
-	return &QueueIter[T]{
+func NewIter[T any](q *Queue[T]) *Iterator[T] {
+	return &Iterator[T]{
 		queue: q,
 		curr:  nil,
 	}
 }
 
-func (i *QueueIter[T]) Val() (T, bool) {
+func (i *Iterator[T]) Val() (T, bool) {
 	var t T
 	if i.curr == nil {
 		return t, false
@@ -23,7 +23,7 @@ func (i *QueueIter[T]) Val() (T, bool) {
 	return i.curr.value, true
 }
 
-func (i *QueueIter[T]) Next() bool {
+func (i *Iterator[T]) Next() bool {
 	if !i.start {
 		i.start = true
 		i.curr = i.queue.head
@@ -38,7 +38,7 @@ func (i *QueueIter[T]) Next() bool {
 	return true
 }
 
-func (i *QueueIter[T]) RemoveCurrent() {
+func (i *Iterator[T]) RemoveCurrent() {
 	// 0 node
 	if i.curr == nil {
 		return
@@ -52,6 +52,7 @@ func (i *QueueIter[T]) RemoveCurrent() {
 	}
 
 	tmp := i.curr
+	i.curr = i.curr.before
 	if tmp == i.queue.head {
 		i.queue.PopFront()
 		return
@@ -68,7 +69,7 @@ func (i *QueueIter[T]) RemoveCurrent() {
 	}
 }
 
-func (i *QueueIter[T]) Reset() {
+func (i *Iterator[T]) Reset() {
 	i.curr = nil
 	i.start = false
 }

@@ -43,6 +43,7 @@ func TestQueueIterRemoveEven(t *testing.T) {
 	collect := make([]int, 0)
 	for iter.Next() {
 		v, _ := iter.Val()
+		t.Log(v)
 		if v%2 == 0 {
 			iter.RemoveCurrent()
 		}
@@ -128,4 +129,28 @@ func TestQueueIterRemove456(t *testing.T) {
 	}
 
 	assert.Equal(t, testVals, collect)
+}
+
+func TestQueueIterRemove1Node(t *testing.T) {
+	q := queue.New[int]()
+	q.PushBack(1)
+	iter := queue.NewIter[int](q)
+	for iter.Next() {
+		iter.RemoveCurrent()
+	}
+
+	iter.Reset()
+	collect := make([]int, 0)
+	for iter.Next() {
+		v, ok := iter.Val()
+		if !ok {
+			continue
+		}
+		collect = append(collect, v)
+	}
+
+	assert.Equal(t, 0, len(collect))
+
+	iter.RemoveCurrent()
+	assert.False(t, iter.Next())
 }
