@@ -54,7 +54,7 @@ func (q Query) url() url.Values {
 	return (url.Values)(q)
 }
 
-func (q Query) setString(key, value string, options []string) Query {
+func (q Query) setString(key, value string, options []string) Query { //nolint: unparam
 	if value == "" && isOmitEmpty(options) {
 		return q
 	}

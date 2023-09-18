@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var vals = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+var vals = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10} //nolint: gochecknoglobals
 
 func TestPushBack(t *testing.T) {
 	q := queue.New[int]()
