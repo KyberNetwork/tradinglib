@@ -21,6 +21,9 @@ linters:
     - goerr113
     - ireturn
     - nonamedreturns
+    - depguard
+    - noctx 
+    - structcheck # it shows elems in stack pkg is unused, but it is used :D
 linters-settings:
   funlen:
     # Checks the number of lines in a function.
