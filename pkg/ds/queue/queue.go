@@ -21,38 +21,40 @@ func New[T any]() *Queue[T] {
 }
 
 func (q *Queue[T]) PushBack(val T) {
-	q.size++
 	node := &Node[T]{
 		value: val,
 		next:  nil,
 		prev:  nil,
 	}
 
-	if q.head == nil {
+	if q.IsEmpty() {
+		q.size++
 		q.head = node
 		q.tail = node
 		return
 	}
 
+	q.size++
 	node.prev = q.tail
 	q.tail.next = node
 	q.tail = node
 }
 
 func (q *Queue[T]) PushFront(val T) {
-	q.size++
 	node := &Node[T]{
 		value: val,
 		next:  nil,
 		prev:  nil,
 	}
 
-	if q.head == nil {
+	if q.IsEmpty() {
+		q.size++
 		q.head = node
 		q.tail = node
 		return
 	}
 
+	q.size++
 	node.next = q.head
 	q.head.prev = node
 	q.head = node
@@ -61,15 +63,13 @@ func (q *Queue[T]) PushFront(val T) {
 func (q *Queue[T]) PopBack() (T, bool) {
 	var t T
 
-	// 0 node
-	if q.tail == nil {
+	if q.IsEmpty() {
 		return t, false
 	}
 
 	q.size--
 	t = q.tail.value
-	// only 1 node
-	if q.tail == q.head {
+	if q.size == 1 {
 		q.tail = nil
 		q.head = nil
 		return t, true
@@ -86,15 +86,13 @@ func (q *Queue[T]) PopBack() (T, bool) {
 func (q *Queue[T]) PopFront() (T, bool) {
 	var t T
 
-	// 0 node
-	if q.head == nil {
+	if q.IsEmpty() {
 		return t, false
 	}
 
 	q.size--
 	t = q.head.value
-	// only 1 node
-	if q.tail == q.head {
+	if q.size == 1 {
 		q.tail = nil
 		q.head = nil
 		return t, true
@@ -110,8 +108,8 @@ func (q *Queue[T]) PopFront() (T, bool) {
 
 func (q *Queue[T]) PeekBack() (T, bool) {
 	var t T
-	// 0 node
-	if q.tail == nil {
+
+	if q.IsEmpty() {
 		return t, false
 	}
 
@@ -121,8 +119,8 @@ func (q *Queue[T]) PeekBack() (T, bool) {
 
 func (q *Queue[T]) PeekFront() (T, bool) {
 	var t T
-	// 0 node
-	if q.head == nil {
+
+	if q.IsEmpty() {
 		return t, false
 	}
 
@@ -135,7 +133,7 @@ func (q *Queue[T]) List() []T {
 		return nil
 	}
 
-	var vals []T
+	vals := make([]T, 0, q.size)
 
 	curr := q.head
 	for curr != nil {
