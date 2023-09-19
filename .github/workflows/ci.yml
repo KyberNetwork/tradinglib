@@ -19,13 +19,13 @@ env:
 
 jobs:
   prepare:
-    runs-on: [linux, self-host]
+    runs-on: [ubuntu-22.04, self-host]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
   lint:
     name: Run golangci-lint
-    runs-on: [linux, self-host]
+    runs-on: [ubuntu-22.04, self-host]
     needs:
       - prepare
     steps:
@@ -44,7 +44,7 @@ jobs:
           skip-build-cache: true
 
   test:
-    runs-on: [linux, self-host]
+    runs-on: [ubuntu-22.04, self-host]
     services:
       postgres:
         image: postgres:14-alpine
