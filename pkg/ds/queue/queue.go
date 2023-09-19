@@ -129,7 +129,7 @@ func (q *Queue[T]) PeekFront() (T, bool) {
 }
 
 func (q *Queue[T]) List() []T {
-	if q.head == nil {
+	if q.IsEmpty() {
 		return nil
 	}
 
