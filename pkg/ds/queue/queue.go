@@ -67,14 +67,15 @@ func (q *Queue[T]) PopBack() (T, bool) {
 		return t, false
 	}
 
-	q.size--
 	t = q.tail.value
 	if q.size == 1 {
+		q.size--
 		q.tail = nil
 		q.head = nil
 		return t, true
 	}
 
+	q.size--
 	if q.tail.prev != nil {
 		q.tail.prev.next = nil
 	}
@@ -90,14 +91,15 @@ func (q *Queue[T]) PopFront() (T, bool) {
 		return t, false
 	}
 
-	q.size--
 	t = q.head.value
 	if q.size == 1 {
+		q.size--
 		q.tail = nil
 		q.head = nil
 		return t, true
 	}
 
+	q.size--
 	if q.head.next != nil {
 		q.head.next.prev = nil
 	}
