@@ -9,16 +9,19 @@ type Node[T any] struct {
 type Queue[T any] struct {
 	head *Node[T]
 	tail *Node[T]
+	size uint
 }
 
 func New[T any]() *Queue[T] {
 	return &Queue[T]{
 		head: nil,
 		tail: nil,
+		size: 0,
 	}
 }
 
 func (q *Queue[T]) PushBack(val T) {
+	q.size++
 	node := &Node[T]{
 		value:  val,
 		next:   nil,
@@ -37,6 +40,7 @@ func (q *Queue[T]) PushBack(val T) {
 }
 
 func (q *Queue[T]) PushFront(val T) {
+	q.size++
 	node := &Node[T]{
 		value:  val,
 		next:   nil,
@@ -62,6 +66,7 @@ func (q *Queue[T]) PopBack() (T, bool) {
 		return t, false
 	}
 
+	q.size--
 	t = q.tail.value
 	// only 1 node
 	if q.tail == q.head {
@@ -86,6 +91,7 @@ func (q *Queue[T]) PopFront() (T, bool) {
 		return t, false
 	}
 
+	q.size--
 	t = q.head.value
 	// only 1 node
 	if q.tail == q.head {
@@ -99,6 +105,28 @@ func (q *Queue[T]) PopFront() (T, bool) {
 	}
 	q.head = q.head.next
 
+	return t, true
+}
+
+func (q *Queue[T]) PeekBack() (T, bool) {
+	var t T
+	// 0 node
+	if q.tail == nil {
+		return t, false
+	}
+
+	t = q.tail.value
+	return t, true
+}
+
+func (q *Queue[T]) PeekFront() (T, bool) {
+	var t T
+	// 0 node
+	if q.head == nil {
+		return t, false
+	}
+
+	t = q.head.value
 	return t, true
 }
 
@@ -116,4 +144,12 @@ func (q *Queue[T]) List() []T {
 	}
 
 	return vals
+}
+
+func (q *Queue[T]) IsEmpty() bool {
+	return q.size == 0
+}
+
+func (q *Queue[T]) Size() uint {
+	return q.size
 }
