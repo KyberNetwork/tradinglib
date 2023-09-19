@@ -1,9 +1,9 @@
 package queue
 
 type Node[T any] struct {
-	value  T
-	next   *Node[T]
-	before *Node[T]
+	value T
+	next  *Node[T]
+	prev  *Node[T]
 }
 
 type Queue[T any] struct {
@@ -23,9 +23,9 @@ func New[T any]() *Queue[T] {
 func (q *Queue[T]) PushBack(val T) {
 	q.size++
 	node := &Node[T]{
-		value:  val,
-		next:   nil,
-		before: nil,
+		value: val,
+		next:  nil,
+		prev:  nil,
 	}
 
 	if q.head == nil {
@@ -34,7 +34,7 @@ func (q *Queue[T]) PushBack(val T) {
 		return
 	}
 
-	node.before = q.tail
+	node.prev = q.tail
 	q.tail.next = node
 	q.tail = node
 }
@@ -42,9 +42,9 @@ func (q *Queue[T]) PushBack(val T) {
 func (q *Queue[T]) PushFront(val T) {
 	q.size++
 	node := &Node[T]{
-		value:  val,
-		next:   nil,
-		before: nil,
+		value: val,
+		next:  nil,
+		prev:  nil,
 	}
 
 	if q.head == nil {
@@ -54,7 +54,7 @@ func (q *Queue[T]) PushFront(val T) {
 	}
 
 	node.next = q.head
-	q.head.before = node
+	q.head.prev = node
 	q.head = node
 }
 
@@ -75,10 +75,10 @@ func (q *Queue[T]) PopBack() (T, bool) {
 		return t, true
 	}
 
-	if q.tail.before != nil {
-		q.tail.before.next = nil
+	if q.tail.prev != nil {
+		q.tail.prev.next = nil
 	}
-	q.tail = q.tail.before
+	q.tail = q.tail.prev
 
 	return t, true
 }
@@ -101,7 +101,7 @@ func (q *Queue[T]) PopFront() (T, bool) {
 	}
 
 	if q.head.next != nil {
-		q.head.next.before = nil
+		q.head.next.prev = nil
 	}
 	q.head = q.head.next
 
