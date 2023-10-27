@@ -1,0 +1,1 @@
+abigen --abi=abi.json --pkg=paraswap --out=paraswap.go -type OrderFilled

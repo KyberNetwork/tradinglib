@@ -1,0 +1,1 @@
+abigen --abi=abi.json --pkg=zxotc --out=zxotc.go -type OtcOrderFilled

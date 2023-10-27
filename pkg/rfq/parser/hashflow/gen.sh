@@ -1,0 +1,1 @@
+abigen --abi=abi.json --pkg=hashflow --out=hashflow.go -type Hashflow

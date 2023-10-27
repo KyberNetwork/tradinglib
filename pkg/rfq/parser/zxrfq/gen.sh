@@ -1,0 +1,1 @@
+abigen --abi=abi.json --pkg=zxrfq --out=zxrfq.go -type RfqOrderFilled

@@ -1,0 +1,1 @@
+abigen --abi=abi.json --pkg=kyberswap --out=kyberswap.go -type Swapped
