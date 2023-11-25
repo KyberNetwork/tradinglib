@@ -2,6 +2,7 @@ package convert
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"math/big"
 
@@ -9,7 +10,10 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-var ErrMaxExponent = errors.New("reach max exponent")
+var (
+	ErrMaxExponent   = errors.New("reach max exponent")
+	ErrInvalidNumber = errors.New("number is not valid")
+)
 
 const (
 	maxBPS = 10000
@@ -47,6 +51,10 @@ func WeiToFloat(amount *big.Int, decimals int64) float64 {
 
 // FloatToWei ...
 func FloatToWei(amount float64, decimals int64) (*big.Int, error) {
+	if math.IsNaN(amount) || math.IsInf(amount, 0) {
+		return nil, fmt.Errorf("%w: %f", ErrInvalidNumber, amount)
+	}
+
 	if decimals > math.MaxInt32 {
 		return nil, ErrMaxExponent
 	}

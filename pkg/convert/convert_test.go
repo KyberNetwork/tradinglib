@@ -108,6 +108,16 @@ func TestFloatToWei(t *testing.T) {
 			decimals:  0xfffffffff,
 			expectErr: convert.ErrMaxExponent,
 		},
+		{
+			amount:    math.Inf(0),
+			decimals:  18,
+			expectErr: convert.ErrInvalidNumber,
+		},
+		{
+			amount:    math.NaN(),
+			decimals:  18,
+			expectErr: convert.ErrInvalidNumber,
+		},
 	}
 
 	for _, test := range tests {
