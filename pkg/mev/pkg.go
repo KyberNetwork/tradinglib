@@ -2,6 +2,7 @@ package mev
 
 import (
 	"bytes"
+	"context"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -18,6 +19,20 @@ const (
 	ETHSendBundleMethod         = "eth_sendBundle"
 )
 
+type IBundleSender interface {
+	SendBundle(ctx context.Context, blockNumber uint64, tx ...*types.Transaction) (SendBundleResponse, error)
+}
+
+var (
+	_ IBundleSender = &Client{}
+	_ IBundleSender = &BloxrouteClient{}
+)
+
+var defaultHeaders = [][2]string{ // nolint: gochecknoglobals
+	{"Content-Type", "application/json"},
+	{"Accept", "application/json"},
+}
+
 func txToRlp(tx *types.Transaction) string {
 	var buff bytes.Buffer
 	_ = tx.EncodeRLP(&buff)
@@ -33,9 +48,15 @@ func txToRlp(tx *types.Transaction) string {
 	return rlp
 }
 
-func doRequest[T any](c *http.Client, req *http.Request) (T, error) {
+func doRequest[T any](c *http.Client, req *http.Request, headers ...[2]string) (T, error) {
 	var t T
 
+	for _, h := range defaultHeaders {
+		req.Header.Add(h[0], h[1])
+	}
+	for _, h := range headers {
+		req.Header.Add(h[0], h[1])
+	}
 	httpResp, err := c.Do(req)
 	if err != nil {
 		return t, fmt.Errorf("do request error: %w", err)

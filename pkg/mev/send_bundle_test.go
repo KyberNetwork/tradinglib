@@ -17,7 +17,7 @@ import (
 func TestSendBundle(t *testing.T) {
 	t.Skip()
 	var (
-		rawKey         = "..."
+		rawKey         = "...."
 		endpoint       = "https://relay-sepolia.flashbots.net"
 		ctx            = context.Background()
 		client         = http.DefaultClient
@@ -55,12 +55,9 @@ func TestSendBundle(t *testing.T) {
 
 	t.Log("new tx", signedTx.Hash().String())
 
-	param := new(mev.SendBundleParams).
-		SetTransactions(signedTx).
-		SetBlockNumber(blockNumber + 12)
-
-	resp, err := mev.SendBundle(ctx, client, endpoint, param, mev.WithFlashbotSignature(privateKey))
-	require.NoError(t, err)
+	sender := mev.NewClient(client, endpoint, privateKey)
+	resp, err := sender.SendBundle(ctx, blockNumber+12, signedTx)
+	require.NoError(t, err) // sepolia: code: [-32000], message: [internal server error]
 
 	t.Log("send bundle response", resp)
 }

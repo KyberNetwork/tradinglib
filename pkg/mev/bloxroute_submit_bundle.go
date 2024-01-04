@@ -14,69 +14,76 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-type Builder string
+type BlxrBuilder string
 
 const (
-	BuilderBloxroute    Builder = "bloxroute"
-	BuilderFlashbot     Builder = "flashbots"
-	BuilderBeaverBuild  Builder = "beaverbuild"
-	BuilderRsyncBuilder Builder = "rsync-builder"
-	BuilderAll          Builder = "all"
+	BuilderBloxroute    BlxrBuilder = "bloxroute"
+	BuilderFlashbot     BlxrBuilder = "flashbots"
+	BuilderBeaverBuild  BlxrBuilder = "beaverbuild"
+	BuilderRsyncBuilder BlxrBuilder = "rsync-builder"
+	BuilderAll          BlxrBuilder = "all"
 )
 
-// BloxrouteSubmitBundle https://docs.bloxroute.com/apis/mev-solution/bundle-submission
-func BloxrouteSubmitBundle( // nolint: cyclop
-	ctx context.Context, c *http.Client, auth, endpoint string,
-	param *BLXRSubmitBundleParams, options ...BloxrouteSubmitBundleOption,
+type BloxrouteClient struct {
+	c               *http.Client
+	endpoint        string
+	auth            string
+	flashbotKey     *ecdsa.PrivateKey
+	enabledBuilders []BlxrBuilder
+}
+
+// NewBloxrouteClient set flashbotKey to nil if you don't want to send to flashbot builders
+// With BuilderAll still need to add the flashbot key & the flashbot builder separately
+// https://docs.bloxroute.com/apis/mev-solution/bundle-submission
+func NewBloxrouteClient(
+	c *http.Client,
+	endpoint, auth string,
+	flashbotKey *ecdsa.PrivateKey,
+	enabledBuilders ...BlxrBuilder,
+) *BloxrouteClient {
+	return &BloxrouteClient{
+		c:               c,
+		endpoint:        endpoint,
+		auth:            auth,
+		flashbotKey:     flashbotKey,
+		enabledBuilders: enabledBuilders,
+	}
+}
+
+func (s *BloxrouteClient) SendBundle(
+	ctx context.Context, blockNumber uint64, txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
-	var opts blxrSubmitBundleOptions
-	for _, fn := range options {
-		if fn == nil {
+	p := new(BLXRSubmitBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...)
+
+	mevBuilders := make(map[BlxrBuilder]string)
+	for _, b := range s.enabledBuilders {
+		if b == BuilderFlashbot && s.flashbotKey != nil {
+			sig, err := bloxrouteSignFlashbot(s.flashbotKey, p)
+			if err != nil {
+				return SendBundleResponse{}, fmt.Errorf("sign flashbot error: %w", err)
+			}
+			mevBuilders[BuilderFlashbot] = sig
 			continue
 		}
-		fn(&opts)
+		mevBuilders[b] = ""
 	}
 
-	mevBuilders := make(map[Builder]string)
-	if opts.builderBloxroute {
-		mevBuilders[BuilderBloxroute] = ""
-	}
-	if opts.builderFlashbot != nil {
-		sig, err := bloxrouteSignFlashbot(opts.builderFlashbot, param)
-		if err != nil {
-			return SendBundleResponse{}, fmt.Errorf("sign flashbot error: %w", err)
-		}
-		mevBuilders[BuilderFlashbot] = sig
-	}
-	if opts.builderBeaverBuild {
-		mevBuilders[BuilderBeaverBuild] = ""
-	}
-	if opts.builderRsyncBuilder {
-		mevBuilders[BuilderRsyncBuilder] = ""
-	}
-	if opts.builderAll {
-		mevBuilders[BuilderAll] = ""
-	}
-	param.MevBuilders = mevBuilders
-
+	p.MEVBuilders = mevBuilders
 	req := BLXRSubmitBundleRequest{
 		ID:     strconv.Itoa(SendBundleID),
 		Method: BloxrouteSubmitBundleMethod,
-		Params: param,
+		Params: p,
 	}
 	reqBody, err := json.Marshal(req)
 	if err != nil {
 		return SendBundleResponse{}, fmt.Errorf("marshal json error: %w", err)
 	}
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBuffer(reqBody))
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, s.endpoint, bytes.NewBuffer(reqBody))
 	if err != nil {
 		return SendBundleResponse{}, fmt.Errorf("new http request error: %w", err)
 	}
-	httpReq.Header.Add("Authorization", auth)
-	httpReq.Header.Add("Content-Type", "application/json")
-	httpReq.Header.Add("Accept", "application/json")
 
-	resp, err := doRequest[SendBundleResponse](c, httpReq)
+	resp, err := doRequest[SendBundleResponse](s.c, httpReq, [2]string{"Authorization", s.auth})
 	if err != nil {
 		return SendBundleResponse{}, err
 	}
@@ -89,47 +96,6 @@ func BloxrouteSubmitBundle( // nolint: cyclop
 	return resp, nil
 }
 
-type blxrSubmitBundleOptions struct {
-	builderBloxroute    bool
-	builderFlashbot     *ecdsa.PrivateKey
-	builderBeaverBuild  bool
-	builderRsyncBuilder bool
-	builderAll          bool
-}
-
-type BloxrouteSubmitBundleOption func(*blxrSubmitBundleOptions)
-
-func WithBuilderBloxroute() BloxrouteSubmitBundleOption {
-	return func(bsbo *blxrSubmitBundleOptions) {
-		bsbo.builderBloxroute = true
-	}
-}
-
-func WithBuilderFlashbot(key *ecdsa.PrivateKey) BloxrouteSubmitBundleOption {
-	return func(bsbo *blxrSubmitBundleOptions) {
-		bsbo.builderFlashbot = key
-	}
-}
-
-func WithBuilderBeaverBuild() BloxrouteSubmitBundleOption {
-	return func(bsbo *blxrSubmitBundleOptions) {
-		bsbo.builderBeaverBuild = true
-	}
-}
-
-func WithBuilderRsyncBuilder() BloxrouteSubmitBundleOption {
-	return func(bsbo *blxrSubmitBundleOptions) {
-		bsbo.builderRsyncBuilder = true
-	}
-}
-
-// WithBuilderAll still need to use the WithBuilderFlashbot to submit to flashbots.
-func WithBuilderAll() BloxrouteSubmitBundleOption {
-	return func(bsbo *blxrSubmitBundleOptions) {
-		bsbo.builderAll = true
-	}
-}
-
 type BLXRSubmitBundleRequest struct {
 	ID     string                  `json:"id,omitempty"`
 	Method string                  `json:"method,omitempty"`
@@ -137,13 +103,13 @@ type BLXRSubmitBundleRequest struct {
 }
 
 type BLXRSubmitBundleParams struct {
-	Transaction     []string           `json:"transaction,omitempty"`
-	BlockNumber     string             `json:"block_number,omitempty"`
-	MinTimestamp    *uint64            `json:"min_timestamp,omitempty"`
-	MaxTimestamp    *uint64            `json:"max_timestamp,omitempty"`
-	RevertingHashes *[]string          `json:"reverting_hashes,omitempty"`
-	UUID            string             `json:"uuid,omitempty"`
-	MevBuilders     map[Builder]string `json:"mev_builders,omitempty"`
+	Transaction     []string               `json:"transaction,omitempty"`
+	BlockNumber     string                 `json:"block_number,omitempty"`
+	MinTimestamp    *uint64                `json:"min_timestamp,omitempty"`
+	MaxTimestamp    *uint64                `json:"max_timestamp,omitempty"`
+	RevertingHashes *[]string              `json:"reverting_hashes,omitempty"`
+	UUID            string                 `json:"uuid,omitempty"`
+	MEVBuilders     map[BlxrBuilder]string `json:"mev_builders,omitempty"`
 }
 
 func (p *BLXRSubmitBundleParams) SetTransactions(txs ...*types.Transaction) *BLXRSubmitBundleParams {

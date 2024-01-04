@@ -14,54 +14,57 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-// SendBundle https://docs.flashbots.net/flashbots-auction/advanced/rpc-endpoint#eth_sendbundle,
-// https://beaverbuild.org/docs.html, https://rsync-builder.xyz/docs
-func SendBundle( // nolint: cyclop
-	ctx context.Context, c *http.Client, endpoint string, param *SendBundleParams, options ...SendBundleOption,
-) (SendBundleResponse, error) {
-	var opts sendBundleOpts
-	for _, fn := range options {
-		if fn == nil {
-			continue
-		}
-		fn(&opts)
-	}
+// Client https://beaverbuild.org/docs.html; https://rsync-builder.xyz/docs;
+// https://docs.flashbots.net/flashbots-auction/advanced/rpc-endpoint#eth_sendbundle
+type Client struct {
+	c           *http.Client
+	endpoint    string
+	flashbotKey *ecdsa.PrivateKey
+}
 
+// NewClient set the flashbotKey to nil will skip adding the signature header.
+func NewClient(c *http.Client, endpoint string, flashbotKey *ecdsa.PrivateKey) *Client {
+	return &Client{
+		c:           c,
+		endpoint:    endpoint,
+		flashbotKey: flashbotKey,
+	}
+}
+
+func (s *Client) SendBundle(
+	ctx context.Context, blockNumber uint64, txs ...*types.Transaction,
+) (SendBundleResponse, error) {
 	req := SendBundleRequest{
 		ID:      SendBundleID,
 		JSONRPC: JSONRPC2,
 		Method:  ETHSendBundleMethod,
 	}
-	req.Params = append(req.Params, param)
+	p := new(SendBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...)
+	req.Params = append(req.Params, p)
 
 	reqBody, err := json.Marshal(req)
 	if err != nil {
 		return SendBundleResponse{}, fmt.Errorf("marshal json error: %w", err)
 	}
 
-	headers := make(map[string]string)
-	if opts.flashbotSignKey != nil {
-		signature, err := signRequest(opts.flashbotSignKey, reqBody)
+	var headers [][2]string
+	if s.flashbotKey != nil {
+		signature, err := signRequest(s.flashbotKey, reqBody)
 		if err != nil {
 			return SendBundleResponse{}, fmt.Errorf("sign flashbot request error: %w", err)
 		}
+		flashbotSig := fmt.Sprintf("%s:%s",
+			crypto.PubkeyToAddress(s.flashbotKey.PublicKey), hexutil.Encode(signature))
 
-		// for flashbot only
-		headers["X-Flashbots-Signature"] = fmt.Sprintf("%s:%s",
-			crypto.PubkeyToAddress(opts.flashbotSignKey.PublicKey), hexutil.Encode(signature))
+		headers = append(headers, [2]string{"X-Flashbots-Signature", flashbotSig})
 	}
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBuffer(reqBody))
+
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, s.endpoint, bytes.NewBuffer(reqBody))
 	if err != nil {
 		return SendBundleResponse{}, fmt.Errorf("new http request error: %w", err)
 	}
 
-	for k, v := range headers {
-		httpReq.Header.Add(k, v)
-	}
-	httpReq.Header.Add("Content-Type", "application/json")
-	httpReq.Header.Add("Accept", "application/json")
-
-	resp, err := doRequest[SendBundleResponse](c, httpReq)
+	resp, err := doRequest[SendBundleResponse](s.c, httpReq, headers...)
 	if err != nil {
 		return SendBundleResponse{}, err
 	}
@@ -82,22 +85,6 @@ func signRequest(key *ecdsa.PrivateKey, body []byte) ([]byte, error) {
 	}
 
 	return signature, nil
-}
-
-type sendBundleOpts struct {
-	flashbotSignKey *ecdsa.PrivateKey
-}
-
-type SendBundleOption func(*sendBundleOpts)
-
-func WithFlashbotSignature(key *ecdsa.PrivateKey) SendBundleOption {
-	return func(sbo *sendBundleOpts) {
-		if key == nil {
-			return
-		}
-
-		sbo.flashbotSignKey = key
-	}
 }
 
 type SendBundleRequest struct {
