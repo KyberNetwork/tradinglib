@@ -2,6 +2,7 @@ package mev_test
 
 import (
 	"context"
+	"encoding/json"
 	"math/big"
 	"net/http"
 	"testing"
@@ -60,4 +61,15 @@ func TestSendBundle(t *testing.T) {
 	require.NoError(t, err) // sepolia: code: [-32000], message: [internal server error]
 
 	t.Log("send bundle response", resp)
+}
+
+func TestUnmarshal(t *testing.T) {
+	var (
+		data = "{\"id\":\"1\",\"result\":{\"bundleHash\":\"0xe0e0592348830d57fac820a6bec9fdbf0ac20a2b503351c63217cf8c274b70a8\"},\"jsonrpc\":\"2.0\"}\n" // nolint:lll
+		resp mev.SendBundleResponse
+	)
+
+	require.NoError(t, json.Unmarshal([]byte(data), &resp))
+
+	t.Logf("%+v", resp)
 }
