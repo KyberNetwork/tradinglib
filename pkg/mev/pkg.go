@@ -82,7 +82,7 @@ func doRequest[T any](c *http.Client, req *http.Request, headers ...[2]string) (
 
 type SendBundleResponse struct {
 	Jsonrpc string           `json:"jsonrpc,omitempty"`
-	ID      int              `json:"id,omitempty"`
+	ID      int              `json:"id,string,omitempty"`
 	Result  SendBundleResult `json:"result,omitempty"`
 	Error   SendBundbleError `json:"error,omitempty"`
 }
