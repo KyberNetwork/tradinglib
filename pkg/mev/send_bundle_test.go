@@ -66,7 +66,7 @@ func TestSendBundle(t *testing.T) {
 func TestUnmarshal(t *testing.T) {
 	var (
 		data = "{\"id\":\"1\",\"result\":{\"bundleHash\":\"0xe0e0592348830d57fac820a6bec9fdbf0ac20a2b503351c63217cf8c274b70a8\"},\"jsonrpc\":\"2.0\"}\n" // nolint:lll
-		resp mev.SendBundleResponse
+		resp mev.BLXRSubmitBundleResponse
 	)
 
 	require.NoError(t, json.Unmarshal([]byte(data), &resp))

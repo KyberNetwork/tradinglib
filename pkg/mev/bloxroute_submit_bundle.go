@@ -83,7 +83,7 @@ func (s *BloxrouteClient) SendBundle(
 		return SendBundleResponse{}, fmt.Errorf("new http request error: %w", err)
 	}
 
-	resp, err := doRequest[SendBundleResponse](s.c, httpReq, [2]string{"Authorization", s.auth})
+	resp, err := doRequest[BLXRSubmitBundleResponse](s.c, httpReq, [2]string{"Authorization", s.auth})
 	if err != nil {
 		return SendBundleResponse{}, err
 	}
@@ -93,7 +93,7 @@ func (s *BloxrouteClient) SendBundle(
 			resp.Error.Code, resp.Error.Messange)
 	}
 
-	return resp, nil
+	return SendBundleResponse(resp), nil
 }
 
 type BLXRSubmitBundleRequest struct {
@@ -127,6 +127,13 @@ func (p *BLXRSubmitBundleParams) SetBlockNumber(block uint64) *BLXRSubmitBundleP
 	p.BlockNumber = fmt.Sprintf("0x%x", block)
 
 	return p
+}
+
+type BLXRSubmitBundleResponse struct {
+	Jsonrpc string           `json:"jsonrpc,omitempty"`
+	ID      int              `json:"id,string,omitempty"`
+	Result  SendBundleResult `json:"result,omitempty"`
+	Error   SendBundbleError `json:"error,omitempty"`
 }
 
 func bloxrouteSignFlashbot(key *ecdsa.PrivateKey, p *BLXRSubmitBundleParams) (string, error) {
