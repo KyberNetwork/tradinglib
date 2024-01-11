@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	github.com/ethereum/go-ethereum v1.13.1
+	github.com/google/uuid v1.3.0
 	github.com/shopspring/decimal v1.3.1
 	github.com/sourcegraph/conc v0.3.0
 	github.com/stretchr/testify v1.8.1

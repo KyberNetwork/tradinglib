@@ -9,9 +9,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
 )
 
 type BlxrBuilder string
@@ -51,9 +49,15 @@ func NewBloxrouteClient(
 }
 
 func (s *BloxrouteClient) SendBundle(
-	ctx context.Context, blockNumber uint64, txs ...*types.Transaction,
+	ctx context.Context,
+	uuid *string,
+	blockNumber uint64,
+	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
 	p := new(BLXRSubmitBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...)
+	if uuid != nil {
+		p.SetUUID(*uuid)
+	}
 
 	mevBuilders := make(map[BlxrBuilder]string)
 	for _, b := range s.enabledBuilders {
@@ -96,6 +100,17 @@ func (s *BloxrouteClient) SendBundle(
 	return SendBundleResponse(resp), nil
 }
 
+func (s *BloxrouteClient) CancelBundle(
+	ctx context.Context, bundleUUID string,
+) error {
+	_, err := s.SendBundle(ctx, &bundleUUID, 0)
+	if err != nil {
+		return fmt.Errorf("cancel by send bundle error: %w", err)
+	}
+
+	return nil
+}
+
 type BLXRSubmitBundleRequest struct {
 	ID     string                  `json:"id,omitempty"`
 	Method string                  `json:"method,omitempty"`
@@ -113,6 +128,10 @@ type BLXRSubmitBundleParams struct {
 }
 
 func (p *BLXRSubmitBundleParams) SetTransactions(txs ...*types.Transaction) *BLXRSubmitBundleParams {
+	if len(txs) == 0 {
+		return p
+	}
+
 	transactions := make([]string, 0, len(txs))
 	for _, tx := range txs {
 		transactions = append(transactions, "0x"+txToRlp(tx))
@@ -124,7 +143,17 @@ func (p *BLXRSubmitBundleParams) SetTransactions(txs ...*types.Transaction) *BLX
 }
 
 func (p *BLXRSubmitBundleParams) SetBlockNumber(block uint64) *BLXRSubmitBundleParams {
+	if block == 0 {
+		return p
+	}
+
 	p.BlockNumber = fmt.Sprintf("0x%x", block)
+
+	return p
+}
+
+func (p *BLXRSubmitBundleParams) SetUUID(uuid string) *BLXRSubmitBundleParams {
+	p.UUID = uuid
 
 	return p
 }
@@ -156,12 +185,10 @@ func bloxrouteSignFlashbot(key *ecdsa.PrivateKey, p *BLXRSubmitBundleParams) (st
 		return "", fmt.Errorf("marshal json error: %w", err)
 	}
 
-	signature, err := signRequest(key, reqBody)
+	signature, err := requestSignature(key, reqBody)
 	if err != nil {
 		return "", fmt.Errorf("sign request error: %w", err)
 	}
 
-	sig := fmt.Sprintf("%s:%s", crypto.PubkeyToAddress(key.PublicKey), hexutil.Encode(signature))
-
-	return sig, nil
+	return signature, nil
 }

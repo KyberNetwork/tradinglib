@@ -12,6 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -56,11 +57,14 @@ func TestSendBundle(t *testing.T) {
 
 	t.Log("new tx", signedTx.Hash().String())
 
-	sender := mev.NewClient(client, endpoint, privateKey)
-	resp, err := sender.SendBundle(ctx, blockNumber+12, signedTx)
-	require.NoError(t, err) // sepolia: code: [-32000], message: [internal server error]
+	uuid := uuid.NewString()
+	sender := mev.NewClient(client, endpoint, privateKey, false)
 
+	resp, err := sender.SendBundle(ctx, &uuid, blockNumber+12, signedTx)
+	require.NoError(t, err) // sepolia: code: [-32000], message: [internal server error]
 	t.Log("send bundle response", resp)
+
+	require.NoError(t, sender.CancelBundle(ctx, uuid))
 }
 
 func TestUnmarshal(t *testing.T) {
