@@ -17,10 +17,19 @@ const (
 	SendBundleID                = 1
 	BloxrouteSubmitBundleMethod = "blxr_submit_bundle"
 	ETHSendBundleMethod         = "eth_sendBundle"
+	ETHCancelBundleMethod       = "eth_cancelBundle"
 )
 
 type IBundleSender interface {
-	SendBundle(ctx context.Context, blockNumber uint64, tx ...*types.Transaction) (SendBundleResponse, error)
+	SendBundle(
+		ctx context.Context,
+		uuid *string,
+		blockNumber uint64,
+		tx ...*types.Transaction,
+	) (SendBundleResponse, error)
+	CancelBundle(
+		ctx context.Context, bundleUUID string,
+	) error
 }
 
 var (
