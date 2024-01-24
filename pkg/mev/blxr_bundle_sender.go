@@ -162,7 +162,7 @@ type BLXRSubmitBundleResponse struct {
 	Jsonrpc string           `json:"jsonrpc,omitempty"`
 	ID      int              `json:"id,string,omitempty"`
 	Result  SendBundleResult `json:"result,omitempty"`
-	Error   SendBundbleError `json:"error,omitempty"`
+	Error   SendBundleError  `json:"error,omitempty"`
 }
 
 func bloxrouteSignFlashbot(key *ecdsa.PrivateKey, p *BLXRSubmitBundleParams) (string, error) {

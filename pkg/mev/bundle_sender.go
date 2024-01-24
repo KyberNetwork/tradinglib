@@ -21,6 +21,7 @@ type Client struct {
 	endpoint           string
 	flashbotKey        *ecdsa.PrivateKey
 	cancelBySendBundle bool
+	senderType         BundleSenderType
 }
 
 // NewClient set the flashbotKey to nil will skip adding the signature header.
@@ -29,12 +30,14 @@ func NewClient(
 	endpoint string,
 	flashbotKey *ecdsa.PrivateKey,
 	cancelBySendBundle bool,
+	senderType BundleSenderType,
 ) *Client {
 	return &Client{
 		c:                  c,
 		endpoint:           endpoint,
 		flashbotKey:        flashbotKey,
 		cancelBySendBundle: cancelBySendBundle,
+		senderType:         senderType,
 	}
 }
 
@@ -44,54 +47,14 @@ func (s *Client) SendBundle(
 	blockNumber uint64,
 	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
-	req := SendBundleRequest{
-		ID:      SendBundleID,
-		JSONRPC: JSONRPC2,
-		Method:  ETHSendBundleMethod,
-	}
-	p := new(SendBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...)
-	if uuid != nil {
-		p.SetUUID(*uuid)
-	}
-	req.Params = append(req.Params, p)
-
-	reqBody, err := json.Marshal(req)
-	if err != nil {
-		return SendBundleResponse{}, fmt.Errorf("marshal json error: %w", err)
-	}
-
-	var headers [][2]string
-	if s.flashbotKey != nil {
-		signature, err := requestSignature(s.flashbotKey, reqBody)
-		if err != nil {
-			return SendBundleResponse{}, fmt.Errorf("sign flashbot request error: %w", err)
-		}
-		headers = append(headers, [2]string{"X-Flashbots-Signature", signature})
-	}
-
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, s.endpoint, bytes.NewBuffer(reqBody))
-	if err != nil {
-		return SendBundleResponse{}, fmt.Errorf("new http request error: %w", err)
-	}
-
-	resp, err := doRequest[SendBundleResponse](s.c, httpReq, headers...)
-	if err != nil {
-		return SendBundleResponse{}, err
-	}
-
-	if len(resp.Error.Messange) != 0 {
-		return SendBundleResponse{}, fmt.Errorf("response error, code: [%d], message: [%s]",
-			resp.Error.Code, resp.Error.Messange)
-	}
-
-	return resp, nil
+	return s.sendBundle(ctx, false, uuid, blockNumber, txs...)
 }
 
 func (s *Client) CancelBundle(
 	ctx context.Context, bundleUUID string,
 ) error {
 	if s.cancelBySendBundle {
-		if _, err := s.SendBundle(ctx, &bundleUUID, 0); err != nil {
+		if _, err := s.sendBundle(ctx, true, &bundleUUID, 0); err != nil {
 			return fmt.Errorf("cancel by send bundle error: %w", err)
 		}
 		return nil
@@ -127,17 +90,95 @@ func (s *Client) CancelBundle(
 	}
 
 	// do
-	resp, err := doRequest[SendBundleResponse](s.c, httpReq, headers...)
-	if err != nil {
-		return err
+	var errResp SendBundleError
+	switch s.senderType {
+	case BundleSenderTypeTitan:
+		resp, err := doRequest[TitanCancelBundleResponse](s.c, httpReq, headers...)
+		if err != nil {
+			return err
+		}
+		errResp = resp.Error
+	default:
+		resp, err := doRequest[SendBundleResponse](s.c, httpReq, headers...)
+		if err != nil {
+			return err
+		}
+		errResp = resp.Error
 	}
 
 	// check
-	if len(resp.Error.Messange) != 0 {
-		return fmt.Errorf("response error, code: [%d], message: [%s]", resp.Error.Code, resp.Error.Messange)
+	if len(errResp.Messange) != 0 {
+		return fmt.Errorf("response error, code: [%d], message: [%s]", errResp.Code, errResp.Messange)
 	}
 
 	return nil
+}
+
+func (s *Client) sendBundle(
+	ctx context.Context,
+	isCancel bool,
+	uuid *string,
+	blockNumber uint64,
+	txs ...*types.Transaction,
+) (SendBundleResponse, error) {
+	req := SendBundleRequest{
+		ID:      SendBundleID,
+		JSONRPC: JSONRPC2,
+		Method:  ETHSendBundleMethod,
+	}
+	p := new(SendBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...)
+	if uuid != nil {
+		p.SetUUID(*uuid, s.senderType)
+	}
+	req.Params = append(req.Params, p)
+
+	reqBody, err := json.Marshal(req)
+	if err != nil {
+		return SendBundleResponse{}, fmt.Errorf("marshal json error: %w", err)
+	}
+
+	var headers [][2]string
+	if s.flashbotKey != nil {
+		signature, err := requestSignature(s.flashbotKey, reqBody)
+		if err != nil {
+			return SendBundleResponse{}, fmt.Errorf("sign flashbot request error: %w", err)
+		}
+		headers = append(headers, [2]string{"X-Flashbots-Signature", signature})
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, s.endpoint, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return SendBundleResponse{}, fmt.Errorf("new http request error: %w", err)
+	}
+
+	var resp SendBundleResponse
+	if !isCancel {
+		resp, err = doRequest[SendBundleResponse](s.c, httpReq, headers...)
+		if err != nil {
+			return SendBundleResponse{}, err
+		}
+	} else {
+		switch s.senderType {
+		case BundleSenderTypeFlashbot:
+			r, err := doRequest[FlashbotCancelBundleResponse](s.c, httpReq, headers...)
+			if err != nil {
+				return SendBundleResponse{}, err
+			}
+			resp = r.ToSendBundleResponse()
+		default:
+			resp, err = doRequest[SendBundleResponse](s.c, httpReq, headers...)
+			if err != nil {
+				return SendBundleResponse{}, err
+			}
+		}
+	}
+
+	if len(resp.Error.Messange) != 0 {
+		return SendBundleResponse{}, fmt.Errorf("response error, code: [%d], message: [%s]",
+			resp.Error.Code, resp.Error.Messange)
+	}
+
+	return resp, nil
 }
 
 func requestSignature(key *ecdsa.PrivateKey, body []byte) (string, error) {
@@ -199,9 +240,12 @@ func (p *SendBundleParams) SetBlockNumber(block uint64) *SendBundleParams {
 	return p
 }
 
-func (p *SendBundleParams) SetUUID(uuid string) *SendBundleParams {
+func (p *SendBundleParams) SetUUID(uuid string, senderType BundleSenderType) *SendBundleParams {
+	if senderType == BundleSenderTypeBeaver {
+		p.UUID = uuid
+		return p
+	}
 	p.ReplacementUUID = uuid
-	p.UUID = uuid
 
 	return p
 }

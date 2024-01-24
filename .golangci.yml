@@ -22,8 +22,9 @@ linters:
     - ireturn
     - nonamedreturns
     - depguard
-    - noctx 
+    - noctx
     - structcheck # it shows elems in stack pkg is unused, but it is used :D
+    - exhaustive # using default is enough x.x
 linters-settings:
   funlen:
     # Checks the number of lines in a function.
@@ -34,3 +35,14 @@ linters-settings:
     # If lower than 0, disable the check.
     # Default: 40
     statements: 50
+  cyclop:
+    # The maximal code complexity to report.
+    # Default: 10
+    max-complexity: 15
+    # The maximal average package complexity.
+    # If it's higher than 0.0 (float) the check is enabled
+    # Default: 0.0
+    package-average: 0.0
+    # Should ignore tests.
+    # Default: false
+    skip-tests: true

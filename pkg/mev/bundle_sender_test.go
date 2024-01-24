@@ -58,7 +58,7 @@ func TestSendBundle(t *testing.T) {
 	t.Log("new tx", signedTx.Hash().String())
 
 	uuid := uuid.NewString()
-	sender := mev.NewClient(client, endpoint, privateKey, false)
+	sender := mev.NewClient(client, endpoint, privateKey, false, mev.BundleSenderTypeFlashbot)
 
 	resp, err := sender.SendBundle(ctx, &uuid, blockNumber+12, signedTx)
 	require.NoError(t, err) // sepolia: code: [-32000], message: [internal server error]
