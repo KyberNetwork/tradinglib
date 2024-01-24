@@ -12,6 +12,15 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
+type BundleSenderType int
+
+const (
+	BundleSenderTypeFlashbot BundleSenderType = iota + 1
+	BundleSenderTypeBeaver
+	BundleSenderTypeRsync
+	BundleSenderTypeTitan
+)
+
 const (
 	JSONRPC2                    = "2.0"
 	SendBundleID                = 1
@@ -93,10 +102,10 @@ type SendBundleResponse struct {
 	Jsonrpc string           `json:"jsonrpc,omitempty"`
 	ID      int              `json:"id,omitempty"`
 	Result  SendBundleResult `json:"result,omitempty"`
-	Error   SendBundbleError `json:"error,omitempty"`
+	Error   SendBundleError  `json:"error,omitempty"`
 }
 
-type SendBundbleError struct {
+type SendBundleError struct {
 	Code     int    `json:"code,omitempty"`
 	Messange string `json:"message,omitempty"`
 }
@@ -116,4 +125,31 @@ type SendBundleResults struct {
 	GasUsed int    `json:"gasUsed,omitempty"`
 	TxHash  string `json:"txHash,omitempty"`
 	Value   string `json:"value,omitempty"`
+}
+
+type FlashbotCancelBundleResponse struct {
+	Jsonrpc string          `json:"jsonrpc,omitempty"`
+	ID      int             `json:"id,omitempty"`
+	Result  []string        `json:"result,omitempty"`
+	Error   SendBundleError `json:"error,omitempty"`
+}
+
+func (resp FlashbotCancelBundleResponse) ToSendBundleResponse() SendBundleResponse {
+	r := SendBundleResponse{
+		Jsonrpc: resp.Jsonrpc,
+		ID:      resp.ID,
+		Error:   resp.Error,
+	}
+	if len(resp.Result) != 0 {
+		r.Result.BundleHash = resp.Result[0]
+	}
+
+	return r
+}
+
+type TitanCancelBundleResponse struct {
+	Jsonrpc string          `json:"jsonrpc,omitempty"`
+	ID      int             `json:"id,omitempty"`
+	Result  int             `json:"result,omitempty"`
+	Error   SendBundleError `json:"error,omitempty"`
 }
