@@ -77,3 +77,17 @@ func TestUnmarshal(t *testing.T) {
 
 	t.Logf("%+v", resp)
 }
+
+func TestCancelBeaver(t *testing.T) {
+	t.Skip()
+	var (
+		endpoint   = "https://rpc.beaverbuild.org"
+		ctx        = context.Background()
+		client     = http.DefaultClient
+		bundleUUID = uuid.New().String()
+	)
+
+	sender := mev.NewClient(client, endpoint, nil, true, mev.BundleSenderTypeBeaver)
+
+	require.NoError(t, sender.CancelBundle(ctx, bundleUUID))
+}
