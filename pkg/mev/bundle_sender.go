@@ -47,14 +47,14 @@ func (s *Client) SendBundle(
 	blockNumber uint64,
 	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
-	return s.sendBundle(ctx, false, uuid, blockNumber, txs...)
+	return s.sendBundle(ctx, uuid, blockNumber, txs...)
 }
 
 func (s *Client) CancelBundle(
 	ctx context.Context, bundleUUID string,
 ) error {
 	if s.cancelBySendBundle {
-		if _, err := s.sendBundle(ctx, true, &bundleUUID, 0); err != nil {
+		if _, err := s.sendBundle(ctx, &bundleUUID, 0); err != nil {
 			return fmt.Errorf("cancel by send bundle error: %w", err)
 		}
 		return nil
@@ -92,6 +92,12 @@ func (s *Client) CancelBundle(
 	// do
 	var errResp SendBundleError
 	switch s.senderType {
+	case BundleSenderTypeFlashbot:
+		resp, err := doRequest[FlashbotCancelBundleResponse](s.c, httpReq, headers...)
+		if err != nil {
+			return err
+		}
+		errResp = resp.Error
 	case BundleSenderTypeTitan:
 		resp, err := doRequest[TitanCancelBundleResponse](s.c, httpReq, headers...)
 		if err != nil {
@@ -116,7 +122,6 @@ func (s *Client) CancelBundle(
 
 func (s *Client) sendBundle(
 	ctx context.Context,
-	isCancel bool,
 	uuid *string,
 	blockNumber uint64,
 	txs ...*types.Transaction,
@@ -151,26 +156,9 @@ func (s *Client) sendBundle(
 		return SendBundleResponse{}, fmt.Errorf("new http request error: %w", err)
 	}
 
-	var resp SendBundleResponse
-	if !isCancel {
-		resp, err = doRequest[SendBundleResponse](s.c, httpReq, headers...)
-		if err != nil {
-			return SendBundleResponse{}, err
-		}
-	} else {
-		switch s.senderType {
-		case BundleSenderTypeFlashbot:
-			r, err := doRequest[FlashbotCancelBundleResponse](s.c, httpReq, headers...)
-			if err != nil {
-				return SendBundleResponse{}, err
-			}
-			resp = r.ToSendBundleResponse()
-		default:
-			resp, err = doRequest[SendBundleResponse](s.c, httpReq, headers...)
-			if err != nil {
-				return SendBundleResponse{}, err
-			}
-		}
+	resp, err := doRequest[SendBundleResponse](s.c, httpReq, headers...)
+	if err != nil {
+		return SendBundleResponse{}, err
 	}
 
 	if len(resp.Error.Messange) != 0 {
@@ -200,9 +188,9 @@ type SendBundleRequest struct {
 
 type SendBundleParams struct {
 	// Array[String], A list of signed transactions to execute in an atomic bundle
-	Txs []string `json:"txs"`
+	Txs []string `json:"txs,omitempty"`
 	// String, a hex encoded block number for which this bundle is valid on
-	BlockNumber string `json:"blockNumber"`
+	BlockNumber string `json:"blockNumber,omitempty"`
 	// (Optional) Number, the minimum timestamp for which this bundle is valid, in seconds since the unix epoch
 	MinTimestamp *uint64 `json:"minTimestamp,omitempty"`
 	// (Optional) Number, the maximum timestamp for which this bundle is valid, in seconds since the unix epoch
