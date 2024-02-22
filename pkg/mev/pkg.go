@@ -22,11 +22,13 @@ const (
 )
 
 const (
-	JSONRPC2                    = "2.0"
-	SendBundleID                = 1
-	BloxrouteSubmitBundleMethod = "blxr_submit_bundle"
-	ETHSendBundleMethod         = "eth_sendBundle"
-	ETHCancelBundleMethod       = "eth_cancelBundle"
+	JSONRPC2                        = "2.0"
+	SendBundleID                    = 1
+	BloxrouteSubmitBundleMethod     = "blxr_submit_bundle"
+	BloxrouteSimulationBundleMethod = "blxr_simulate_bundle"
+	ETHSendBundleMethod             = "eth_sendBundle"
+	EthCallBundleMethod             = "eth_callBundle"
+	ETHCancelBundleMethod           = "eth_cancelBundle"
 )
 
 type IBundleSender interface {
@@ -39,6 +41,7 @@ type IBundleSender interface {
 	CancelBundle(
 		ctx context.Context, bundleUUID string,
 	) error
+	SimulateBundle(ctx context.Context, blockNumber uint64, txs ...*types.Transaction) (SendBundleResponse, error)
 }
 
 var (
