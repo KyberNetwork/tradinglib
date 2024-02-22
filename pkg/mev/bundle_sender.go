@@ -47,14 +47,14 @@ func (s *Client) SendBundle(
 	blockNumber uint64,
 	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
-	return s.sendBundle(ctx, uuid, blockNumber, txs...)
+	return s.sendBundle(ctx, ETHSendBundleMethod, uuid, blockNumber, txs...)
 }
 
 func (s *Client) CancelBundle(
 	ctx context.Context, bundleUUID string,
 ) error {
 	if s.cancelBySendBundle {
-		if _, err := s.sendBundle(ctx, &bundleUUID, 0); err != nil {
+		if _, err := s.sendBundle(ctx, ETHSendBundleMethod, &bundleUUID, 0); err != nil {
 			return fmt.Errorf("cancel by send bundle error: %w", err)
 		}
 		return nil
@@ -120,8 +120,15 @@ func (s *Client) CancelBundle(
 	return nil
 }
 
+func (s *Client) SimulateBundle(
+	ctx context.Context, blockNumber uint64, txs ...*types.Transaction,
+) (SendBundleResponse, error) {
+	return s.sendBundle(ctx, EthCallBundleMethod, nil, blockNumber, txs...)
+}
+
 func (s *Client) sendBundle(
 	ctx context.Context,
+	method string,
 	uuid *string,
 	blockNumber uint64,
 	txs ...*types.Transaction,
@@ -129,7 +136,7 @@ func (s *Client) sendBundle(
 	req := SendBundleRequest{
 		ID:      SendBundleID,
 		JSONRPC: JSONRPC2,
-		Method:  ETHSendBundleMethod,
+		Method:  method,
 	}
 	p := new(SendBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...)
 	if uuid != nil {

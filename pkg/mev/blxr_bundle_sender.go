@@ -111,6 +111,12 @@ func (s *BloxrouteClient) CancelBundle(
 	return nil
 }
 
+func (s *BloxrouteClient) SimulateBundle(
+	_ context.Context, _ uint64, _ ...*types.Transaction,
+) (SendBundleResponse, error) {
+	return SendBundleResponse{}, fmt.Errorf("method not support")
+}
+
 type BLXRSubmitBundleRequest struct {
 	ID     string                  `json:"id,omitempty"`
 	Method string                  `json:"method,omitempty"`
