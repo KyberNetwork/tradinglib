@@ -61,7 +61,5 @@ func (w *Worker[T]) Start() {
 }
 
 func (w *Worker[T]) Stop() {
-	select {
-	case w.stop <- struct{}{}:
-	}
+	w.stop <- struct{}{}
 }

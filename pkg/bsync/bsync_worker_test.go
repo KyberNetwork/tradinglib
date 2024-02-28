@@ -1,9 +1,10 @@
 package bsync_test
 
 import (
-	"github.com/KyberNetwork/tradinglib/pkg/bsync"
 	"testing"
 	"time"
+
+	"github.com/KyberNetwork/tradinglib/pkg/bsync"
 )
 
 func TestWorker(t *testing.T) {
