@@ -1,13 +1,14 @@
-package bsync
+package bsync_test
 
 import (
+	"github.com/KyberNetwork/tradinglib/pkg/bsync"
 	"testing"
 	"time"
 )
 
 func TestWorker(t *testing.T) {
 	v := 0
-	w := New(time.Millisecond, func() (int, error) {
+	w := bsync.New(time.Millisecond, func() (int, error) {
 		v++
 		return v, nil
 	})

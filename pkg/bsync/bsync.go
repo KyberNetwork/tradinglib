@@ -9,7 +9,7 @@ type LocalReader[T any] interface {
 	Get() (T, time.Time)
 }
 
-// Worker support for background sync local state
+// Worker support for background sync local state.
 type Worker[T any] struct {
 	interval   time.Duration
 	stop       chan struct{}
