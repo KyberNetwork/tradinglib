@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -102,6 +103,16 @@ func (s *BloxrouteClient) SendBundle(
 	}
 
 	return SendBundleResponse(resp), nil
+}
+
+func (s *BloxrouteClient) SendBackrunBundle(
+	_ context.Context,
+	_ *string,
+	_ uint64,
+	_ common.Hash,
+	_ ...*types.Transaction,
+) (SendBundleResponse, error) {
+	return SendBundleResponse{}, fmt.Errorf("method not support")
 }
 
 func (s *BloxrouteClient) CancelBundle(
