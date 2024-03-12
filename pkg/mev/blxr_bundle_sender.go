@@ -48,6 +48,10 @@ func NewBloxrouteClient(
 	}
 }
 
+func (s *BloxrouteClient) GetSenderType() BundleSenderType {
+	return BundleSenderTypeBloxroute
+}
+
 func (s *BloxrouteClient) SendBundle(
 	ctx context.Context,
 	uuid *string,

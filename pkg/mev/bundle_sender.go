@@ -41,6 +41,10 @@ func NewClient(
 	}
 }
 
+func (s *Client) GetSenderType() BundleSenderType {
+	return s.senderType
+}
+
 func (s *Client) SendBundle(
 	ctx context.Context,
 	uuid *string,

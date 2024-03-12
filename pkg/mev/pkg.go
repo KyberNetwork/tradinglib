@@ -19,6 +19,8 @@ const (
 	BundleSenderTypeBeaver
 	BundleSenderTypeRsync
 	BundleSenderTypeTitan
+	BundleSenderTypeBloxroute
+	BundleSenderTypeAll
 )
 
 const (
@@ -42,6 +44,7 @@ type IBundleSender interface {
 		ctx context.Context, bundleUUID string,
 	) error
 	SimulateBundle(ctx context.Context, blockNumber uint64, txs ...*types.Transaction) (SendBundleResponse, error)
+	GetSenderType() BundleSenderType
 }
 
 var (
