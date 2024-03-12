@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -38,6 +39,13 @@ type IBundleSender interface {
 		ctx context.Context,
 		uuid *string,
 		blockNumber uint64,
+		tx ...*types.Transaction,
+	) (SendBundleResponse, error)
+	SendBackrunBundle(
+		ctx context.Context,
+		uuid *string,
+		blockNumber uint64,
+		pendingTxHash common.Hash,
 		tx ...*types.Transaction,
 	) (SendBundleResponse, error)
 	CancelBundle(
