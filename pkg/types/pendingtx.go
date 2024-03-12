@@ -49,7 +49,7 @@ type CallFrame struct {
 	From         common.Address  `json:"from"`
 	Gas          uint64          `json:"gas"`
 	GasUsed      uint64          `json:"gasUsed"`
-	To           *common.Address `json:"to,omitempty" `
+	To           *common.Address `json:"to,omitempty"`
 	Input        []byte          `json:"input"`
 	Output       []byte          `json:"output,omitempty"`
 	Error        string          `json:"error,omitempty"`
