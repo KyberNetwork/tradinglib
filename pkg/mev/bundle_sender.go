@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -212,6 +213,15 @@ type SendBundleParams struct {
 	ReplacementUUID string `json:"ReplacementUuid,omitempty"`
 	// (Optional) String, UUID that can be used to cancel/replace this bundle (For beaverbuild)
 	UUID string `json:"uuid,omitempty"`
+}
+
+func (p *SendBundleParams) SetPendingTxHash(txHash common.Hash) *SendBundleParams {
+	if txHash == (common.Hash{}) {
+		return p
+	}
+
+	p.Txs = append([]string{txHash.Hex()}, p.Txs...)
+	return p
 }
 
 func (p *SendBundleParams) SetTransactions(txs ...*types.Transaction) *SendBundleParams {
