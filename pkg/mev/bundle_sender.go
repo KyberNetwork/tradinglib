@@ -177,6 +177,9 @@ func (s *Client) SendBackrunBundle(
 ) (SendBundleResponse, error) {
 	switch s.senderType {
 	case BundleSenderTypeFlashbot:
+		if len(txs) == 0 {
+			return SendBundleResponse{}, fmt.Errorf("no transactions to send")
+		}
 		_, err := s.flashbotBackrunSendBundle(blockNumber, pendingTxHash, txs[0])
 		if err != nil {
 			return SendBundleResponse{}, err
