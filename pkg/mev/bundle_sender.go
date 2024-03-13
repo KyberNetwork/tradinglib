@@ -8,11 +8,13 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/duoxehyon/mev-share-go/rpc"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/flashbots/mev-share-node/mevshare"
 )
 
 // Client https://beaverbuild.org/docs.html; https://rsync-builder.xyz/docs;
@@ -23,6 +25,8 @@ type Client struct {
 	flashbotKey        *ecdsa.PrivateKey
 	cancelBySendBundle bool
 	senderType         BundleSenderType
+	// mevShareClient is the client for mev-share flashbots node
+	mevShareClient rpc.MevAPIClient
 }
 
 // NewClient set the flashbotKey to nil will skip adding the signature header.
@@ -33,12 +37,18 @@ func NewClient(
 	cancelBySendBundle bool,
 	senderType BundleSenderType,
 ) *Client {
+	var mevShareClient rpc.MevAPIClient
+	if flashbotKey != nil {
+		mevShareClient = rpc.NewClient(endpoint, flashbotKey)
+	}
+
 	return &Client{
 		c:                  c,
 		endpoint:           endpoint,
 		flashbotKey:        flashbotKey,
 		cancelBySendBundle: cancelBySendBundle,
 		senderType:         senderType,
+		mevShareClient:     mevShareClient,
 	}
 }
 
@@ -55,7 +65,60 @@ func (s *Client) SendBundle(
 	return s.sendBundle(ctx, ETHSendBundleMethod, uuid, blockNumber, txs...)
 }
 
-func (s *Client) SendBackrunBundle(
+func (s *Client) getSendBundleMethod() string {
+	switch s.senderType {
+	case BundleSenderTypeFlashbot:
+		return MevSendBundleMethod
+	case BundleSenderTypeBeaver:
+		return ETHSendBundleMethod
+	case BundleSenderTypeRsync:
+		return ETHSendBundleMethod
+	case BundleSenderTypeTitan:
+		return ETHSendBundleMethod
+	case BundleSenderTypeBloxroute:
+		return BloxrouteSubmitBundleMethod
+	case BundleSenderTypeAll:
+		return ETHSendBundleMethod
+	default:
+		return ETHSendBundleMethod
+	}
+}
+
+func (s *Client) flashbotBackrunSendBundle(
+	blockNumber uint64,
+	pendingTxHash common.Hash,
+	tx *types.Transaction,
+) (*mevshare.SendMevBundleResponse, error) {
+	if s.mevShareClient == nil {
+		return nil, fmt.Errorf("mev share client is nil")
+	}
+
+	encodedTx := "0x" + txToRlp(tx)
+	txBytes := hexutil.Bytes(encodedTx)
+	// Define the bundle transactions
+	txs := []mevshare.MevBundleBody{
+		{
+			Hash: &pendingTxHash,
+		},
+		{
+			Tx: &txBytes,
+		},
+	}
+	inclusion := mevshare.MevBundleInclusion{
+		BlockNumber: hexutil.Uint64(blockNumber),
+	}
+
+	// Make the bundle
+	req := mevshare.SendMevBundleArgs{
+		Body:      txs,
+		Inclusion: inclusion,
+	}
+	// Send bundle
+	res, err := s.mevShareClient.SendBundle(req)
+	return res, err
+}
+
+func (s *Client) ethBackrunSendBundle(
 	ctx context.Context,
 	uuid *string,
 	blockNumber uint64,
@@ -65,7 +128,7 @@ func (s *Client) SendBackrunBundle(
 	req := SendBundleRequest{
 		ID:      SendBundleID,
 		JSONRPC: JSONRPC2,
-		Method:  ETHSendBundleMethod,
+		Method:  s.getSendBundleMethod(),
 	}
 	p := new(SendBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...).SetPendingTxHash(pendingTxHash)
 	if uuid != nil {
@@ -103,6 +166,25 @@ func (s *Client) SendBackrunBundle(
 	}
 
 	return resp, nil
+}
+
+func (s *Client) SendBackrunBundle(
+	ctx context.Context,
+	uuid *string,
+	blockNumber uint64,
+	pendingTxHash common.Hash,
+	txs ...*types.Transaction,
+) (SendBundleResponse, error) {
+	switch s.senderType {
+	case BundleSenderTypeFlashbot:
+		_, err := s.flashbotBackrunSendBundle(blockNumber, pendingTxHash, txs[0])
+		if err != nil {
+			return SendBundleResponse{}, err
+		}
+		return SendBundleResponse{}, nil
+	default:
+		return s.ethBackrunSendBundle(ctx, uuid, blockNumber, pendingTxHash, txs...)
+	}
 }
 
 func (s *Client) CancelBundle(

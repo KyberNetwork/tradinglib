@@ -2,13 +2,14 @@ package mev_test
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"crypto/rand"
 	"encoding/json"
+	"fmt"
 	"math/big"
 	"net/http"
 	"testing"
 
-	"github.com/KyberNetwork/tradinglib/pkg/convert"
-	"github.com/KyberNetwork/tradinglib/pkg/mev"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -16,18 +17,25 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/KyberNetwork/tradinglib/pkg/convert"
+	"github.com/KyberNetwork/tradinglib/pkg/mev"
 )
 
 func TestSendBundle(t *testing.T) {
 	t.Skip()
+	// Generate a new private key
+	privateKey, err := ecdsa.GenerateKey(crypto.S256(), rand.Reader)
+	if err != nil {
+		fmt.Println("Failed to generate private key:", err)
+		return
+	}
 	var (
-		rawKey         = "...."
 		endpoint       = "https://relay-sepolia.flashbots.net"
 		ctx            = context.Background()
 		client         = http.DefaultClient
 		sepoliaChainID = 11155111
 	)
-	privateKey, err := crypto.HexToECDSA(rawKey)
 	require.NoError(t, err)
 	address := crypto.PubkeyToAddress(privateKey.PublicKey)
 

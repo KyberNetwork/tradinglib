@@ -32,6 +32,7 @@ const (
 	ETHSendBundleMethod             = "eth_sendBundle"
 	EthCallBundleMethod             = "eth_callBundle"
 	ETHCancelBundleMethod           = "eth_cancelBundle"
+	MevSendBundleMethod             = "mev_sendBundle"
 )
 
 type IBundleSender interface {
