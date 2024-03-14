@@ -106,15 +106,59 @@ func (s *Client) flashbotBackrunSendBundle(
 	}
 	inclusion := mevshare.MevBundleInclusion{
 		BlockNumber: hexutil.Uint64(blockNumber),
+		MaxBlock:    hexutil.Uint64(blockNumber + MaxBlockFromTarget),
 	}
 
 	// Make the bundle
 	req := mevshare.SendMevBundleArgs{
 		Body:      txs,
 		Inclusion: inclusion,
+		// share bundle data in increase chance of inclusion
+		// https://docs.flashbots.net/flashbots-mev-share/searchers/sending-bundles#share-bundle-data
+		Privacy: &mevshare.MevBundlePrivacy{
+			Hints: mevshare.HintTxHash,
+		},
 	}
 	// Send bundle
 	res, err := s.mevShareClient.SendBundle(req)
+	return res, err
+}
+
+func (s *Client) MevSimulateBundle(
+	blockNumber uint64,
+	pendingTxHash common.Hash,
+	tx *types.Transaction,
+) (*mevshare.SimMevBundleResponse, error) {
+	if s.mevShareClient == nil {
+		return nil, fmt.Errorf("mev share client is nil")
+	}
+
+	encodedTx := "0x" + txToRlp(tx)
+	txBytes := hexutil.Bytes(encodedTx)
+	// Define the bundle transactions
+	txs := []mevshare.MevBundleBody{
+		{
+			Hash: &pendingTxHash,
+		},
+		{
+			Tx: &txBytes,
+		},
+	}
+	inclusion := mevshare.MevBundleInclusion{
+		BlockNumber: hexutil.Uint64(blockNumber),
+		MaxBlock:    hexutil.Uint64(blockNumber + MaxBlockFromTarget),
+	}
+
+	// Make the bundle
+	req := mevshare.SendMevBundleArgs{
+		Body:      txs,
+		Inclusion: inclusion,
+		Privacy: &mevshare.MevBundlePrivacy{
+			Hints: mevshare.HintTxHash,
+		},
+	}
+	// Send bundle
+	res, err := s.mevShareClient.SimBundle(req, mevshare.SimMevBundleAuxArgs{})
 	return res, err
 }
 

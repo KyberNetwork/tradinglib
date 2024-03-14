@@ -11,6 +11,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/flashbots/mev-share-node/mevshare"
 )
 
 type BlxrBuilder string
@@ -29,6 +30,14 @@ type BloxrouteClient struct {
 	auth            string
 	flashbotKey     *ecdsa.PrivateKey
 	enabledBuilders []BlxrBuilder
+}
+
+func (s *BloxrouteClient) MevSimulateBundle(
+	_ uint64,
+	_ common.Hash,
+	_ *types.Transaction,
+) (*mevshare.SimMevBundleResponse, error) {
+	return nil, fmt.Errorf("method not support")
 }
 
 // NewBloxrouteClient set flashbotKey to nil if you don't want to send to flashbot builders
