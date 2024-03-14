@@ -10,15 +10,6 @@ import (
 
 type PendingTxSource string
 
-const (
-	PendingTxBloxroute    PendingTxSource = "bloxroute"
-	PendingTxFlashbots    PendingTxSource = "flashbots"
-	PendingTxBeaverBuild  PendingTxSource = "beaverbuild"
-	PendingTxRsyncBuilder PendingTxSource = "rsync-builder"
-	PendingTxTitan        PendingTxSource = "titan"
-	PendingTxPublicRPC    PendingTxSource = "public-rpc"
-)
-
 type Message struct {
 	PendingBlockNumber uint64       `json:"pending_block_number"`
 	TxHash             string       `json:"tx_hash"`

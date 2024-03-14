@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/flashbots/mev-share-node/mevshare"
 )
 
 type BlxrBuilder string
@@ -30,6 +32,14 @@ type BloxrouteClient struct {
 	enabledBuilders []BlxrBuilder
 }
 
+func (s *BloxrouteClient) MevSimulateBundle(
+	_ uint64,
+	_ common.Hash,
+	_ *types.Transaction,
+) (*mevshare.SimMevBundleResponse, error) {
+	return nil, fmt.Errorf("method not support")
+}
+
 // NewBloxrouteClient set flashbotKey to nil if you don't want to send to flashbot builders
 // With BuilderAll still need to add the flashbot key & the flashbot builder separately
 // https://docs.bloxroute.com/apis/mev-solution/bundle-submission
@@ -46,6 +56,10 @@ func NewBloxrouteClient(
 		flashbotKey:     flashbotKey,
 		enabledBuilders: enabledBuilders,
 	}
+}
+
+func (s *BloxrouteClient) GetSenderType() BundleSenderType {
+	return BundleSenderTypeBloxroute
 }
 
 func (s *BloxrouteClient) SendBundle(
@@ -98,6 +112,16 @@ func (s *BloxrouteClient) SendBundle(
 	}
 
 	return SendBundleResponse(resp), nil
+}
+
+func (s *BloxrouteClient) SendBackrunBundle(
+	_ context.Context,
+	_ *string,
+	_ uint64,
+	_ common.Hash,
+	_ ...*types.Transaction,
+) (SendBundleResponse, error) {
+	return SendBundleResponse{}, fmt.Errorf("method not support")
 }
 
 func (s *BloxrouteClient) CancelBundle(

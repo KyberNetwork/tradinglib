@@ -9,7 +9,9 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/flashbots/mev-share-node/mevshare"
 )
 
 type BundleSenderType int
@@ -19,6 +21,8 @@ const (
 	BundleSenderTypeBeaver
 	BundleSenderTypeRsync
 	BundleSenderTypeTitan
+	BundleSenderTypeBloxroute
+	BundleSenderTypeAll
 )
 
 const (
@@ -29,6 +33,8 @@ const (
 	ETHSendBundleMethod             = "eth_sendBundle"
 	EthCallBundleMethod             = "eth_callBundle"
 	ETHCancelBundleMethod           = "eth_cancelBundle"
+	MevSendBundleMethod             = "mev_sendBundle"
+	MaxBlockFromTarget              = 3
 )
 
 type IBundleSender interface {
@@ -38,10 +44,22 @@ type IBundleSender interface {
 		blockNumber uint64,
 		tx ...*types.Transaction,
 	) (SendBundleResponse, error)
+	SendBackrunBundle(
+		ctx context.Context,
+		uuid *string,
+		blockNumber uint64,
+		pendingTxHash common.Hash,
+		tx ...*types.Transaction,
+	) (SendBundleResponse, error)
 	CancelBundle(
 		ctx context.Context, bundleUUID string,
 	) error
 	SimulateBundle(ctx context.Context, blockNumber uint64, txs ...*types.Transaction) (SendBundleResponse, error)
+	MevSimulateBundle(
+		blockNumber uint64,
+		pendingTxHash common.Hash,
+		tx *types.Transaction) (*mevshare.SimMevBundleResponse, error)
+	GetSenderType() BundleSenderType
 }
 
 var (

@@ -2,6 +2,8 @@ package mev_test
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"crypto/rand"
 	"encoding/json"
 	"math/big"
 	"net/http"
@@ -20,14 +22,18 @@ import (
 
 func TestSendBundle(t *testing.T) {
 	t.Skip()
+	// Generate a new private key
+	privateKey, err := ecdsa.GenerateKey(crypto.S256(), rand.Reader)
+	if err != nil {
+		t.Error("Failed to generate private key:", err)
+		return
+	}
 	var (
-		rawKey         = "...."
 		endpoint       = "https://relay-sepolia.flashbots.net"
 		ctx            = context.Background()
 		client         = http.DefaultClient
 		sepoliaChainID = 11155111
 	)
-	privateKey, err := crypto.HexToECDSA(rawKey)
 	require.NoError(t, err)
 	address := crypto.PubkeyToAddress(privateKey.PublicKey)
 
