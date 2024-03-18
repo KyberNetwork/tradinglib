@@ -31,8 +31,6 @@ func DefaultDSN() map[string]any {
 // MustNewDevelopmentDB creates a new development DB.
 // It also returns a function to teardown it after the test.
 func MustNewDevelopmentDB(migrationPath string, dsn map[string]any, dbName string) (*sqlx.DB, func() error) {
-	const dbNameLen = 8
-
 	copyDSN := maps.Clone(dsn)
 	delete(copyDSN, dbName)
 
