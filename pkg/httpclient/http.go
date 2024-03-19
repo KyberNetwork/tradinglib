@@ -2,6 +2,7 @@ package httpclient
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -40,26 +41,44 @@ func DoHTTPRequest(client *http.Client, req *http.Request, out interface{}, opti
 }
 
 func NewRequest(method, baseURL, path string, query Query, body io.Reader) (*http.Request, error) {
+	return NewRequestWithContext(context.Background(), method, baseURL, path, query, body)
+}
+
+func NewRequestWithContext(
+	ctx context.Context, method, baseURL, path string, query Query, body io.Reader,
+) (*http.Request, error) {
 	url := baseURL + path
 	if query != nil {
 		url = sb.Concat(url, "?", query.String())
 	}
-	return http.NewRequest(method, url, body)
+	return http.NewRequestWithContext(ctx, method, url, body)
 }
 
 func NewGet(baseURL, path string, query Query) (*http.Request, error) {
 	return NewRequest(http.MethodGet, baseURL, path, query, nil)
 }
 
+func NewGetWithContext(ctx context.Context, baseURL, path string, query Query) (*http.Request, error) {
+	return NewRequestWithContext(ctx, http.MethodGet, baseURL, path, query, nil)
+}
+
 func NewPost(baseURL, path string, query Query, body io.Reader) (*http.Request, error) {
-	req, err := NewRequest(http.MethodPost, baseURL, path, query, body)
-	if err != nil {
-		return nil, err
-	}
-	return req, nil
+	return NewRequest(http.MethodPost, baseURL, path, query, body)
+}
+
+func NewPostWithContext(
+	ctx context.Context, baseURL, path string, query Query, body io.Reader,
+) (*http.Request, error) {
+	return NewRequestWithContext(ctx, http.MethodPost, baseURL, path, query, body)
 }
 
 func NewPostJSON(baseURL, path string, query Query, body interface{}) (*http.Request, error) {
+	return NewPostJSONWithContext(context.Background(), baseURL, path, query, body)
+}
+
+func NewPostJSONWithContext(
+	ctx context.Context, baseURL, path string, query Query, body interface{},
+) (*http.Request, error) {
 	var buff io.Reader
 	if body != nil {
 		data, err := json.Marshal(body)
@@ -68,7 +87,7 @@ func NewPostJSON(baseURL, path string, query Query, body interface{}) (*http.Req
 		}
 		buff = bytes.NewBuffer(data)
 	}
-	out, err := NewPost(baseURL, path, query, buff)
+	out, err := NewPostWithContext(ctx, baseURL, path, query, buff)
 	if err != nil {
 		return nil, err
 	}
