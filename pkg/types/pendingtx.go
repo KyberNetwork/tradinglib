@@ -3,27 +3,27 @@ package types
 import (
 	"math/big"
 
+	"github.com/KyberNetwork/tradinglib/pkg/mev"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 )
 
-type PendingTxSource string
-
 type Message struct {
-	PendingBlockNumber uint64       `json:"pending_block_number"`
-	TxHash             string       `json:"tx_hash"`
-	SimDebugInfo       SimDebugInfo `json:"sim_debug_info"`
-	InternalTx         *CallFrame   `json:"internal_txs"`
-	BaseFee            *big.Int     `json:"base_fee"`
-	CurrentBlockTime   uint64       `json:"current_block_time"`
-	GasFeeCap          *big.Int     `json:"gas_fee_cap"`
-	GasPrice           *big.Int     `json:"gas_price"`
-	GasTip             *big.Int     `json:"gas_tip"`
-	Gas                uint64       `json:"gas"`
-	GasUsed            uint64       `json:"gas_used"`
-	From               string       `json:"from"`
-	Nonce              uint64       `json:"nonce"`
+	PendingBlockNumber uint64               `json:"pending_block_number"`
+	TxHash             string               `json:"tx_hash"`
+	SimDebugInfo       SimDebugInfo         `json:"sim_debug_info"`
+	InternalTx         *CallFrame           `json:"internal_txs"`
+	BaseFee            *big.Int             `json:"base_fee"`
+	CurrentBlockTime   uint64               `json:"current_block_time"`
+	GasFeeCap          *big.Int             `json:"gas_fee_cap"`
+	GasPrice           *big.Int             `json:"gas_price"`
+	GasTip             *big.Int             `json:"gas_tip"`
+	Gas                uint64               `json:"gas"`
+	GasUsed            uint64               `json:"gas_used"`
+	From               string               `json:"from"`
+	Nonce              uint64               `json:"nonce"`
+	Source             mev.BundleSenderType `json:"source"`
 }
 
 type SimDebugInfo struct {
