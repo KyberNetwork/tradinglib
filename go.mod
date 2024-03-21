@@ -12,6 +12,7 @@ require (
 	github.com/shopspring/decimal v1.3.1
 	github.com/sourcegraph/conc v0.3.0
 	github.com/stretchr/testify v1.8.4
+	github.com/test-go/testify v1.1.4
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
 )
 
