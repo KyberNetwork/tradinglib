@@ -78,3 +78,16 @@ type MinedBlock struct {
 	BlockTime    int64         `json:"block_time"`
 	Transactions []Transaction `json:"transactions"`
 }
+
+func (m Message) GetAllLogs() []*types.Log {
+	logs := m.InternalTx.getLogs()
+	return logs
+}
+
+func (c CallFrame) getLogs() []*types.Log {
+	results := c.Logs
+	for index := range c.Calls {
+		results = append(results, c.Calls[index].getLogs()...)
+	}
+	return results
+}
