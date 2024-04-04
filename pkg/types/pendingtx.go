@@ -7,6 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
+	"strings"
 )
 
 type Message struct {
@@ -90,4 +91,16 @@ func (c CallFrame) getLogs() []*types.Log {
 		results = append(results, c.Calls[index].getLogs()...)
 	}
 	return results
+}
+
+// GetRelatedPools returns all pools related to the log.
+// A pool might appear from log.Address, or log.Topics
+func GetRelatedPools(log *types.Log) []string {
+	pools := make([]string, 0, len(log.Topics)+1)
+	for _, topic := range log.Topics {
+		pools = append(pools, strings.ToLower(topic.Hex()))
+	}
+	pools = append(pools, strings.ToLower(log.Address.Hex()))
+
+	return pools
 }
