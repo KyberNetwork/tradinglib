@@ -23,7 +23,7 @@ func NewSimulator(c *rpc.Client) *Simulator {
 }
 
 func (s *Simulator) EstimateGasWithOverrides(
-	ctx context.Context, msg ethereum.CallMsg, block *big.Int, blockNumber *big.Int,
+	ctx context.Context, msg ethereum.CallMsg, blockNumber *big.Int,
 	overrides *map[common.Address]gethclient.OverrideAccount,
 ) (uint64, error) {
 	var hex hexutil.Uint64
