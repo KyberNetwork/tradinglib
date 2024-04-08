@@ -13,6 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient/gethclient"
 	"github.com/flashbots/mev-share-node/mevshare"
 )
 
@@ -35,6 +36,7 @@ const (
 	ETHSendBundleMethod             = "eth_sendBundle"
 	EthCallBundleMethod             = "eth_callBundle"
 	ETHCancelBundleMethod           = "eth_cancelBundle"
+	ETHEstimateGasBundleMethod      = "eth_estimateGasBundle"
 	MevSendBundleMethod             = "mev_sendBundle"
 	MaxBlockFromTarget              = 3
 )
@@ -57,6 +59,11 @@ type IBundleSender interface {
 		ctx context.Context, bundleUUID string,
 	) error
 	SimulateBundle(ctx context.Context, blockNumber uint64, txs ...*types.Transaction) (SendBundleResponse, error)
+	EstimateBundleGas(
+		ctx context.Context,
+		messages []ethereum.CallMsg,
+		overrides *map[common.Address]gethclient.OverrideAccount,
+	) ([]uint64, error)
 	MevSimulateBundle(
 		blockNumber uint64,
 		pendingTxHash common.Hash,
@@ -195,4 +202,9 @@ func ToCallArg(msg ethereum.CallMsg) interface{} {
 		arg["gasPrice"] = (*hexutil.Big)(msg.GasPrice)
 	}
 	return arg
+}
+
+func GetFrom(tx *types.Transaction) (common.Address, error) {
+	from, err := types.Sender(types.LatestSignerForChainID(tx.ChainId()), tx)
+	return from, err
 }

@@ -66,7 +66,8 @@ func TestSendBundle(t *testing.T) {
 	t.Log("new tx", signedTx.Hash().String())
 
 	uuid := uuid.NewString()
-	sender := mev.NewClient(client, endpoint, privateKey, false, mev.BundleSenderTypeFlashbot)
+	sender, err := mev.NewClient(client, endpoint, privateKey, false, mev.BundleSenderTypeFlashbot)
+	require.NoError(t, err)
 
 	resp, err := sender.SendBundle(ctx, &uuid, blockNumber+12, signedTx)
 	require.NoError(t, err) // sepolia: code: [-32000], message: [internal server error]
@@ -95,7 +96,8 @@ func TestCancelBeaver(t *testing.T) {
 		bundleUUID = uuid.New().String()
 	)
 
-	sender := mev.NewClient(client, endpoint, nil, true, mev.BundleSenderTypeBeaver)
+	sender, err := mev.NewClient(client, endpoint, nil, true, mev.BundleSenderTypeBeaver)
+	require.NoError(t, err)
 
 	require.NoError(t, sender.CancelBundle(ctx, bundleUUID))
 }
@@ -131,8 +133,9 @@ func Test_SimulateBundle(t *testing.T) {
 
 	var (
 		simulationEndpoint = "http://localhost:8545"
-		client             = mev.NewClient(http.DefaultClient, simulationEndpoint, nil, false, mev.BundleSenderTypeFlashbot)
+		client, err        = mev.NewClient(http.DefaultClient, simulationEndpoint, nil, false, mev.BundleSenderTypeFlashbot)
 	)
+	require.NoError(t, err)
 
 	simulationResponse, err := client.SimulateBundle(context.Background(), uint64(blockNumber), txs...)
 	require.NoError(t, err)

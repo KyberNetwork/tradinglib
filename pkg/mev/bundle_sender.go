@@ -135,6 +135,7 @@ func (s *Client) flashbotBackrunSendBundle(
 }
 
 func (s *Client) EstimateBundleGas(
+	_ context.Context,
 	messages []ethereum.CallMsg,
 	overrides *map[common.Address]gethclient.OverrideAccount,
 ) ([]uint64, error) {
@@ -146,7 +147,7 @@ func (s *Client) EstimateBundleGas(
 	var gasEstimateCost []hexutil.Uint64
 
 	err := s.ethClient.Client().Call(
-		&gasEstimateCost, "eth_estimateGasBundle",
+		&gasEstimateCost, ETHEstimateGasBundleMethod,
 		map[string]interface{}{
 			"transactions": bundles,
 		}, "latest", overrides,

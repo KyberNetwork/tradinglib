@@ -9,8 +9,10 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient/gethclient"
 	"github.com/flashbots/mev-share-node/mevshare"
 )
 
@@ -30,6 +32,14 @@ type BloxrouteClient struct {
 	auth            string
 	flashbotKey     *ecdsa.PrivateKey
 	enabledBuilders []BlxrBuilder
+}
+
+func (s *BloxrouteClient) EstimateBundleGas(
+	_ context.Context,
+	_ []ethereum.CallMsg,
+	_ *map[common.Address]gethclient.OverrideAccount,
+) ([]uint64, error) {
+	return nil, nil
 }
 
 func (s *BloxrouteClient) MevSimulateBundle(
