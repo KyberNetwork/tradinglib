@@ -9,7 +9,9 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/flashbots/mev-share-node/mevshare"
 )
@@ -173,4 +175,24 @@ type TitanCancelBundleResponse struct {
 	ID      int             `json:"id,omitempty"`
 	Result  int             `json:"result,omitempty"`
 	Error   SendBundleError `json:"error,omitempty"`
+}
+
+func ToCallArg(msg ethereum.CallMsg) interface{} {
+	arg := map[string]interface{}{
+		"from": msg.From,
+		"to":   msg.To,
+	}
+	if len(msg.Data) > 0 {
+		arg["input"] = hexutil.Bytes(msg.Data)
+	}
+	if msg.Value != nil {
+		arg["value"] = (*hexutil.Big)(msg.Value)
+	}
+	if msg.Gas != 0 {
+		arg["gas"] = hexutil.Uint64(msg.Gas)
+	}
+	if msg.GasPrice != nil {
+		arg["gasPrice"] = (*hexutil.Big)(msg.GasPrice)
+	}
+	return arg
 }
