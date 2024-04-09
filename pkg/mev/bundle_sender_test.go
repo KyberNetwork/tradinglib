@@ -143,7 +143,9 @@ func Test_SimulateBundle(t *testing.T) {
 	require.NoError(t, err)
 	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient)
 
-	client, err := mev.NewClient(http.DefaultClient, simulationEndpoint, nil, false, mev.BundleSenderTypeFlashbot, gasBundleEstimator)
+	client, err := mev.NewClient(http.DefaultClient,
+		simulationEndpoint, nil, false,
+		mev.BundleSenderTypeFlashbot, gasBundleEstimator)
 	require.NoError(t, err)
 
 	simulationResponse, err := client.SimulateBundle(context.Background(), uint64(blockNumber), txs...)
