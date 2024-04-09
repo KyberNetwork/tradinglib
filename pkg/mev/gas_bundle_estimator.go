@@ -6,17 +6,17 @@ import (
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/ethclient/gethclient"
+	"github.com/ethereum/go-ethereum/rpc"
 )
 
 type GasBundleEstimator struct {
-	ethClient *ethclient.Client
+	client *rpc.Client
 }
 
-func NewGasBundleEstimator(ethClient *ethclient.Client) GasBundleEstimator {
+func NewGasBundleEstimator(client *rpc.Client) GasBundleEstimator {
 	return GasBundleEstimator{
-		ethClient: ethClient,
+		client: client,
 	}
 }
 
@@ -32,7 +32,7 @@ func (g GasBundleEstimator) EstimateBundleGas(
 
 	var gasEstimateCost []hexutil.Uint64
 
-	err := g.ethClient.Client().Call(
+	err := g.client.Call(
 		&gasEstimateCost, ETHEstimateGasBundleMethod,
 		map[string]interface{}{
 			"transactions": bundles,

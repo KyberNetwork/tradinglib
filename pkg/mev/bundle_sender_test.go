@@ -68,7 +68,7 @@ func TestSendBundle(t *testing.T) {
 	uuid := uuid.NewString()
 	ethClient, err = ethclient.Dial(endpoint)
 	require.NoError(t, err)
-	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient)
+	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient.Client())
 	sender, err := mev.NewClient(client, endpoint, privateKey, false, mev.BundleSenderTypeFlashbot, gasBundleEstimator)
 	require.NoError(t, err)
 
@@ -101,7 +101,7 @@ func TestCancelBeaver(t *testing.T) {
 
 	ethClient, err := ethclient.Dial(endpoint)
 	require.NoError(t, err)
-	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient)
+	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient.Client())
 
 	sender, err := mev.NewClient(client, endpoint, nil, true, mev.BundleSenderTypeBeaver, gasBundleEstimator)
 	require.NoError(t, err)
@@ -141,7 +141,7 @@ func Test_SimulateBundle(t *testing.T) {
 	simulationEndpoint := "http://localhost:8545"
 	ethClient, err := ethclient.Dial(simulationEndpoint)
 	require.NoError(t, err)
-	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient)
+	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient.Client())
 
 	client, err := mev.NewClient(http.DefaultClient,
 		simulationEndpoint, nil, false,
