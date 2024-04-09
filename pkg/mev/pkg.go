@@ -71,6 +71,14 @@ type IBundleSender interface {
 	GetSenderType() BundleSenderType
 }
 
+type IGasBundleEstimator interface {
+	EstimateBundleGas(
+		ctx context.Context,
+		messages []ethereum.CallMsg,
+		overrides *map[common.Address]gethclient.OverrideAccount,
+	) ([]uint64, error)
+}
+
 var (
 	_ IBundleSender = &Client{}
 	_ IBundleSender = &BloxrouteClient{}
