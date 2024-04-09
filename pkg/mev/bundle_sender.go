@@ -9,11 +9,13 @@ import (
 	"net/http"
 
 	"github.com/duoxehyon/mev-share-go/rpc"
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient/gethclient"
 	"github.com/flashbots/mev-share-node/mevshare"
 )
 
@@ -26,7 +28,8 @@ type Client struct {
 	cancelBySendBundle bool
 	senderType         BundleSenderType
 	// mevShareClient is the client for mev-share flashbots node
-	mevShareClient rpc.MevAPIClient
+	mevShareClient     rpc.MevAPIClient
+	gasBundleEstimator IGasBundleEstimator
 }
 
 // NewClient set the flashbotKey to nil will skip adding the signature header.
@@ -36,7 +39,8 @@ func NewClient(
 	flashbotKey *ecdsa.PrivateKey,
 	cancelBySendBundle bool,
 	senderType BundleSenderType,
-) *Client {
+	gasBundleEstimator IGasBundleEstimator,
+) (*Client, error) {
 	var mevShareClient rpc.MevAPIClient
 	if flashbotKey != nil {
 		mevShareClient = rpc.NewClient(endpoint, flashbotKey)
@@ -49,7 +53,8 @@ func NewClient(
 		cancelBySendBundle: cancelBySendBundle,
 		senderType:         senderType,
 		mevShareClient:     mevShareClient,
-	}
+		gasBundleEstimator: gasBundleEstimator,
+	}, nil
 }
 
 func (s *Client) GetSenderType() BundleSenderType {
@@ -122,6 +127,14 @@ func (s *Client) flashbotBackrunSendBundle(
 	// Send bundle
 	res, err := s.mevShareClient.SendBundle(req)
 	return res, err
+}
+
+func (s *Client) EstimateBundleGas(
+	ctx context.Context,
+	messages []ethereum.CallMsg,
+	overrides *map[common.Address]gethclient.OverrideAccount,
+) ([]uint64, error) {
+	return s.gasBundleEstimator.EstimateBundleGas(ctx, messages, overrides)
 }
 
 func (s *Client) MevSimulateBundle(

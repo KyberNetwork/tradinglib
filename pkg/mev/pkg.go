@@ -9,8 +9,11 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient/gethclient"
 	"github.com/flashbots/mev-share-node/mevshare"
 )
 
@@ -33,6 +36,7 @@ const (
 	ETHSendBundleMethod             = "eth_sendBundle"
 	EthCallBundleMethod             = "eth_callBundle"
 	ETHCancelBundleMethod           = "eth_cancelBundle"
+	ETHEstimateGasBundleMethod      = "eth_estimateGasBundle"
 	MevSendBundleMethod             = "mev_sendBundle"
 	MaxBlockFromTarget              = 3
 )
@@ -55,11 +59,24 @@ type IBundleSender interface {
 		ctx context.Context, bundleUUID string,
 	) error
 	SimulateBundle(ctx context.Context, blockNumber uint64, txs ...*types.Transaction) (SendBundleResponse, error)
+	EstimateBundleGas(
+		ctx context.Context,
+		messages []ethereum.CallMsg,
+		overrides *map[common.Address]gethclient.OverrideAccount,
+	) ([]uint64, error)
 	MevSimulateBundle(
 		blockNumber uint64,
 		pendingTxHash common.Hash,
 		tx *types.Transaction) (*mevshare.SimMevBundleResponse, error)
 	GetSenderType() BundleSenderType
+}
+
+type IGasBundleEstimator interface {
+	EstimateBundleGas(
+		ctx context.Context,
+		messages []ethereum.CallMsg,
+		overrides *map[common.Address]gethclient.OverrideAccount,
+	) ([]uint64, error)
 }
 
 var (
@@ -173,4 +190,29 @@ type TitanCancelBundleResponse struct {
 	ID      int             `json:"id,omitempty"`
 	Result  int             `json:"result,omitempty"`
 	Error   SendBundleError `json:"error,omitempty"`
+}
+
+func ToCallArg(msg ethereum.CallMsg) interface{} {
+	arg := map[string]interface{}{
+		"from": msg.From,
+		"to":   msg.To,
+	}
+	if len(msg.Data) > 0 {
+		arg["input"] = hexutil.Bytes(msg.Data)
+	}
+	if msg.Value != nil {
+		arg["value"] = (*hexutil.Big)(msg.Value)
+	}
+	if msg.Gas != 0 {
+		arg["gas"] = hexutil.Uint64(msg.Gas)
+	}
+	if msg.GasPrice != nil {
+		arg["gasPrice"] = (*hexutil.Big)(msg.GasPrice)
+	}
+	return arg
+}
+
+func GetFrom(tx *types.Transaction) (common.Address, error) {
+	from, err := types.Sender(types.LatestSignerForChainID(tx.ChainId()), tx)
+	return from, err
 }

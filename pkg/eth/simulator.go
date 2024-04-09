@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/KyberNetwork/tradinglib/pkg/mev"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -28,31 +29,11 @@ func (s *Simulator) EstimateGasWithOverrides(
 ) (uint64, error) {
 	var hex hexutil.Uint64
 	err := s.c.CallContext(
-		ctx, &hex, "eth_estimateGas", toCallArg(msg),
+		ctx, &hex, "eth_estimateGas", mev.ToCallArg(msg),
 		toBlockNumArg(blockNumber), overrides,
 	)
 
 	return uint64(hex), err
-}
-
-func toCallArg(msg ethereum.CallMsg) interface{} {
-	arg := map[string]interface{}{
-		"from": msg.From,
-		"to":   msg.To,
-	}
-	if len(msg.Data) > 0 {
-		arg["input"] = hexutil.Bytes(msg.Data)
-	}
-	if msg.Value != nil {
-		arg["value"] = (*hexutil.Big)(msg.Value)
-	}
-	if msg.Gas != 0 {
-		arg["gas"] = hexutil.Uint64(msg.Gas)
-	}
-	if msg.GasPrice != nil {
-		arg["gasPrice"] = (*hexutil.Big)(msg.GasPrice)
-	}
-	return arg
 }
 
 func toBlockNumArg(number *big.Int) string {

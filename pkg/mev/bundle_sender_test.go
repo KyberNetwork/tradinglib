@@ -66,7 +66,11 @@ func TestSendBundle(t *testing.T) {
 	t.Log("new tx", signedTx.Hash().String())
 
 	uuid := uuid.NewString()
-	sender := mev.NewClient(client, endpoint, privateKey, false, mev.BundleSenderTypeFlashbot)
+	ethClient, err = ethclient.Dial(endpoint)
+	require.NoError(t, err)
+	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient.Client())
+	sender, err := mev.NewClient(client, endpoint, privateKey, false, mev.BundleSenderTypeFlashbot, gasBundleEstimator)
+	require.NoError(t, err)
 
 	resp, err := sender.SendBundle(ctx, &uuid, blockNumber+12, signedTx)
 	require.NoError(t, err) // sepolia: code: [-32000], message: [internal server error]
@@ -95,7 +99,12 @@ func TestCancelBeaver(t *testing.T) {
 		bundleUUID = uuid.New().String()
 	)
 
-	sender := mev.NewClient(client, endpoint, nil, true, mev.BundleSenderTypeBeaver)
+	ethClient, err := ethclient.Dial(endpoint)
+	require.NoError(t, err)
+	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient.Client())
+
+	sender, err := mev.NewClient(client, endpoint, nil, true, mev.BundleSenderTypeBeaver, gasBundleEstimator)
+	require.NoError(t, err)
 
 	require.NoError(t, sender.CancelBundle(ctx, bundleUUID))
 }
@@ -129,10 +138,15 @@ func Test_SimulateBundle(t *testing.T) {
 		txs = append(txs, &tx)
 	}
 
-	var (
-		simulationEndpoint = "http://localhost:8545"
-		client             = mev.NewClient(http.DefaultClient, simulationEndpoint, nil, false, mev.BundleSenderTypeFlashbot)
-	)
+	simulationEndpoint := "http://localhost:8545"
+	ethClient, err := ethclient.Dial(simulationEndpoint)
+	require.NoError(t, err)
+	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient.Client())
+
+	client, err := mev.NewClient(http.DefaultClient,
+		simulationEndpoint, nil, false,
+		mev.BundleSenderTypeFlashbot, gasBundleEstimator)
+	require.NoError(t, err)
 
 	simulationResponse, err := client.SimulateBundle(context.Background(), uint64(blockNumber), txs...)
 	require.NoError(t, err)
