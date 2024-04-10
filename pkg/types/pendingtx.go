@@ -95,6 +95,8 @@ func (c CallFrame) getLogs() []*types.Log {
 
 // GetRelatedPools returns all pools related to the log
 // A pool might appear from log.Address, or log.Topics.
+// Currently, support univ2, balancer poolType.
+// Others should be dig and update this function if needed.
 func GetRelatedPools(log *types.Log) []string {
 	pools := make([]string, 0, len(log.Topics)+1)
 	for _, topic := range log.Topics {
