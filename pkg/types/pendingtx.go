@@ -2,6 +2,7 @@ package types
 
 import (
 	"math/big"
+	"strings"
 
 	"github.com/KyberNetwork/tradinglib/pkg/mev"
 	"github.com/ethereum/go-ethereum/common"
@@ -77,4 +78,31 @@ type MinedBlock struct {
 	BlockHash    string        `json:"block_hash"`
 	BlockTime    int64         `json:"block_time"`
 	Transactions []Transaction `json:"transactions"`
+}
+
+func (m Message) GetAllLogs() []*types.Log {
+	logs := m.InternalTx.getLogs()
+	return logs
+}
+
+func (c CallFrame) getLogs() []*types.Log {
+	results := c.Logs
+	for index := range c.Calls {
+		results = append(results, c.Calls[index].getLogs()...)
+	}
+	return results
+}
+
+// GetRelatedPools returns all pools related to the log
+// A pool might appear from log.Address, or log.Topics.
+// Currently, support univ2, balancer poolType.
+// Others should be dig and update this function if needed.
+func GetRelatedPools(log *types.Log) []string {
+	pools := make([]string, 0, len(log.Topics)+1)
+	for _, topic := range log.Topics {
+		pools = append(pools, strings.ToLower(topic.Hex()))
+	}
+	pools = append(pools, strings.ToLower(log.Address.Hex()))
+
+	return pools
 }

@@ -72,6 +72,10 @@ type IBundleSender interface {
 }
 
 type IGasBundleEstimator interface {
+	// EstimateBundleGas is used to estimate the gas for a bundle of transactions
+	// Note that this method is expected only works with custom ethereum node which
+	// supports estimate bundles gas via CallMsgs,
+	// and using eth_estimateGasBundle method.
 	EstimateBundleGas(
 		ctx context.Context,
 		messages []ethereum.CallMsg,
