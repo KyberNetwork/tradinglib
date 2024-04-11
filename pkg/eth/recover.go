@@ -5,6 +5,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -41,4 +42,9 @@ func RecoverSignerAddress(hexEncodedHash string, hexEncodedSignature string) (co
 	address := crypto.PubkeyToAddress(*pubKey)
 
 	return address, nil
+}
+
+func GetFrom(tx *types.Transaction) (common.Address, error) {
+	from, err := types.Sender(types.LatestSignerForChainID(tx.ChainId()), tx)
+	return from, err
 }
