@@ -4,7 +4,7 @@ import "sync"
 
 type SyncMap[K comparable, V any] struct {
 	data map[K]V
-	l    sync.RWMutex
+	rw   sync.RWMutex
 }
 
 func New[K comparable, V any]() SyncMap[K, V] {
@@ -14,20 +14,20 @@ func New[K comparable, V any]() SyncMap[K, V] {
 }
 
 func (m *SyncMap[K, V]) Store(k K, v V) {
-	m.l.Lock()
-	defer m.l.Unlock()
+	m.rw.Lock()
+	defer m.rw.Unlock()
 	m.data[k] = v
 }
 
 func (m *SyncMap[K, V]) Delete(k K) {
-	m.l.Lock()
-	defer m.l.Unlock()
+	m.rw.Lock()
+	defer m.rw.Unlock()
 	delete(m.data, k)
 }
 
 func (m *SyncMap[K, V]) Update(k K, fn func(V) (V, error)) (bool, error) {
-	m.l.Lock()
-	defer m.l.Unlock()
+	m.rw.Lock()
+	defer m.rw.Unlock()
 
 	v, ok := m.data[k]
 	if !ok {
@@ -45,8 +45,32 @@ func (m *SyncMap[K, V]) Update(k K, fn func(V) (V, error)) (bool, error) {
 }
 
 func (m *SyncMap[K, V]) Load(k K) (v V, ok bool) {
-	m.l.RLock()
-	defer m.l.RUnlock()
+	m.rw.RLock()
+	defer m.rw.RUnlock()
 	v, ok = m.data[k]
 	return v, ok
+}
+
+func (m *SyncMap[K, V]) Keys() []K {
+	m.rw.RLock()
+	defer m.rw.RUnlock()
+
+	keys := make([]K, 0, len(m.data))
+
+	for k := range m.data {
+		keys = append(keys, k)
+	}
+
+	return keys
+}
+
+func (m *SyncMap[K, V]) RangeMut(fn func(k K, v V) bool) {
+	m.rw.Lock()
+	defer m.rw.Unlock()
+
+	for k, v := range m.data {
+		if !fn(k, v) {
+			break
+		}
+	}
 }
