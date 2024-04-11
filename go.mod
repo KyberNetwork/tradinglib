@@ -8,6 +8,7 @@ require (
 	github.com/flashbots/mev-share-node v0.0.0-20230926173018-7862d944990a
 	github.com/golang-migrate/migrate/v4 v4.17.0
 	github.com/google/uuid v1.4.0
+	github.com/holiman/uint256 v1.2.4
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/shopspring/decimal v1.3.1
 	github.com/sourcegraph/conc v0.3.0
@@ -37,7 +38,6 @@ require (
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/holiman/uint256 v1.2.4 // indirect
 	github.com/huin/goupnp v1.3.0 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect
 	github.com/lib/pq v1.10.9 // indirect
