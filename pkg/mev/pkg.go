@@ -215,8 +215,3 @@ func ToCallArg(msg ethereum.CallMsg) interface{} {
 	}
 	return arg
 }
-
-func GetFrom(tx *types.Transaction) (common.Address, error) {
-	from, err := types.Sender(types.LatestSignerForChainID(tx.ChainId()), tx)
-	return from, err
-}
