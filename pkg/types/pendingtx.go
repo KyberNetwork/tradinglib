@@ -32,6 +32,7 @@ type Message struct {
 	From               string        `json:"from"`
 	Nonce              uint64        `json:"nonce"`
 	Source             MempoolSource `json:"source"`
+	Type               uint64        `json:"type"`
 }
 
 type SimDebugInfo struct {
