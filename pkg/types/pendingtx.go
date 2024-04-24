@@ -18,22 +18,22 @@ const (
 )
 
 type Message struct {
-	PendingBlockNumber     uint64                 `json:"pending_block_number"`
-	TxHash                 string                 `json:"tx_hash"`
-	SimDebugInfo           SimDebugInfo           `json:"sim_debug_info"`
-	InternalTx             *CallFrame             `json:"internal_txs"`
-	BaseFee                *big.Int               `json:"base_fee"`
-	CurrentBlockTime       uint64                 `json:"current_block_time"`
-	GasFeeCap              *big.Int               `json:"gas_fee_cap"`
-	GasPrice               *big.Int               `json:"gas_price"`
-	GasTip                 *big.Int               `json:"gas_tip"`
-	Gas                    uint64                 `json:"gas"`
-	GasUsed                uint64                 `json:"gas_used"`
-	From                   string                 `json:"from"`
-	Nonce                  uint64                 `json:"nonce"`
-	Source                 MempoolSource          `json:"source"`
-	Type                   uint64                 `json:"type"`
-	FlashbotMevshareTxHint *FlashbotMevshareEvent `json:"flashbot_mevshare_tx_hint,omitempty"`
+	PendingBlockNumber    uint64                 `json:"pending_block_number"`
+	TxHash                string                 `json:"tx_hash"`
+	SimDebugInfo          SimDebugInfo           `json:"sim_debug_info"`
+	InternalTx            *CallFrame             `json:"internal_txs"`
+	BaseFee               *big.Int               `json:"base_fee"`
+	CurrentBlockTime      uint64                 `json:"current_block_time"`
+	GasFeeCap             *big.Int               `json:"gas_fee_cap"`
+	GasPrice              *big.Int               `json:"gas_price"`
+	GasTip                *big.Int               `json:"gas_tip"`
+	Gas                   uint64                 `json:"gas"`
+	GasUsed               uint64                 `json:"gas_used"`
+	From                  string                 `json:"from"`
+	Nonce                 uint64                 `json:"nonce"`
+	Source                MempoolSource          `json:"source"`
+	Type                  uint64                 `json:"type"`
+	FlashbotMevshareEvent *FlashbotMevshareEvent `json:"flashbot_mevshare_event,omitempty"`
 }
 
 type SimDebugInfo struct {
