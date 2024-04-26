@@ -5,13 +5,14 @@ import (
 	"crypto/ecdsa"
 	"crypto/rand"
 	"encoding/json"
+	"log"
 	"math/big"
 	"net/http"
 	"testing"
 
 	"github.com/KyberNetwork/tradinglib/pkg/convert"
 	"github.com/KyberNetwork/tradinglib/pkg/mev"
-	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -120,31 +121,36 @@ func Test_UnmarshalSimulationResponse(t *testing.T) {
 
 func Test_SimulateBundle(t *testing.T) {
 	t.Skip()
-	rawTxs := []string{
-		"0xf868808502540be400825208944592d8f8d7b001e72cb26a73e4fa1806a51ac79d82271080820a96a017691fd52972f52132d2db29c305afd89f50924b0cbc6e875ec8c6bcca14d287a015db7d1ab52dd19e40e7fe91018df63df9d5c5a5e21541dc2c8548a5ae9cee37", // nolint:lll
-		"0xf868018502540be400825208944592d8f8d7b001e72cb26a73e4fa1806a51ac79d82271080820a96a0aba458c7c6d1feac6c414c8f8cf562251609a2fb6710fcfce0c7783b106e5f41a00c0e780a9ea923e177dcc52aa143887ec21c9697f305a54f41b648f733e98d3e", // nolint:lll
-		"0xf868028502540be400825208944592d8f8d7b001e72cb26a73e4fa1806a51ac79d82271080820a95a05ddce4890eac66bfb20eba1493d12093c7551f1f5269a31487c718ee0ea2d12ca02ca061024dfad8d35cce7233eb3f75cdfc57ea80547f49ed887c1f257f4db719", // nolint:lll
+	nodeEndpoint := "https://ethereum-rpc.publicnode.com"
+	ethClient, err := ethclient.Dial(nodeEndpoint)
+	require.NoError(t, err)
+
+	// Transaction hashes you want to fetch from the node
+	txHashes := []string{
+		"0x5deec444557cb413fc483e517454eb2f7a717e922af60cd79a223ea9741299b3",
+		"0x2e038916d175d9028c87d59e33f79ac96cb487e90aad6cd501dc9675b64d7245",
+	}
+	blockNumber := 19738428
+	txs := make([]*types.Transaction, 0, len(txHashes))
+	for _, hash := range txHashes {
+		tx, isPending, err := ethClient.TransactionByHash(context.Background(), common.HexToHash(hash))
+		require.NoError(t, err)
+		require.False(t, isPending)
+		txs = append(txs, tx)
 	}
 
-	blockNumber := 1
-
-	txs := make([]*types.Transaction, 0, len(rawTxs))
-	for _, rawTx := range rawTxs {
-		var tx types.Transaction
-		b, err := hexutil.Decode(rawTx)
-		require.NoError(t, err)
-		err = tx.UnmarshalBinary(b)
-		require.NoError(t, err)
-		txs = append(txs, &tx)
-	}
-
-	simulationEndpoint := "http://localhost:8545"
-	ethClient, err := ethclient.Dial(simulationEndpoint)
+	simulationEndpoint := "https://relay.flashbots.net"
+	ethClient, err = ethclient.Dial(simulationEndpoint)
 	require.NoError(t, err)
 	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient.Client())
 
+	privateKey, err := crypto.GenerateKey()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	client, err := mev.NewClient(http.DefaultClient,
-		simulationEndpoint, nil, false,
+		simulationEndpoint, privateKey, false,
 		mev.BundleSenderTypeFlashbot, gasBundleEstimator)
 	require.NoError(t, err)
 
