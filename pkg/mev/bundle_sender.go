@@ -335,7 +335,7 @@ func (s *Client) sendBundle(
 		JSONRPC: JSONRPC2,
 		Method:  method,
 	}
-	p := new(SendBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...)
+	p := new(SendBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...).SetStateBlockNumber("latest")
 	if uuid != nil {
 		p.SetUUID(*uuid, s.senderType)
 	}
@@ -404,7 +404,13 @@ type SendBundleParams struct {
 	// (Optional) String, UUID that can be used to cancel/replace this bundle
 	ReplacementUUID string `json:"ReplacementUuid,omitempty"`
 	// (Optional) String, UUID that can be used to cancel/replace this bundle (For beaverbuild)
-	UUID string `json:"uuid,omitempty"`
+	UUID             string `json:"uuid,omitempty"`
+	StateBlockNumber string `json:"stateBlockNumber,omitempty"`
+}
+
+func (p *SendBundleParams) SetStateBlockNumber(stateBlockNumber string) *SendBundleParams {
+	p.StateBlockNumber = stateBlockNumber
+	return p
 }
 
 func (p *SendBundleParams) SetPendingTxHash(txHash common.Hash) *SendBundleParams {

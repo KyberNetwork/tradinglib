@@ -90,6 +90,22 @@ type MinedBlock struct {
 }
 
 func (m Message) GetAllLogs() []*types.Log {
+	if m.Source == FlashbotMempool {
+		if m.FlashbotMevshareEvent != nil {
+			results := make([]*types.Log, 0, len(m.FlashbotMevshareEvent.Logs))
+			for _, log := range m.FlashbotMevshareEvent.Logs {
+				results = append(results, &types.Log{
+					Address: log.Address,
+					Topics:  log.Topics,
+					Data:    log.Data,
+				})
+			}
+			return results
+		}
+		return nil
+	}
+
+	// public mempool case
 	logs := m.InternalTx.getLogs()
 	return logs
 }
