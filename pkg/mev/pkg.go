@@ -99,11 +99,11 @@ func txToRlp(tx *types.Transaction) string {
 
 	rlp := hex.EncodeToString(buff.Bytes())
 
-	if rlp[:2] == "b9" {
-		rlp = rlp[6:]
-	} else if rlp[:2] == "b8" {
-		rlp = rlp[4:]
-	}
+	// if rlp[:2] == "b9" {
+	// 	rlp = rlp[6:]
+	// } else if rlp[:2] == "b8" {
+	// 	rlp = rlp[4:]
+	// }
 
 	return rlp
 }
