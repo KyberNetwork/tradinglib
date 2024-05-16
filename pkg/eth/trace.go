@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"cmp"
 	"encoding/json"
+	"fmt"
 	"io"
 	"math/big"
 	"net/http"
@@ -41,67 +42,16 @@ func (c *TraceClient) DebugTraceTransaction(txHash string) (CallFrame, error) {
 		},
 	}
 
-	b, err := json.Marshal(payload)
-	if err != nil {
-		return CallFrame{}, err
+	var resp CommomTraceResponse[CallFrame]
+	if err := c.post(payload, &resp); err != nil {
+		return CallFrame{}, fmt.Errorf("post error: %w", err)
+	}
+	if resp.Error.Code != 0 {
+		return CallFrame{}, fmt.Errorf("error response: code: %d, message: %s",
+			resp.Error.Code, resp.Error.Message)
 	}
 
-	req, err := http.NewRequest(http.MethodPost, c.rpcURL, bytes.NewBuffer(b))
-	if err != nil {
-		return CallFrame{}, err
-	}
-	req.Header.Add("Content-Type", "application/json")
-
-	res, err := c.httpClient.Do(req)
-	if err != nil {
-		return CallFrame{}, err
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return CallFrame{}, err
-	}
-
-	var rpcResponse CommomTraceResponse[CallFrame]
-	if err := json.Unmarshal(body, &rpcResponse); err != nil {
-		return CallFrame{}, err
-	}
-
-	return rpcResponse.Result, err
-}
-
-type CommomTraceResponse[T any] struct {
-	Jsonrpc string `json:"jsonrpc"`
-	ID      int    `json:"id"`
-	Result  T      `json:"result"`
-}
-
-type CallLog struct {
-	Address common.Address `json:"address"`
-	Topics  []common.Hash  `json:"topics"`
-	Data    string         `json:"data"`
-}
-
-func (l CallLog) ToEthereumLog() types.Log {
-	return types.Log{
-		Address: l.Address,
-		Topics:  l.Topics,
-		Data:    common.Hex2Bytes(l.Data),
-	}
-}
-
-type CallFrame struct {
-	From    string      `json:"from"`
-	Gas     string      `json:"gas"`
-	GasUsed string      `json:"gasUsed"`
-	To      string      `json:"to"`
-	Input   string      `json:"input"`
-	Output  string      `json:"output"`
-	Calls   []CallFrame `json:"calls"`
-	Value   string      `json:"value"`
-	Type    string      `json:"type"`
-	Logs    []CallLog   `json:"logs"`
+	return resp.Result, nil
 }
 
 func (c *TraceClient) DebugTraceCall(
@@ -148,32 +98,93 @@ func (c *TraceClient) DebugTraceCall(
 		},
 	}
 
-	b, err := json.Marshal(payload)
-	if err != nil {
-		return CallFrame{}, err
+	var resp CommomTraceResponse[CallFrame]
+	if err := c.post(payload, &resp); err != nil {
+		return CallFrame{}, fmt.Errorf("post error: %w", err)
 	}
 
-	req, err := http.NewRequest(http.MethodPost, c.rpcURL, bytes.NewBuffer(b))
+	if resp.Error.Code != 0 {
+		return CallFrame{}, fmt.Errorf("error response: code: %d, message: %s",
+			resp.Error.Code, resp.Error.Message)
+	}
+
+	return resp.Result, nil
+}
+
+func (c *TraceClient) post(payload any, expect any) error {
+	var body *bytes.Buffer
+	if payload != nil {
+		b, err := json.Marshal(payload)
+		if err != nil {
+			return fmt.Errorf("marshal error: %w", err)
+		}
+		body = bytes.NewBuffer(b)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, c.rpcURL, body)
 	if err != nil {
-		return CallFrame{}, err
+		return err
 	}
 	req.Header.Add("Content-Type", "application/json")
 
-	res, err := c.httpClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return CallFrame{}, err
+		return err
 	}
-	defer res.Body.Close()
-
-	text, err := io.ReadAll(res.Body)
+	defer resp.Body.Close()
+	text, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return CallFrame{}, err
+		return err
 	}
 
-	var rpcResponse CommomTraceResponse[CallFrame]
-	if err := json.Unmarshal(text, &rpcResponse); err != nil {
-		return CallFrame{}, err
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("not status OK, status: %d", resp.StatusCode)
 	}
 
-	return rpcResponse.Result, err
+	if expect != nil {
+		if err := json.Unmarshal(text, expect); err != nil {
+			return fmt.Errorf("unmarshal error: %w, data: [%s]", err, text)
+		}
+	}
+
+	return nil
+}
+
+type CommomTraceResponse[T any] struct {
+	JSONRPC string        `json:"jsonrpc"`
+	ID      int           `json:"id"`
+	Result  T             `json:"result"`
+	Error   ErrorResponse `json:"error"`
+}
+
+type CallLog struct {
+	Address common.Address `json:"address"`
+	Topics  []common.Hash  `json:"topics"`
+	Data    string         `json:"data"`
+}
+
+func (l CallLog) ToEthereumLog() types.Log {
+	return types.Log{
+		Address: l.Address,
+		Topics:  l.Topics,
+		Data:    common.Hex2Bytes(l.Data),
+	}
+}
+
+type CallFrame struct {
+	From    string      `json:"from"`
+	Gas     string      `json:"gas"`
+	GasUsed string      `json:"gasUsed"`
+	To      string      `json:"to"`
+	Input   string      `json:"input"`
+	Output  string      `json:"output"`
+	Calls   []CallFrame `json:"calls"`
+	Value   string      `json:"value"`
+	Type    string      `json:"type"`
+	Logs    []CallLog   `json:"logs"`
+}
+
+type ErrorResponse struct {
+	Code    int64  `json:"code"`
+	Message string `json:"message"`
 }
