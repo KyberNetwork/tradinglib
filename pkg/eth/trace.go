@@ -9,9 +9,9 @@ import (
 	"math/big"
 	"net/http"
 
-	"github.com/duoxehyon/mev-share-go/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/core/types"
 )
 
 type TraceClient struct {
@@ -163,12 +163,17 @@ type CallLog struct {
 	Data    string         `json:"data"`
 }
 
-func (l CallLog) ToEthereumLog() types.Log {
+func (l CallLog) ToEthereumLog() (types.Log, error) {
+	dataBytes, err := hexutil.Decode(l.Data)
+	if err != nil {
+		return types.Log{}, fmt.Errorf("decode error: %w", err)
+	}
+
 	return types.Log{
 		Address: l.Address,
 		Topics:  l.Topics,
-		Data:    common.Hex2Bytes(l.Data),
-	}
+		Data:    dataBytes,
+	}, nil
 }
 
 type CallFrame struct {
