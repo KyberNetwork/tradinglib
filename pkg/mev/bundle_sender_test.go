@@ -12,10 +12,13 @@ import (
 
 	"github.com/KyberNetwork/tradinglib/pkg/convert"
 	"github.com/KyberNetwork/tradinglib/pkg/mev"
+	"github.com/duoxehyon/mev-share-go/rpc"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/flashbots/mev-share-node/mevshare"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -164,4 +167,61 @@ func Test_SimulateBundle(t *testing.T) {
 		"0x99872010193b755b7dfad328508c751173521ee9b5349eab111b33096bf9e19a",
 		simulationResponse.Result.BundleHash,
 	)
+}
+
+func TestMevSendBundle(t *testing.T) {
+	t.Skip()
+
+	ethClient, err := ethclient.Dial("https://ethereum-rpc.publicnode.com")
+	require.NoError(t, err)
+
+	blockNumber, err := ethClient.BlockNumber(context.Background())
+	require.NoError(t, err)
+	t.Log("blockNumber", blockNumber)
+
+	// Transaction hashes you want to fetch from the node
+	txHashes := []string{
+		"0x2e038916d175d9028c87d59e33f79ac96cb487e90aad6cd501dc9675b64d7245",
+	}
+	tx, isPending, err := ethClient.TransactionByHash(context.Background(), common.HexToHash(txHashes[0]))
+	require.NoError(t, err)
+	require.False(t, isPending)
+
+	// Serialize the transaction to RLP
+	rlpEncodedTx, err := tx.MarshalBinary()
+	if err != nil {
+		log.Fatalf("Failed to encode transaction: %v", err)
+	}
+
+	// Flashbots header signing key
+	fbSigningKey, err := crypto.GenerateKey()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Initialize the client
+	rpcClient := rpc.NewClient("https://relay.flashbots.net", fbSigningKey)
+
+	txBytes := hexutil.Bytes(rlpEncodedTx)
+
+	// Define the bundle transactions
+	txns := []mevshare.MevBundleBody{
+		{
+			Tx: &txBytes,
+		},
+	}
+	inclusion := mevshare.MevBundleInclusion{
+		BlockNumber: hexutil.Uint64(blockNumber + 1),
+	}
+	// Make the bundle
+	req := mevshare.SendMevBundleArgs{
+		Body:      txns,
+		Inclusion: inclusion,
+	}
+
+	// Send bundle
+	res, err := rpcClient.SendBundle(req)
+	assert.Nil(t, err)
+
+	t.Log(res.BundleHash.String(), "bundleHash")
 }

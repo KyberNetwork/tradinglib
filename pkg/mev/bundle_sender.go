@@ -98,8 +98,12 @@ func (s *Client) flashbotBackrunSendBundle(
 		return nil, fmt.Errorf("mev share client is nil")
 	}
 
-	encodedTx := "0x" + txToRlp(tx)
-	txBytes := hexutil.Bytes(encodedTx)
+	rlpEncodedTx, err := tx.MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+
+	txBytes := hexutil.Bytes(rlpEncodedTx)
 	// Define the bundle transactions
 	txs := []mevshare.MevBundleBody{
 		{
