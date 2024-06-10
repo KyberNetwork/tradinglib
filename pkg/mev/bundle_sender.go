@@ -122,11 +122,6 @@ func (s *Client) flashbotBackrunSendBundle(
 	req := mevshare.SendMevBundleArgs{
 		Body:      txs,
 		Inclusion: inclusion,
-		// share bundle data in increase chance of inclusion
-		// https://docs.flashbots.net/flashbots-mev-share/searchers/sending-bundles#share-bundle-data
-		Privacy: &mevshare.MevBundlePrivacy{
-			Hints: mevshare.HintTxHash,
-		},
 	}
 	// Send bundle
 	res, err := s.mevShareClient.SendBundle(req)
