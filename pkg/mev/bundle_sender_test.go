@@ -204,14 +204,19 @@ func TestMevSendBundle(t *testing.T) {
 
 	txBytes := hexutil.Bytes(rlpEncodedTx)
 
+	pendingTXhash := common.HexToHash("0x2e038916d175d9028c87d59e33f79ac96cb487e90aad6cd501dc9675b64d7245")
 	// Define the bundle transactions
 	txns := []mevshare.MevBundleBody{
+		{
+			Hash: &pendingTXhash,
+		},
 		{
 			Tx: &txBytes,
 		},
 	}
 	inclusion := mevshare.MevBundleInclusion{
 		BlockNumber: hexutil.Uint64(blockNumber + 1),
+		MaxBlock:    hexutil.Uint64(blockNumber + 4),
 	}
 	// Make the bundle
 	req := mevshare.SendMevBundleArgs{
