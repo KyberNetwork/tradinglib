@@ -1,6 +1,6 @@
 module github.com/KyberNetwork/tradinglib
 
-go 1.22
+go 1.22.0
 
 require (
 	github.com/duoxehyon/mev-share-go v0.3.0

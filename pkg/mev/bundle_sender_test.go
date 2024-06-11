@@ -229,3 +229,72 @@ func TestMevSendBundle(t *testing.T) {
 
 	t.Log(res.BundleHash.String(), "bundleHash")
 }
+
+func TestClient_GetBundleStats(t *testing.T) {
+	t.Skip()
+
+	ethClient, err := ethclient.Dial("https://ethereum-rpc.publicnode.com")
+	require.NoError(t, err)
+
+	blockNumber, err := ethClient.BlockNumber(context.Background())
+	require.NoError(t, err)
+	t.Log("blockNumber", blockNumber)
+
+	// Transaction hashes you want to fetch from the node
+	txHashes := []string{
+		"0x2e038916d175d9028c87d59e33f79ac96cb487e90aad6cd501dc9675b64d7245",
+	}
+	tx, isPending, err := ethClient.TransactionByHash(context.Background(), common.HexToHash(txHashes[0]))
+	require.NoError(t, err)
+	require.False(t, isPending)
+
+	// Serialize the transaction to RLP
+	rlpEncodedTx, err := tx.MarshalBinary()
+	if err != nil {
+		log.Fatalf("Failed to encode transaction: %v", err)
+	}
+
+	// Flashbots header signing key
+	fbSigningKey, err := crypto.GenerateKey()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	SimulationEndpoint := "https://relay.flashbots.net"
+	// Initialize the client
+	rpcClient := rpc.NewClient(SimulationEndpoint, fbSigningKey)
+
+	txBytes := hexutil.Bytes(rlpEncodedTx)
+
+	// Define the bundle transactions
+	txns := []mevshare.MevBundleBody{
+		{
+			Tx: &txBytes,
+		},
+	}
+	inclusion := mevshare.MevBundleInclusion{
+		BlockNumber: hexutil.Uint64(blockNumber + 1),
+	}
+	// Make the bundle
+	req := mevshare.SendMevBundleArgs{
+		Body:      txns,
+		Inclusion: inclusion,
+	}
+
+	// Send bundle
+	res, err := rpcClient.SendBundle(req)
+	assert.Nil(t, err)
+
+	t.Log(res.BundleHash.String(), "bundleHash")
+
+	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient.Client())
+	client, err := mev.NewClient(http.DefaultClient,
+		SimulationEndpoint, fbSigningKey, false,
+		mev.BundleSenderTypeFlashbot, gasBundleEstimator)
+	require.NoError(t, err)
+	// Get bundle stats
+	stats, err := client.GetBundleStats(context.Background(), blockNumber+1, res.BundleHash)
+	assert.Nil(t, err)
+
+	t.Log(stats)
+}

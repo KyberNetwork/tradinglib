@@ -15,6 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient/gethclient"
 	"github.com/flashbots/mev-share-node/mevshare"
+	"time"
 )
 
 type BundleSenderType int
@@ -30,9 +31,11 @@ const (
 
 const (
 	JSONRPC2                        = "2.0"
+	GetBundleStatsID                = 1
 	SendBundleID                    = 1
 	BloxrouteSubmitBundleMethod     = "blxr_submit_bundle"
 	BloxrouteSimulationBundleMethod = "blxr_simulate_bundle"
+	FlashbotGetBundleStatsMethod    = "flashbots_getBundleStats"
 	ETHSendBundleMethod             = "eth_sendBundle"
 	EthCallBundleMethod             = "eth_callBundle"
 	ETHCancelBundleMethod           = "eth_cancelBundle"
@@ -69,6 +72,9 @@ type IBundleSender interface {
 		pendingTxHash common.Hash,
 		tx *types.Transaction) (*mevshare.SimMevBundleResponse, error)
 	GetSenderType() BundleSenderType
+	GetBundleStats(
+		ctx context.Context, blockNumber uint64, bundleHash common.Hash,
+	) (GetBundleStatsResponse, error)
 }
 
 type IGasBundleEstimator interface {
@@ -138,6 +144,22 @@ func doRequest[T any](c *http.Client, req *http.Request, headers ...[2]string) (
 	}
 
 	return t, nil
+}
+
+type GetBundleStatsResponse struct {
+	IsHighPriority bool      `json:"isHighPriority,omitempty"`
+	IsSimulated    bool      `json:"isSimulated,omitempty"`
+	SimulatedAt    time.Time `json:"simulatedAt"`
+	ReceivedAt     time.Time `json:"receivedAt"`
+
+	ConsideredByBuildersAt []*struct {
+		Pubkey    string    `json:"pubkey,omitempty"`
+		Timestamp time.Time `json:"timestamp"`
+	} `json:"consideredByBuildersAt,omitempty"`
+	SealedByBuildersAt []*struct {
+		Pubkey    string    `json:"pubkey,omitempty"`
+		Timestamp time.Time `json:"timestamp"`
+	} `json:"sealedByBuildersAt,omitempty"`
 }
 
 type SendBundleResponse struct {
