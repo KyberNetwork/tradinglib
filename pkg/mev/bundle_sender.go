@@ -70,6 +70,8 @@ func (s *Client) SendBundle(
 	return s.sendBundle(ctx, ETHSendBundleMethod, uuid, blockNumber, txs...)
 }
 
+// getGetBundleStatsMethod
+// nolint: unparam
 func (s *Client) getGetBundleStatsMethod() string {
 	switch s.senderType {
 	case BundleSenderTypeFlashbot:

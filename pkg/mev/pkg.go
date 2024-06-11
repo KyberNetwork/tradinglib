@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
@@ -15,7 +16,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient/gethclient"
 	"github.com/flashbots/mev-share-node/mevshare"
-	"time"
 )
 
 type BundleSenderType int
@@ -35,13 +35,15 @@ const (
 	SendBundleID                    = 1
 	BloxrouteSubmitBundleMethod     = "blxr_submit_bundle"
 	BloxrouteSimulationBundleMethod = "blxr_simulate_bundle"
-	FlashbotGetBundleStatsMethod    = "flashbots_getBundleStats"
-	ETHSendBundleMethod             = "eth_sendBundle"
-	EthCallBundleMethod             = "eth_callBundle"
-	ETHCancelBundleMethod           = "eth_cancelBundle"
-	ETHEstimateGasBundleMethod      = "eth_estimateGasBundle"
-	MevSendBundleMethod             = "mev_sendBundle"
-	MaxBlockFromTarget              = 3
+	// FlashbotGetBundleStatsMethod
+	// nolint: gosec
+	FlashbotGetBundleStatsMethod = "flashbots_getBundleStats"
+	ETHSendBundleMethod          = "eth_sendBundle"
+	EthCallBundleMethod          = "eth_callBundle"
+	ETHCancelBundleMethod        = "eth_cancelBundle"
+	ETHEstimateGasBundleMethod   = "eth_estimateGasBundle"
+	MevSendBundleMethod          = "mev_sendBundle"
+	MaxBlockFromTarget           = 3
 )
 
 type IBundleSender interface {
