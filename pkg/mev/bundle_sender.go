@@ -115,7 +115,6 @@ func (s *Client) flashbotBackrunSendBundle(
 	}
 	inclusion := mevshare.MevBundleInclusion{
 		BlockNumber: hexutil.Uint64(blockNumber),
-		MaxBlock:    hexutil.Uint64(blockNumber + MaxBlockFromTarget),
 	}
 
 	// Make the bundle
