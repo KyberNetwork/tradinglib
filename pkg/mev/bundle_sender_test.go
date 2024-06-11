@@ -216,7 +216,6 @@ func TestMevSendBundle(t *testing.T) {
 	}
 	inclusion := mevshare.MevBundleInclusion{
 		BlockNumber: hexutil.Uint64(blockNumber + 1),
-		MaxBlock:    hexutil.Uint64(blockNumber + 4),
 	}
 	// Make the bundle
 	req := mevshare.SendMevBundleArgs{
