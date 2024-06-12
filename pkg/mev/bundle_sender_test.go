@@ -294,7 +294,7 @@ func TestClient_GetBundleStats(t *testing.T) {
 	require.NoError(t, err)
 	// Get bundle stats
 	stats, err := client.GetBundleStats(context.Background(), blockNumber+1, res.BundleHash)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	t.Log(stats)
 }
