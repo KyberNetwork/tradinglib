@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
@@ -30,15 +31,19 @@ const (
 
 const (
 	JSONRPC2                        = "2.0"
+	GetBundleStatsID                = 1
 	SendBundleID                    = 1
 	BloxrouteSubmitBundleMethod     = "blxr_submit_bundle"
 	BloxrouteSimulationBundleMethod = "blxr_simulate_bundle"
-	ETHSendBundleMethod             = "eth_sendBundle"
-	EthCallBundleMethod             = "eth_callBundle"
-	ETHCancelBundleMethod           = "eth_cancelBundle"
-	ETHEstimateGasBundleMethod      = "eth_estimateGasBundle"
-	MevSendBundleMethod             = "mev_sendBundle"
-	MaxBlockFromTarget              = 3
+	// FlashbotGetBundleStatsMethod
+	// nolint: gosec
+	FlashbotGetBundleStatsMethod = "flashbots_getBundleStats"
+	ETHSendBundleMethod          = "eth_sendBundle"
+	EthCallBundleMethod          = "eth_callBundle"
+	ETHCancelBundleMethod        = "eth_cancelBundle"
+	ETHEstimateGasBundleMethod   = "eth_estimateGasBundle"
+	MevSendBundleMethod          = "mev_sendBundle"
+	MaxBlockFromTarget           = 3
 )
 
 type IBundleSender interface {
@@ -69,6 +74,9 @@ type IBundleSender interface {
 		pendingTxHash common.Hash,
 		tx *types.Transaction) (*mevshare.SimMevBundleResponse, error)
 	GetSenderType() BundleSenderType
+	GetBundleStats(
+		ctx context.Context, blockNumber uint64, bundleHash common.Hash,
+	) (GetBundleStatsResponse, error)
 }
 
 type IGasBundleEstimator interface {
@@ -138,6 +146,22 @@ func doRequest[T any](c *http.Client, req *http.Request, headers ...[2]string) (
 	}
 
 	return t, nil
+}
+
+type GetBundleStatsResponse struct {
+	IsHighPriority bool      `json:"isHighPriority,omitempty"`
+	IsSimulated    bool      `json:"isSimulated,omitempty"`
+	SimulatedAt    time.Time `json:"simulatedAt"`
+	ReceivedAt     time.Time `json:"receivedAt"`
+
+	ConsideredByBuildersAt []*struct {
+		Pubkey    string    `json:"pubkey,omitempty"`
+		Timestamp time.Time `json:"timestamp"`
+	} `json:"consideredByBuildersAt,omitempty"`
+	SealedByBuildersAt []*struct {
+		Pubkey    string    `json:"pubkey,omitempty"`
+		Timestamp time.Time `json:"timestamp"`
+	} `json:"sealedByBuildersAt,omitempty"`
 }
 
 type SendBundleResponse struct {

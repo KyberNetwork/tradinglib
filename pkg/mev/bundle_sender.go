@@ -70,6 +70,17 @@ func (s *Client) SendBundle(
 	return s.sendBundle(ctx, ETHSendBundleMethod, uuid, blockNumber, txs...)
 }
 
+// getGetBundleStatsMethod
+// nolint: unparam
+func (s *Client) getGetBundleStatsMethod() string {
+	switch s.senderType {
+	case BundleSenderTypeFlashbot:
+		return FlashbotGetBundleStatsMethod
+	default:
+		return FlashbotGetBundleStatsMethod
+	}
+}
+
 func (s *Client) getSendBundleMethod() string {
 	switch s.senderType {
 	case BundleSenderTypeFlashbot:
@@ -235,11 +246,15 @@ func (s *Client) SendBackrunBundle(
 		if len(txs) == 0 {
 			return SendBundleResponse{}, fmt.Errorf("no transactions to send")
 		}
-		_, err := s.flashbotBackrunSendBundle(blockNumber, pendingTxHash, txs[0])
+		resp, err := s.flashbotBackrunSendBundle(blockNumber, pendingTxHash, txs[0])
 		if err != nil {
 			return SendBundleResponse{}, err
 		}
-		return SendBundleResponse{}, nil
+		return SendBundleResponse{
+			Result: SendBundleResult{
+				BundleHash: resp.BundleHash.String(),
+			},
+		}, nil
 	default:
 		return s.ethBackrunSendBundle(ctx, uuid, blockNumber, pendingTxHash, txs...)
 	}
@@ -321,6 +336,44 @@ func (s *Client) SimulateBundle(
 	return s.sendBundle(ctx, EthCallBundleMethod, nil, blockNumber, txs...)
 }
 
+func (s *Client) GetBundleStats(
+	ctx context.Context, blockNumber uint64, bundleHash common.Hash,
+) (GetBundleStatsResponse, error) {
+	req := GetBundleStatsRequest{
+		ID:      GetBundleStatsID,
+		JSONRPC: JSONRPC2,
+		Method:  s.getGetBundleStatsMethod(),
+	}
+	p := new(GetBundleStatsParams).SetBlockNumber(blockNumber).SetBundleHash(bundleHash)
+	req.Params = append(req.Params, p)
+
+	reqBody, err := json.Marshal(req)
+	if err != nil {
+		return GetBundleStatsResponse{}, fmt.Errorf("marshal json error: %w", err)
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, s.endpoint, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return GetBundleStatsResponse{}, fmt.Errorf("new http request error: %w", err)
+	}
+
+	var headers [][2]string
+	if s.flashbotKey != nil {
+		signature, err := requestSignature(s.flashbotKey, reqBody)
+		if err != nil {
+			return GetBundleStatsResponse{}, fmt.Errorf("sign flashbot request error: %w", err)
+		}
+		headers = append(headers, [2]string{"X-Flashbots-Signature", signature})
+	}
+
+	resp, err := doRequest[GetBundleStatsResponse](s.c, httpReq, headers...)
+	if err != nil {
+		return GetBundleStatsResponse{}, err
+	}
+
+	return resp, nil
+}
+
 func (s *Client) sendBundle(
 	ctx context.Context,
 	method string,
@@ -379,6 +432,28 @@ func requestSignature(key *ecdsa.PrivateKey, body []byte) (string, error) {
 	}
 
 	return fmt.Sprintf("%s:%s", crypto.PubkeyToAddress(key.PublicKey), hexutil.Encode(signature)), nil
+}
+
+type GetBundleStatsRequest struct {
+	ID      int    `json:"id"`
+	JSONRPC string `json:"jsonrpc"`
+	Method  string `json:"method"`
+	Params  []any  `json:"params"`
+}
+
+type GetBundleStatsParams struct {
+	BlockNumber hexutil.Uint64 `json:"blockNumber"`
+	BundleHash  string         `json:"bundleHash"`
+}
+
+func (b *GetBundleStatsParams) SetBlockNumber(blockNumber uint64) *GetBundleStatsParams {
+	b.BlockNumber = hexutil.Uint64(blockNumber)
+	return b
+}
+
+func (b *GetBundleStatsParams) SetBundleHash(bundleHash common.Hash) *GetBundleStatsParams {
+	b.BundleHash = bundleHash.Hex()
+	return b
 }
 
 type SendBundleRequest struct {
