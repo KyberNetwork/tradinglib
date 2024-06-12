@@ -148,11 +148,11 @@ func doRequest[T any](c *http.Client, req *http.Request, headers ...[2]string) (
 	return t, nil
 }
 
-type GetBundleStatsResponse struct {
+type GetBundleStatsResult struct {
 	IsHighPriority bool      `json:"isHighPriority,omitempty"`
 	IsSimulated    bool      `json:"isSimulated,omitempty"`
-	SimulatedAt    time.Time `json:"simulatedAt"`
-	ReceivedAt     time.Time `json:"receivedAt"`
+	SimulatedAt    time.Time `json:"simulatedAt,omitempty"`
+	ReceivedAt     time.Time `json:"receivedAt,omitempty"`
 
 	ConsideredByBuildersAt []*struct {
 		Pubkey    string    `json:"pubkey,omitempty"`
@@ -164,6 +164,13 @@ type GetBundleStatsResponse struct {
 	} `json:"sealedByBuildersAt,omitempty"`
 }
 
+type GetBundleStatsResponse struct {
+	Jsonrpc string               `json:"jsonrpc,omitempty"`
+	ID      int                  `json:"id,omitempty"`
+	Result  GetBundleStatsResult `json:"result,omitempty"`
+	Error   GetBundleStatsError  `json:"error,omitempty"`
+}
+
 type SendBundleResponse struct {
 	Jsonrpc string           `json:"jsonrpc,omitempty"`
 	ID      int              `json:"id,omitempty"`
@@ -172,6 +179,11 @@ type SendBundleResponse struct {
 }
 
 type SendBundleError struct {
+	Code     int    `json:"code,omitempty"`
+	Messange string `json:"message,omitempty"`
+}
+
+type GetBundleStatsError struct {
 	Code     int    `json:"code,omitempty"`
 	Messange string `json:"message,omitempty"`
 }
