@@ -22,6 +22,7 @@ type Message struct {
 	TxHash                string                 `json:"tx_hash"`
 	SimDebugInfo          SimDebugInfo           `json:"sim_debug_info"`
 	InternalTx            *CallFrame             `json:"internal_txs"`
+	Prestate              *Prestate              `json:"prestate_diff"`
 	BaseFee               *big.Int               `json:"base_fee"`
 	CurrentBlockTime      uint64                 `json:"current_block_time"`
 	GasFeeCap             *big.Int               `json:"gas_fee_cap"`
@@ -34,6 +35,21 @@ type Message struct {
 	Source                MempoolSource          `json:"source"`
 	Type                  uint64                 `json:"type"`
 	FlashbotMevshareEvent *FlashbotMevshareEvent `json:"flashbot_mevshare_event,omitempty"`
+}
+
+type Prestate struct {
+	Post stateMap `json:"post"`
+	Pre  stateMap `json:"pre"`
+}
+
+type stateMap = map[common.Address]*account
+
+type account struct {
+	Balance *big.Int                    `json:"balance,omitempty"`
+	Code    []byte                      `json:"code,omitempty"`
+	Nonce   uint64                      `json:"nonce,omitempty"`
+	Storage map[common.Hash]common.Hash `json:"storage,omitempty"`
+	//empty   bool
 }
 
 type SimDebugInfo struct {
