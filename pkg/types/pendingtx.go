@@ -49,7 +49,6 @@ type account struct {
 	Code    []byte                      `json:"code,omitempty"`
 	Nonce   uint64                      `json:"nonce,omitempty"`
 	Storage map[common.Hash]common.Hash `json:"storage,omitempty"`
-	//empty   bool
 }
 
 type SimDebugInfo struct {
