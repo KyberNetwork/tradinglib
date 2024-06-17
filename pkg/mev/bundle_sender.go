@@ -13,7 +13,6 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/flashbots/mev-share-node/mevshare"
 )
 
 // Client https://beaverbuild.org/docs.html; https://rsync-builder.xyz/docs;
@@ -65,94 +64,6 @@ func (s *Client) getGetBundleStatsMethod() string {
 	default:
 		return FlashbotGetBundleStatsMethod
 	}
-}
-
-func (s *Client) getSendBundleMethod() string {
-	switch s.senderType {
-	case BundleSenderTypeFlashbot:
-		return MevSendBundleMethod
-	case BundleSenderTypeBeaver:
-		return ETHSendBundleMethod
-	case BundleSenderTypeRsync:
-		return ETHSendBundleMethod
-	case BundleSenderTypeTitan:
-		return ETHSendBundleMethod
-	case BundleSenderTypeBloxroute:
-		return BloxrouteSubmitBundleMethod
-	case BundleSenderTypeAll:
-		return ETHSendBundleMethod
-	default:
-		return ETHSendBundleMethod
-	}
-}
-
-func (s *Client) MevSimulateBundle(
-	_ uint64,
-	_ common.Hash,
-	_ *types.Transaction,
-) (*mevshare.SimMevBundleResponse, error) {
-	return nil, ErrMethodNotSupport
-}
-
-func (s *Client) ethBackrunSendBundle(
-	ctx context.Context,
-	uuid *string,
-	blockNumber uint64,
-	pendingTxHash common.Hash,
-	txs ...*types.Transaction,
-) (SendBundleResponse, error) {
-	req := SendBundleRequest{
-		ID:      SendBundleID,
-		JSONRPC: JSONRPC2,
-		Method:  s.getSendBundleMethod(),
-	}
-	p := new(SendBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...).SetPendingTxHash(pendingTxHash)
-	if uuid != nil {
-		p.SetUUID(*uuid, s.senderType)
-	}
-	req.Params = append(req.Params, p)
-
-	reqBody, err := json.Marshal(req)
-	if err != nil {
-		return SendBundleResponse{}, fmt.Errorf("marshal json error: %w", err)
-	}
-
-	var headers [][2]string
-	if s.flashbotKey != nil {
-		signature, err := requestSignature(s.flashbotKey, reqBody)
-		if err != nil {
-			return SendBundleResponse{}, fmt.Errorf("sign flashbot request error: %w", err)
-		}
-		headers = append(headers, [2]string{"X-Flashbots-Signature", signature})
-	}
-
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, s.endpoint, bytes.NewBuffer(reqBody))
-	if err != nil {
-		return SendBundleResponse{}, fmt.Errorf("new http request error: %w", err)
-	}
-
-	resp, err := doRequest[SendBundleResponse](s.c, httpReq, headers...)
-	if err != nil {
-		return SendBundleResponse{}, err
-	}
-
-	if len(resp.Error.Messange) != 0 {
-		return SendBundleResponse{}, fmt.Errorf("response error, code: [%d], message: [%s]",
-			resp.Error.Code, resp.Error.Messange)
-	}
-
-	return resp, nil
-}
-
-func (s *Client) SendBackrunBundle(
-	ctx context.Context,
-	uuid *string,
-	blockNumber uint64,
-	pendingTxHash common.Hash,
-	_ []string,
-	txs ...*types.Transaction,
-) (SendBundleResponse, error) {
-	return s.ethBackrunSendBundle(ctx, uuid, blockNumber, pendingTxHash, txs...)
 }
 
 func (s *Client) CancelBundle(

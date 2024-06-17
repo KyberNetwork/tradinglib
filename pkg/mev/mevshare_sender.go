@@ -5,11 +5,9 @@ import (
 	"crypto/ecdsa"
 
 	"github.com/duoxehyon/mev-share-go/rpc"
-	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethclient/gethclient"
 	"github.com/flashbots/mev-share-node/mevshare"
 )
 
@@ -32,15 +30,6 @@ func NewMevShareSender(
 		endpoint:    endpoint,
 		flashbotKey: flashbotKey,
 	}, nil
-}
-
-func (m FlashbotMevShareSender) SendBundle(
-	_ context.Context,
-	_ *string,
-	_ uint64,
-	_ ...*types.Transaction,
-) (SendBundleResponse, error) {
-	return SendBundleResponse{}, ErrMethodNotSupport
 }
 
 func (m FlashbotMevShareSender) SendBackrunBundle(
@@ -114,25 +103,6 @@ func (m FlashbotMevShareSender) SendBackrunBundle(
 	}, err
 }
 
-func (m FlashbotMevShareSender) CancelBundle(context.Context, string) error {
-	return ErrMethodNotSupport
-}
-
-func (m FlashbotMevShareSender) SimulateBundle(
-	context.Context,
-	uint64, ...*types.Transaction,
-) (SendBundleResponse, error) {
-	return SendBundleResponse{}, ErrMethodNotSupport
-}
-
-func (m FlashbotMevShareSender) EstimateBundleGas(
-	context.Context,
-	[]ethereum.CallMsg,
-	*map[common.Address]gethclient.OverrideAccount,
-) ([]uint64, error) {
-	return nil, ErrMethodNotSupport
-}
-
 func (m FlashbotMevShareSender) MevSimulateBundle(
 	blockNumber uint64,
 	pendingTxHash common.Hash,
@@ -174,12 +144,4 @@ func (m FlashbotMevShareSender) MevSimulateBundle(
 
 func (m FlashbotMevShareSender) GetSenderType() BundleSenderType {
 	return BundleSenderTypeMevShare
-}
-
-func (m FlashbotMevShareSender) GetBundleStats(
-	context.Context,
-	uint64,
-	common.Hash,
-) (GetBundleStatsResponse, error) {
-	return GetBundleStatsResponse{}, ErrMethodNotSupport
 }

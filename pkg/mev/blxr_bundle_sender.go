@@ -13,7 +13,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient/gethclient"
-	"github.com/flashbots/mev-share-node/mevshare"
 )
 
 type BlxrBuilder string
@@ -34,20 +33,20 @@ type BloxrouteClient struct {
 	enabledBuilders []BlxrBuilder
 }
 
+func (s *BloxrouteClient) SimulateBundle(
+	_ context.Context,
+	_ uint64,
+	_ ...*types.Transaction,
+) (SendBundleResponse, error) {
+	return SendBundleResponse{}, ErrMethodNotSupport
+}
+
 func (s *BloxrouteClient) EstimateBundleGas(
 	_ context.Context,
 	_ []ethereum.CallMsg,
 	_ *map[common.Address]gethclient.OverrideAccount,
 ) ([]uint64, error) {
 	return nil, nil
-}
-
-func (s *BloxrouteClient) MevSimulateBundle(
-	_ uint64,
-	_ common.Hash,
-	_ *types.Transaction,
-) (*mevshare.SimMevBundleResponse, error) {
-	return nil, fmt.Errorf("method not support")
 }
 
 // NewBloxrouteClient set flashbotKey to nil if you don't want to send to flashbot builders
@@ -124,17 +123,6 @@ func (s *BloxrouteClient) SendBundle(
 	return SendBundleResponse(resp), nil
 }
 
-func (s *BloxrouteClient) SendBackrunBundle(
-	_ context.Context,
-	_ *string,
-	_ uint64,
-	_ common.Hash,
-	_ []string,
-	_ ...*types.Transaction,
-) (SendBundleResponse, error) {
-	return SendBundleResponse{}, fmt.Errorf("method not support")
-}
-
 func (s *BloxrouteClient) CancelBundle(
 	ctx context.Context, bundleUUID string,
 ) error {
@@ -144,12 +132,6 @@ func (s *BloxrouteClient) CancelBundle(
 	}
 
 	return nil
-}
-
-func (s *BloxrouteClient) SimulateBundle(
-	_ context.Context, _ uint64, _ ...*types.Transaction,
-) (SendBundleResponse, error) {
-	return SendBundleResponse{}, fmt.Errorf("method not support")
 }
 
 type BLXRSubmitBundleRequest struct {

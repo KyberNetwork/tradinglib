@@ -27,6 +27,7 @@ const (
 	BundleSenderTypeBloxroute
 	BundleSenderTypeAll
 	BundleSenderTypeMevShare
+	BundleSenderTypeBackrunPublic
 )
 
 const (
@@ -46,13 +47,7 @@ const (
 	MaxBlockFromTarget           = 3
 )
 
-type IBundleSender interface {
-	SendBundle(
-		ctx context.Context,
-		uuid *string,
-		blockNumber uint64,
-		tx ...*types.Transaction,
-	) (SendBundleResponse, error)
+type IBackrunSender interface {
 	SendBackrunBundle(
 		ctx context.Context,
 		uuid *string,
@@ -61,15 +56,26 @@ type IBundleSender interface {
 		targetBuilders []string,
 		tx ...*types.Transaction,
 	) (SendBundleResponse, error)
-	CancelBundle(
-		ctx context.Context, bundleUUID string,
-	) error
-	SimulateBundle(ctx context.Context, blockNumber uint64, txs ...*types.Transaction) (SendBundleResponse, error)
 	// MevSimulateBundle only use for backrun simulate with pending tx hash
 	MevSimulateBundle(
 		blockNumber uint64,
 		pendingTxHash common.Hash,
-		tx *types.Transaction) (*mevshare.SimMevBundleResponse, error)
+		tx *types.Transaction,
+	) (*mevshare.SimMevBundleResponse, error)
+	GetSenderType() BundleSenderType
+}
+
+type IBundleSender interface {
+	SendBundle(
+		ctx context.Context,
+		uuid *string,
+		blockNumber uint64,
+		tx ...*types.Transaction,
+	) (SendBundleResponse, error)
+	CancelBundle(
+		ctx context.Context, bundleUUID string,
+	) error
+	SimulateBundle(ctx context.Context, blockNumber uint64, txs ...*types.Transaction) (SendBundleResponse, error)
 	GetSenderType() BundleSenderType
 	GetBundleStats(
 		ctx context.Context, blockNumber uint64, bundleHash common.Hash,
