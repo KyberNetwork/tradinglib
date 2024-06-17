@@ -129,6 +129,7 @@ func (s *BloxrouteClient) SendBackrunBundle(
 	_ *string,
 	_ uint64,
 	_ common.Hash,
+	_ []string,
 	_ ...*types.Transaction,
 ) (SendBundleResponse, error) {
 	return SendBundleResponse{}, fmt.Errorf("method not support")

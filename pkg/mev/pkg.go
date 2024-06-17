@@ -59,6 +59,7 @@ type IBundleSender interface {
 		uuid *string,
 		blockNumber uint64,
 		pendingTxHash common.Hash,
+		targetBuilders []string,
 		tx ...*types.Transaction,
 	) (SendBundleResponse, error)
 	CancelBundle(

@@ -15,9 +15,9 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/ethclient/gethclient"
 	"github.com/flashbots/mev-share-node/mevshare"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 // Client https://beaverbuild.org/docs.html; https://rsync-builder.xyz/docs;
@@ -103,44 +103,6 @@ func (s *Client) getSendBundleMethod() string {
 	default:
 		return ETHSendBundleMethod
 	}
-}
-
-func (s *Client) flashbotBackrunSendBundle(
-	blockNumber uint64,
-	pendingTxHash common.Hash,
-	tx *types.Transaction,
-) (*mevshare.SendMevBundleResponse, error) {
-	if s.mevShareClient == nil {
-		return nil, fmt.Errorf("mev share client is nil")
-	}
-
-	rlpEncodedTx, err := tx.MarshalBinary()
-	if err != nil {
-		return nil, err
-	}
-
-	txBytes := hexutil.Bytes(rlpEncodedTx)
-	// Define the bundle transactions
-	txs := []mevshare.MevBundleBody{
-		{
-			Hash: &pendingTxHash,
-		},
-		{
-			Tx: &txBytes,
-		},
-	}
-	inclusion := mevshare.MevBundleInclusion{
-		BlockNumber: hexutil.Uint64(blockNumber),
-	}
-
-	// Make the bundle
-	req := mevshare.SendMevBundleArgs{
-		Body:      txs,
-		Inclusion: inclusion,
-	}
-	// Send bundle
-	res, err := s.mevShareClient.SendBundle(req)
-	return res, err
 }
 
 func (s *Client) EstimateBundleGas(
@@ -236,6 +198,7 @@ func (s *Client) SendBackrunBundle(
 	uuid *string,
 	blockNumber uint64,
 	pendingTxHash common.Hash,
+	_ []string,
 	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
 	return s.ethBackrunSendBundle(ctx, uuid, blockNumber, pendingTxHash, txs...)

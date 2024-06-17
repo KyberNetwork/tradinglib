@@ -70,7 +70,6 @@ func TestSendBundle(t *testing.T) {
 	t.Log("new tx", signedTx.Hash().String())
 
 	uuid := uuid.NewString()
-	ethClient, err = ethclient.Dial(endpoint)
 	require.NoError(t, err)
 	sender, err := mev.NewClient(client, endpoint, privateKey, false, mev.BundleSenderTypeFlashbot)
 	require.NoError(t, err)
@@ -138,7 +137,6 @@ func Test_SimulateBundle(t *testing.T) {
 	}
 
 	simulationEndpoint := "https://relay.flashbots.net"
-	ethClient, err = ethclient.Dial(simulationEndpoint)
 	require.NoError(t, err)
 
 	privateKey, err := crypto.GenerateKey()
@@ -260,8 +258,12 @@ func TestClient_GetBundleStats(t *testing.T) {
 
 	txBytes := hexutil.Bytes(rlpEncodedTx)
 
+	pendingTxHash := common.HexToHash("0x4ad277ae1dfba88e54bc68e81b345920691e6bf892f8799f2b0996ace875b1bf")
 	// Define the bundle transactions
 	txns := []mevshare.MevBundleBody{
+		{
+			Hash: &pendingTxHash,
+		},
 		{
 			Tx: &txBytes,
 		},
@@ -273,6 +275,10 @@ func TestClient_GetBundleStats(t *testing.T) {
 	req := mevshare.SendMevBundleArgs{
 		Body:      txns,
 		Inclusion: inclusion,
+		Privacy: &mevshare.MevBundlePrivacy{Builders: []string{
+			mev.FlashbotBuilderRegistrationBobaBuilder,
+			mev.FlashbotBuilderRegistrationFlashbot,
+		}},
 	}
 
 	// Send bundle
