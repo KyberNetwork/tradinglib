@@ -72,8 +72,7 @@ func TestSendBundle(t *testing.T) {
 	uuid := uuid.NewString()
 	ethClient, err = ethclient.Dial(endpoint)
 	require.NoError(t, err)
-	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient.Client())
-	sender, err := mev.NewClient(client, endpoint, privateKey, false, mev.BundleSenderTypeFlashbot, gasBundleEstimator)
+	sender, err := mev.NewClient(client, endpoint, privateKey, false, mev.BundleSenderTypeFlashbot)
 	require.NoError(t, err)
 
 	resp, err := sender.SendBundle(ctx, &uuid, blockNumber+12, signedTx)
@@ -103,11 +102,7 @@ func TestCancelBeaver(t *testing.T) {
 		bundleUUID = uuid.New().String()
 	)
 
-	ethClient, err := ethclient.Dial(endpoint)
-	require.NoError(t, err)
-	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient.Client())
-
-	sender, err := mev.NewClient(client, endpoint, nil, true, mev.BundleSenderTypeBeaver, gasBundleEstimator)
+	sender, err := mev.NewClient(client, endpoint, nil, true, mev.BundleSenderTypeBeaver)
 	require.NoError(t, err)
 
 	require.NoError(t, sender.CancelBundle(ctx, bundleUUID))
@@ -145,7 +140,6 @@ func Test_SimulateBundle(t *testing.T) {
 	simulationEndpoint := "https://relay.flashbots.net"
 	ethClient, err = ethclient.Dial(simulationEndpoint)
 	require.NoError(t, err)
-	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient.Client())
 
 	privateKey, err := crypto.GenerateKey()
 	if err != nil {
@@ -154,7 +148,7 @@ func Test_SimulateBundle(t *testing.T) {
 
 	client, err := mev.NewClient(http.DefaultClient,
 		simulationEndpoint, privateKey, false,
-		mev.BundleSenderTypeFlashbot, gasBundleEstimator)
+		mev.BundleSenderTypeFlashbot)
 	require.NoError(t, err)
 
 	simulationResponse, err := client.SimulateBundle(context.Background(), uint64(blockNumber), txs...)
@@ -287,10 +281,9 @@ func TestClient_GetBundleStats(t *testing.T) {
 
 	t.Log(res.BundleHash.String(), "bundleHash")
 
-	gasBundleEstimator := mev.NewGasBundleEstimator(ethClient.Client())
 	client, err := mev.NewClient(http.DefaultClient,
 		SimulationEndpoint, fbSigningKey, false,
-		mev.BundleSenderTypeFlashbot, gasBundleEstimator)
+		mev.BundleSenderTypeFlashbot)
 	require.NoError(t, err)
 	// Get bundle stats
 	stats, err := client.GetBundleStats(context.Background(), blockNumber+1, res.BundleHash)
