@@ -8,15 +8,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/duoxehyon/mev-share-go/rpc"
-	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/ethereum/go-ethereum/ethclient/gethclient"
 	"github.com/flashbots/mev-share-node/mevshare"
 )
 
@@ -28,9 +24,6 @@ type Client struct {
 	flashbotKey        *ecdsa.PrivateKey
 	cancelBySendBundle bool
 	senderType         BundleSenderType
-	// mevShareClient is the client for mev-share flashbots node
-	mevShareClient rpc.MevAPIClient
-	ethClient      *ethclient.Client
 }
 
 // NewClient set the flashbotKey to nil will skip adding the signature header.
@@ -41,24 +34,12 @@ func NewClient(
 	cancelBySendBundle bool,
 	senderType BundleSenderType,
 ) (*Client, error) {
-	var mevShareClient rpc.MevAPIClient
-	if flashbotKey != nil {
-		mevShareClient = rpc.NewClient(endpoint, flashbotKey)
-	}
-
-	client, err := ethclient.Dial(endpoint)
-	if err != nil {
-		return nil, fmt.Errorf("dial eth client error: %w", err)
-	}
-
 	return &Client{
 		c:                  c,
 		endpoint:           endpoint,
 		flashbotKey:        flashbotKey,
 		cancelBySendBundle: cancelBySendBundle,
 		senderType:         senderType,
-		mevShareClient:     mevShareClient,
-		ethClient:          client,
 	}, nil
 }
 
@@ -103,36 +84,6 @@ func (s *Client) getSendBundleMethod() string {
 	default:
 		return ETHSendBundleMethod
 	}
-}
-
-func (s *Client) EstimateBundleGas(
-	_ context.Context,
-	messages []ethereum.CallMsg,
-	overrides *map[common.Address]gethclient.OverrideAccount,
-) ([]uint64, error) {
-	bundles := make([]interface{}, 0, len(messages))
-	for _, msg := range messages {
-		bundles = append(bundles, ToCallArg(msg))
-	}
-
-	var gasEstimateCost []hexutil.Uint64
-
-	err := s.ethClient.Client().Call(
-		&gasEstimateCost, ETHEstimateGasBundleMethod,
-		map[string]interface{}{
-			"transactions": bundles,
-		}, "latest", overrides,
-	)
-	if err != nil {
-		return nil, err
-	}
-	result := make([]uint64, 0, len(gasEstimateCost))
-
-	for _, gasEstimate := range gasEstimateCost {
-		result = append(result, uint64(gasEstimate))
-	}
-
-	return result, nil
 }
 
 func (s *Client) MevSimulateBundle(

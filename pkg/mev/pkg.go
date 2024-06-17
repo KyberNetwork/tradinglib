@@ -14,7 +14,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethclient/gethclient"
 	"github.com/flashbots/mev-share-node/mevshare"
 )
 
@@ -66,11 +65,6 @@ type IBundleSender interface {
 		ctx context.Context, bundleUUID string,
 	) error
 	SimulateBundle(ctx context.Context, blockNumber uint64, txs ...*types.Transaction) (SendBundleResponse, error)
-	EstimateBundleGas(
-		ctx context.Context,
-		messages []ethereum.CallMsg,
-		overrides *map[common.Address]gethclient.OverrideAccount,
-	) ([]uint64, error)
 	// MevSimulateBundle only use for backrun simulate with pending tx hash
 	MevSimulateBundle(
 		blockNumber uint64,
