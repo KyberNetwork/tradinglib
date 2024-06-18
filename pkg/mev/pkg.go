@@ -14,8 +14,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/flashbots/mev-share-node/mevshare"
 	"github.com/ethereum/go-ethereum/ethclient/gethclient"
+	"github.com/flashbots/mev-share-node/mevshare"
 )
 
 type BundleSenderType int
@@ -78,6 +78,9 @@ type IBundleSender interface {
 	) error
 	SimulateBundle(ctx context.Context, blockNumber uint64, txs ...*types.Transaction) (SendBundleResponse, error)
 	GetSenderType() BundleSenderType
+	GetBundleStats(
+		ctx context.Context, blockNumber uint64, bundleHash common.Hash,
+	) (GetBundleStatsResponse, error)
 }
 
 type IGasBundleEstimator interface {
