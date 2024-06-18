@@ -15,6 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/flashbots/mev-share-node/mevshare"
+	"github.com/ethereum/go-ethereum/ethclient/gethclient"
 )
 
 type BundleSenderType int
@@ -77,9 +78,18 @@ type IBundleSender interface {
 	) error
 	SimulateBundle(ctx context.Context, blockNumber uint64, txs ...*types.Transaction) (SendBundleResponse, error)
 	GetSenderType() BundleSenderType
-	GetBundleStats(
-		ctx context.Context, blockNumber uint64, bundleHash common.Hash,
-	) (GetBundleStatsResponse, error)
+}
+
+type IGasBundleEstimator interface {
+	// EstimateBundleGas is used to estimate the gas for a bundle of transactions
+	// Note that this method is expected only works with custom ethereum node which
+	// supports estimate bundles gas via CallMsgs,
+	// and using eth_estimateGasBundle method.
+	EstimateBundleGas(
+		ctx context.Context,
+		messages []ethereum.CallMsg,
+		overrides *map[common.Address]gethclient.OverrideAccount,
+	) ([]uint64, error)
 }
 
 var (
