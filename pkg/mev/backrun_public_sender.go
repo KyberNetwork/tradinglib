@@ -20,6 +20,20 @@ type BackrunPublicClient struct {
 	senderType  BundleSenderType
 }
 
+func NewBackrunPublicClient(
+	c *http.Client,
+	endpoint string,
+	flashbotKey *ecdsa.PrivateKey,
+	senderType BundleSenderType,
+) *BackrunPublicClient {
+	return &BackrunPublicClient{
+		c:           c,
+		endpoint:    endpoint,
+		flashbotKey: flashbotKey,
+		senderType:  senderType,
+	}
+}
+
 func (b BackrunPublicClient) SendBackrunBundle(
 	ctx context.Context,
 	uuid *string,
@@ -77,5 +91,5 @@ func (b BackrunPublicClient) MevSimulateBundle(
 }
 
 func (b BackrunPublicClient) GetSenderType() BundleSenderType {
-	return BundleSenderTypeBackrunPublic
+	return b.senderType
 }
