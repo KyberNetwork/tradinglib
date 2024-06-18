@@ -33,7 +33,7 @@ type Message struct {
 	From                  string                 `json:"from"`
 	Nonce                 uint64                 `json:"nonce"`
 	Source                MempoolSource          `json:"source"`
-	Type                  uint64                 `json:"type"`
+	Type                  *big.Int               `json:"type"`
 	FlashbotMevshareEvent *FlashbotMevshareEvent `json:"flashbot_mevshare_event,omitempty"`
 }
 
