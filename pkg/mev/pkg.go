@@ -29,6 +29,7 @@ const (
 	BundleSenderTypeAll
 	BundleSenderTypeMevShare
 	BundleSenderTypeBackrunPublic
+	BundleSenderTypeMevBlocker
 )
 
 const (

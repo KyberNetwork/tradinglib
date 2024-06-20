@@ -105,7 +105,8 @@ type MinedBlock struct {
 }
 
 func (m Message) GetAllLogs() []*types.Log {
-	if m.Source == FlashbotMempool {
+	switch m.Source {
+	case FlashbotMempool:
 		if m.FlashbotMevshareEvent != nil {
 			results := make([]*types.Log, 0, len(m.FlashbotMevshareEvent.Logs))
 			for _, log := range m.FlashbotMevshareEvent.Logs {
@@ -117,12 +118,15 @@ func (m Message) GetAllLogs() []*types.Log {
 			}
 			return results
 		}
+	case MevBlockerMempool, PublicMempool:
+		if m.InternalTx == nil {
+			return m.InternalTx.getLogs()
+		}
+	default:
 		return nil
 	}
 
-	// public mempool case
-	logs := m.InternalTx.getLogs()
-	return logs
+	return nil
 }
 
 func (c CallFrame) getLogs() []*types.Log {
