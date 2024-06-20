@@ -1,13 +1,15 @@
-package mev
+package mev_test
 
 import (
-	"testing"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"context"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/stretchr/testify/require"
 	"net/http"
+	"testing"
 	"time"
+
+	"github.com/KyberNetwork/tradinglib/pkg/mev"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewBackrunPublicClient(t *testing.T) {
@@ -30,7 +32,7 @@ func TestNewBackrunPublicClient(t *testing.T) {
 
 	httpCl := http.Client{Timeout: time.Second * 5}
 	// Initialize the client
-	senderClient := NewBackrunPublicClient(&httpCl, "https://rpc.mevblocker.io", nil, BundleSenderTypeMevBlocker)
+	senderClient := mev.NewBackrunPublicClient(&httpCl, "https://rpc.mevblocker.io", nil, mev.BundleSenderTypeMevBlocker)
 
 	pendingTXhash := common.HexToHash("0x79d48b1a25d7af0d815997d2ce3a127560080971c5ea98ca5a32424f604e09fb")
 	resp, err := senderClient.SendBackrunBundle(context.Background(), nil, blockNumber, pendingTXhash, []string{}, tx)
