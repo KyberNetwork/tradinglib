@@ -202,6 +202,7 @@ type SendBundleResult struct {
 	Results           []SendBundleResults `json:"results,omitempty"`
 	StateBlockNumber  int                 `json:"stateBlockNumber,omitempty"`
 	TotalGasUsed      int                 `json:"totalGasUsed,omitempty"`
+	Message           string              `json:"message,omitempty"`
 }
 
 type SendBundleResults struct {
