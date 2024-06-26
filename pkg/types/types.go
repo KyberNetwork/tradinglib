@@ -43,6 +43,9 @@ func (b BigInt) MarshalText() ([]byte, error) {
 
 func (b *BigInt) UnmarshalJSON(data []byte) error {
 	data = unquote(data)
+	if len(data) == 0 {
+		return nil
+	}
 	return (*big.Int)(b).UnmarshalJSON(data)
 }
 
