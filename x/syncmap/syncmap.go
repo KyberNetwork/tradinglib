@@ -1,6 +1,10 @@
 package syncmap
 
-import "sync"
+import (
+	"sync"
+
+	"golang.org/x/exp/maps"
+)
 
 type SyncMap[K comparable, V any] struct {
 	data map[K]V
@@ -73,4 +77,11 @@ func (m *SyncMap[K, V]) RangeMut(fn func(k K, v V) bool) {
 			break
 		}
 	}
+}
+
+func (m *SyncMap[K, V]) Clears() {
+	m.rw.Lock()
+	defer m.rw.Unlock()
+
+	maps.Clear(m.data)
 }
