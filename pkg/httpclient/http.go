@@ -7,8 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-
-	"github.com/KyberNetwork/tradinglib/pkg/sb"
+	"net/url"
 )
 
 func DoHTTPRequest(client *http.Client, req *http.Request, out interface{}, options ...Option) (*http.Response, error) {
@@ -47,11 +46,19 @@ func NewRequest(method, baseURL, path string, query Query, body io.Reader) (*htt
 func NewRequestWithContext(
 	ctx context.Context, method, baseURL, path string, query Query, body io.Reader,
 ) (*http.Request, error) {
-	url := baseURL + path
-	if query != nil {
-		url = sb.Concat(url, "?", query.String())
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return nil, fmt.Errorf("parse url: %w", err)
 	}
-	return http.NewRequestWithContext(ctx, method, url, body)
+
+	if path != "" {
+		u = u.JoinPath(path)
+	}
+	if query != nil {
+		u.RawQuery = query.String()
+	}
+
+	return http.NewRequestWithContext(ctx, method, u.String(), body)
 }
 
 func NewGet(baseURL, path string, query Query) (*http.Request, error) {
