@@ -55,6 +55,12 @@ func NewRequestWithContext(
 		u = u.JoinPath(path)
 	}
 	if query != nil {
+		existingQuery := u.Query()
+		for key, values := range existingQuery {
+			for _, value := range values {
+				query.AddString(key, value)
+			}
+		}
 		u.RawQuery = query.String()
 	}
 

@@ -37,6 +37,11 @@ func (q Query) SetString(key, value string) Query {
 	return q
 }
 
+func (q Query) AddString(key, value string) Query {
+	q.url().Add(key, value)
+	return q
+}
+
 func stringsContains(ss []string, token string) bool {
 	for _, s := range ss {
 		if s == token {
