@@ -205,6 +205,24 @@ type SendBundleResult struct {
 	Message           string              `json:"message,omitempty"`
 }
 
+func (r *SendBundleResult) UnmarshalJSON(b []byte) error {
+	if str := string(b); (str == "\"nil\"" || str == "\"null\"") && r != nil {
+		*r = SendBundleResult{}
+		return nil
+	}
+
+	// Otherwise, unmarshal the data as usual
+	// disable this UnmarshalJSON function
+	type Alias SendBundleResult
+	alias := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(r),
+	}
+
+	return json.Unmarshal(b, &alias)
+}
+
 type SendBundleResults struct {
 	GasUsed int    `json:"gasUsed,omitempty"`
 	TxHash  string `json:"txHash,omitempty"`
