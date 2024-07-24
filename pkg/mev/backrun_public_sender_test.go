@@ -35,7 +35,8 @@ func TestNewBackrunPublicClient(t *testing.T) {
 	senderClient := mev.NewBackrunPublicClient(&httpCl, "https://rpc.mevblocker.io", nil, mev.BundleSenderTypeMevBlocker)
 
 	pendingTXhash := common.HexToHash("0x79d48b1a25d7af0d815997d2ce3a127560080971c5ea98ca5a32424f604e09fb")
-	resp, err := senderClient.SendBackrunBundle(context.Background(), nil, blockNumber, pendingTXhash, []string{}, tx)
+	resp, err := senderClient.SendBackrunBundle(context.Background(), nil,
+		blockNumber, blockNumber, pendingTXhash, []string{}, tx)
 	t.Log("resp", resp)
 	t.Log("err", err)
 }

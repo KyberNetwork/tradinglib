@@ -44,7 +44,8 @@ func TestSendBackrunBundle(t *testing.T) {
 	pendingTxHash := common.HexToHash("0x73767bdb9dd83040fa242887100bc460f1fdb56d7d7934ce2d21f2a1fa109e4f")
 
 	// Send bundle
-	res, err := rpcClient.SendBackrunBundle(context.Background(), nil, blockNumber+1, pendingTxHash, nil, tx)
+	res, err := rpcClient.SendBackrunBundle(context.Background(), nil,
+		blockNumber+1, blockNumber+1, pendingTxHash, nil, tx)
 	assert.Nil(t, err)
 
 	t.Log(res, "result")

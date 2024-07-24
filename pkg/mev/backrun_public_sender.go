@@ -37,7 +37,9 @@ func NewBackrunPublicClient(
 func (b BackrunPublicClient) SendBackrunBundle(
 	ctx context.Context,
 	uuid *string,
-	blockNumber uint64, pendingTxHash common.Hash,
+	blockNumber uint64,
+	_ uint64,
+	pendingTxHash common.Hash,
 	_ []string,
 	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
