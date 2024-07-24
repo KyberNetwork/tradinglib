@@ -3,7 +3,6 @@ package eth
 import (
 	"cmp"
 	"context"
-	"encoding/json"
 	"fmt"
 	"math/big"
 	"net/http"
@@ -34,8 +33,8 @@ func (c *TraceClient) DebugTraceTransaction(ctx context.Context, txHash string) 
 		method = "debug_traceTransaction"
 		tracer = "callTracer"
 	)
-	var callResp json.RawMessage
-	if err := c.rpcClient.CallContext(ctx, &callResp,
+	var result CallFrame
+	if err := c.rpcClient.CallContext(ctx, &result,
 		method,
 		txHash,
 		map[string]interface{}{
@@ -48,17 +47,12 @@ func (c *TraceClient) DebugTraceTransaction(ctx context.Context, txHash string) 
 		return CallFrame{}, fmt.Errorf("call context: %w", err)
 	}
 
-	var resp CallFrame
-	if err := json.Unmarshal(callResp, &resp); err != nil {
-		return CallFrame{}, fmt.Errorf("unmarshal call response: %w, data: %s", err, string(callResp))
-	}
-
-	if len(resp.Error) != 0 {
+	if len(result.Error) != 0 {
 		return CallFrame{}, fmt.Errorf("error response: %s, reason: %s",
-			resp.Error, resp.RevertReason)
+			result.Error, result.RevertReason)
 	}
 
-	return resp, nil
+	return result, nil
 }
 
 func (c *TraceClient) DebugTraceCall(
@@ -94,8 +88,8 @@ func (c *TraceClient) DebugTraceCall(
 		blockStr = hexutil.EncodeBig(block)
 	}
 
-	var callResp json.RawMessage
-	if err := c.rpcClient.CallContext(ctx, &callResp,
+	var result CallFrame
+	if err := c.rpcClient.CallContext(ctx, &result,
 		method,
 		paramData,
 		blockStr,
@@ -110,17 +104,12 @@ func (c *TraceClient) DebugTraceCall(
 		return CallFrame{}, fmt.Errorf("call context: %w", err)
 	}
 
-	var resp CallFrame
-	if err := json.Unmarshal(callResp, &resp); err != nil {
-		return CallFrame{}, fmt.Errorf("unmarshal call response: %w, data: %s", err, string(callResp))
-	}
-
-	if len(resp.Error) != 0 {
+	if len(result.Error) != 0 {
 		return CallFrame{}, fmt.Errorf("error response: %s, reason: %s",
-			resp.Error, resp.RevertReason)
+			result.Error, result.RevertReason)
 	}
 
-	return resp, nil
+	return result, nil
 }
 
 type CallLog struct {
