@@ -1,60 +1,68 @@
 package eth
 
 import (
-	"bytes"
 	"cmp"
+	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"math/big"
 	"net/http"
 
-	"github.com/duoxehyon/mev-share-go/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	ethrpc "github.com/ethereum/go-ethereum/rpc"
 )
 
 type TraceClient struct {
-	httpClient *http.Client
-	rpcURL     string
+	rpcClient *ethrpc.Client
 }
 
-func NewTraceClient(httpClient *http.Client, rpcURL string) *TraceClient {
-	return &TraceClient{
-		httpClient: httpClient,
-		rpcURL:     rpcURL,
+func NewTraceClient(ctx context.Context, httpClient *http.Client, rpcURL string) (*TraceClient, error) {
+	rpcClient, err := ethrpc.DialOptions(ctx, rpcURL, ethrpc.WithHTTPClient(httpClient))
+	if err != nil {
+		return nil, fmt.Errorf("dial options: %w", err)
 	}
+
+	return &TraceClient{
+		rpcClient: rpcClient,
+	}, nil
 }
 
-func (c *TraceClient) DebugTraceTransaction(txHash string) (CallFrame, error) {
-	payload := map[string]interface{}{
-		"method":  "debug_traceTransaction",
-		"id":      1,
-		"jsonrpc": "2.0",
-		"params": []interface{}{
-			txHash,
-			map[string]interface{}{
-				"tracer": "callTracer",
-				"tracerConfig": map[string]interface{}{
-					"withLog": true,
-				},
+func (c *TraceClient) DebugTraceTransaction(ctx context.Context, txHash string) (CallFrame, error) {
+	const (
+		method = "debug_traceTransaction"
+		tracer = "callTracer"
+	)
+	var callResp json.RawMessage
+	if err := c.rpcClient.CallContext(ctx, &callResp,
+		method,
+		txHash,
+		map[string]interface{}{
+			"tracer": tracer,
+			"tracerConfig": map[string]interface{}{
+				"withLog": true,
 			},
 		},
+	); err != nil {
+		return CallFrame{}, fmt.Errorf("call context: %w", err)
 	}
 
-	var resp CommomTraceResponse[CallFrame]
-	if err := c.post(payload, &resp); err != nil {
-		return CallFrame{}, fmt.Errorf("post error: %w", err)
-	}
-	if resp.Error.Code != 0 {
-		return CallFrame{}, fmt.Errorf("error response: code: %d, message: %s",
-			resp.Error.Code, resp.Error.Message)
+	var resp CallFrame
+	if err := json.Unmarshal(callResp, &resp); err != nil {
+		return CallFrame{}, fmt.Errorf("unmarshal call response: %w, data: %s", err, string(callResp))
 	}
 
-	return resp.Result, nil
+	if len(resp.Error) != 0 {
+		return CallFrame{}, fmt.Errorf("error response: %s, reason: %s",
+			resp.Error, resp.RevertReason)
+	}
+
+	return resp, nil
 }
 
 func (c *TraceClient) DebugTraceCall(
+	ctx context.Context,
 	from, to string,
 	gas uint64,
 	gasPrice *big.Int,
@@ -62,6 +70,11 @@ func (c *TraceClient) DebugTraceCall(
 	encodedData string,
 	block *big.Int,
 ) (CallFrame, error) {
+	const (
+		method = "debug_traceCall"
+		tracer = "callTracer"
+	)
+
 	paramData := map[string]any{
 		"from": cmp.Or(from, "null"),
 		"to":   to,
@@ -81,80 +94,33 @@ func (c *TraceClient) DebugTraceCall(
 		blockStr = hexutil.EncodeBig(block)
 	}
 
-	payload := map[string]any{
-		"method":  "debug_traceCall",
-		"id":      1,
-		"jsonrpc": "2.0",
-		"params": []any{
-			paramData,
-			blockStr,
-			map[string]any{
-				"tracer": "callTracer",
-				"tracerConfig": map[string]interface{}{
-					"onlyTopCall": false,
-					"withLog":     true,
-				},
+	var callResp json.RawMessage
+	if err := c.rpcClient.CallContext(ctx, &callResp,
+		method,
+		paramData,
+		blockStr,
+		map[string]any{
+			"tracer": tracer,
+			"tracerConfig": map[string]interface{}{
+				"onlyTopCall": false,
+				"withLog":     true,
 			},
 		},
+	); err != nil {
+		return CallFrame{}, fmt.Errorf("call context: %w", err)
 	}
 
-	var resp CommomTraceResponse[CallFrame]
-	if err := c.post(payload, &resp); err != nil {
-		return CallFrame{}, fmt.Errorf("post error: %w", err)
+	var resp CallFrame
+	if err := json.Unmarshal(callResp, &resp); err != nil {
+		return CallFrame{}, fmt.Errorf("unmarshal call response: %w, data: %s", err, string(callResp))
 	}
 
-	if resp.Error.Code != 0 {
-		return CallFrame{}, fmt.Errorf("error response: code: %d, message: %s",
-			resp.Error.Code, resp.Error.Message)
+	if len(resp.Error) != 0 {
+		return CallFrame{}, fmt.Errorf("error response: %s, reason: %s",
+			resp.Error, resp.RevertReason)
 	}
 
-	return resp.Result, nil
-}
-
-func (c *TraceClient) post(payload any, expect any) error {
-	var body *bytes.Buffer
-	if payload != nil {
-		b, err := json.Marshal(payload)
-		if err != nil {
-			return fmt.Errorf("marshal error: %w", err)
-		}
-		body = bytes.NewBuffer(b)
-	}
-
-	req, err := http.NewRequest(http.MethodPost, c.rpcURL, body)
-	if err != nil {
-		return err
-	}
-	req.Header.Add("Content-Type", "application/json")
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	text, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("not status OK, status: %d", resp.StatusCode)
-	}
-
-	if expect != nil {
-		if err := json.Unmarshal(text, expect); err != nil {
-			return fmt.Errorf("unmarshal error: %w, data: [%s]", err, text)
-		}
-	}
-
-	return nil
-}
-
-type CommomTraceResponse[T any] struct {
-	JSONRPC string        `json:"jsonrpc"`
-	ID      int           `json:"id"`
-	Result  T             `json:"result"`
-	Error   ErrorResponse `json:"error"`
+	return resp, nil
 }
 
 type CallLog struct {
@@ -163,8 +129,8 @@ type CallLog struct {
 	Data    string         `json:"data"`
 }
 
-func (l CallLog) ToEthereumLog() types.Log {
-	return types.Log{
+func (l CallLog) ToEthereumLog() ethtypes.Log {
+	return ethtypes.Log{
 		Address: l.Address,
 		Topics:  l.Topics,
 		Data:    common.Hex2Bytes(l.Data),
@@ -172,19 +138,16 @@ func (l CallLog) ToEthereumLog() types.Log {
 }
 
 type CallFrame struct {
-	From    string      `json:"from"`
-	Gas     string      `json:"gas"`
-	GasUsed string      `json:"gasUsed"`
-	To      string      `json:"to"`
-	Input   string      `json:"input"`
-	Output  string      `json:"output"`
-	Calls   []CallFrame `json:"calls"`
-	Value   string      `json:"value"`
-	Type    string      `json:"type"`
-	Logs    []CallLog   `json:"logs"`
-}
-
-type ErrorResponse struct {
-	Code    int64  `json:"code"`
-	Message string `json:"message"`
+	From         string      `json:"from"`
+	Gas          string      `json:"gas"`
+	GasUsed      string      `json:"gasUsed"`
+	To           string      `json:"to"`
+	Input        string      `json:"input"`
+	Output       string      `json:"output"`
+	Calls        []CallFrame `json:"calls"`
+	Value        string      `json:"value"`
+	Type         string      `json:"type"`
+	Logs         []CallLog   `json:"logs"`
+	Error        string      `json:"error"`
+	RevertReason string      `json:"revertReason"`
 }
