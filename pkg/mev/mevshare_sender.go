@@ -36,6 +36,7 @@ func (m FlashbotMevShareSender) SendBackrunBundle(
 	_ context.Context,
 	_ *string,
 	blockNumber uint64,
+	maxBlockNumber uint64,
 	pendingTxHash common.Hash,
 	targetBuilders []string,
 	txs ...*types.Transaction,
@@ -46,6 +47,10 @@ func (m FlashbotMevShareSender) SendBackrunBundle(
 
 	if len(txs) != 1 {
 		return SendBundleResponse{}, ErrInvalidLenTx
+	}
+
+	if blockNumber > maxBlockNumber {
+		return SendBundleResponse{}, ErrInvalidMaxBlock
 	}
 
 	rlpEncodedTx, err := txs[0].MarshalBinary()
@@ -65,6 +70,7 @@ func (m FlashbotMevShareSender) SendBackrunBundle(
 	}
 	inclusion := mevshare.MevBundleInclusion{
 		BlockNumber: hexutil.Uint64(blockNumber),
+		MaxBlock:    hexutil.Uint64(maxBlockNumber),
 	}
 
 	// Make the bundle

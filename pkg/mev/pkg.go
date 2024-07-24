@@ -54,6 +54,7 @@ type IBackrunSender interface {
 		ctx context.Context,
 		uuid *string,
 		blockNumber uint64,
+		maxBlockNumber uint64,
 		pendingTxHash common.Hash,
 		targetBuilders []string,
 		tx ...*types.Transaction,
