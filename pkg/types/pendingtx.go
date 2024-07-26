@@ -15,6 +15,8 @@ const (
 	PublicMempool MempoolSource = iota + 1
 	MevBlockerMempool
 	FlashbotMempool
+	BlinkMempool
+	MerkleMempool
 )
 
 type Message struct {
