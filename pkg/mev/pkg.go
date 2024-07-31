@@ -30,6 +30,7 @@ const (
 	BundleSenderTypeMevShare
 	BundleSenderTypeBackrunPublic
 	BundleSenderTypeMevBlocker
+	BundleSenderTypeBlink
 )
 
 const (
