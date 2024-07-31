@@ -40,13 +40,13 @@ type Message struct {
 }
 
 type Prestate struct {
-	Post stateMap `json:"post"`
-	Pre  stateMap `json:"pre"`
+	Post StateMap `json:"post"`
+	Pre  StateMap `json:"pre"`
 }
 
-type stateMap = map[common.Address]*account
+type StateMap = map[common.Address]*Account
 
-type account struct {
+type Account struct {
 	Balance *big.Int                    `json:"balance,omitempty"`
 	Code    []byte                      `json:"code,omitempty"`
 	Nonce   uint64                      `json:"nonce,omitempty"`
