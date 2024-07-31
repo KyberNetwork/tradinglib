@@ -17,6 +17,7 @@ const (
 	FlashbotMempool
 	BlinkMempool
 	MerkleMempool
+	BlinkV3Mempool
 )
 
 type Message struct {
