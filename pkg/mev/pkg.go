@@ -31,6 +31,7 @@ const (
 	BundleSenderTypeBackrunPublic
 	BundleSenderTypeMevBlocker
 	BundleSenderTypeBlink
+	BundleSenderTypeMerkle
 )
 
 const (
