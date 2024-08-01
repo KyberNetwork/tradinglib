@@ -32,7 +32,12 @@ func TestNewBackrunPublicClient(t *testing.T) {
 
 	httpCl := http.Client{Timeout: time.Second * 5}
 	// Initialize the client
-	senderClient := mev.NewBackrunPublicClient(&httpCl, "https://rpc.mevblocker.io", nil, mev.BundleSenderTypeMevBlocker, mev.XFlashbotSignatureHeader)
+	senderClient := mev.NewBackrunPublicClient(
+		&httpCl,
+		"https://rpc.mevblocker.io",
+		nil,
+		mev.BundleSenderTypeMevBlocker,
+		mev.XFlashbotSignatureHeader)
 
 	pendingTXhash := common.HexToHash("0x79d48b1a25d7af0d815997d2ce3a127560080971c5ea98ca5a32424f604e09fb")
 	resp, err := senderClient.SendBackrunBundle(context.Background(), nil,
