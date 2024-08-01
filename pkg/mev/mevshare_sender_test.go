@@ -45,7 +45,7 @@ func TestSendBackrunBundle(t *testing.T) {
 
 	// Send bundle
 	res, err := rpcClient.SendBackrunBundle(context.Background(), nil,
-		blockNumber+1, blockNumber+1, pendingTxHash, nil, tx)
+		blockNumber+1, blockNumber+1, []common.Hash{pendingTxHash}, nil, tx)
 	assert.Nil(t, err)
 
 	t.Log(res, "result")
