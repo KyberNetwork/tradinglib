@@ -301,6 +301,20 @@ func (p *SendBundleParams) SetPendingTxHash(txHash common.Hash) *SendBundleParam
 	return p
 }
 
+func (p *SendBundleParams) SetPendingTxHashes(txHashes ...common.Hash) *SendBundleParams {
+	if len(txHashes) == 0 {
+		return p
+	}
+	pendingTxs := make([]string, 0, len(txHashes))
+	for _, txHash := range txHashes {
+		pendingTxs = append(pendingTxs, txHash.Hex())
+	}
+
+	p.Txs = append(pendingTxs, p.Txs...)
+
+	return p
+}
+
 func (p *SendBundleParams) SetTransactions(txs ...*types.Transaction) *SendBundleParams {
 	if len(txs) == 0 {
 		return p

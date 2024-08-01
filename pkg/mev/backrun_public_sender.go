@@ -14,10 +14,11 @@ import (
 )
 
 type BackrunPublicClient struct {
-	c           *http.Client
-	endpoint    string
-	flashbotKey *ecdsa.PrivateKey
-	senderType  BundleSenderType
+	c                *http.Client
+	endpoint         string
+	flashbotKey      *ecdsa.PrivateKey
+	senderType       BundleSenderType
+	xSignatureHeader string
 }
 
 func NewBackrunPublicClient(
@@ -25,12 +26,14 @@ func NewBackrunPublicClient(
 	endpoint string,
 	flashbotKey *ecdsa.PrivateKey,
 	senderType BundleSenderType,
+	xSignatureHeader string,
 ) *BackrunPublicClient {
 	return &BackrunPublicClient{
-		c:           c,
-		endpoint:    endpoint,
-		flashbotKey: flashbotKey,
-		senderType:  senderType,
+		c:                c,
+		endpoint:         endpoint,
+		flashbotKey:      flashbotKey,
+		senderType:       senderType,
+		xSignatureHeader: xSignatureHeader,
 	}
 }
 
@@ -39,7 +42,7 @@ func (b BackrunPublicClient) SendBackrunBundle(
 	uuid *string,
 	blockNumber uint64,
 	_ uint64,
-	pendingTxHash common.Hash,
+	pendingTxHashes []common.Hash,
 	_ []string,
 	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
@@ -48,7 +51,7 @@ func (b BackrunPublicClient) SendBackrunBundle(
 		JSONRPC: JSONRPC2,
 		Method:  ETHSendBundleMethod,
 	}
-	p := new(SendBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...).SetPendingTxHash(pendingTxHash)
+	p := new(SendBundleParams).SetBlockNumber(blockNumber).SetPendingTxHashes(pendingTxHashes...).SetTransactions(txs...)
 	if uuid != nil {
 		p.SetUUID(*uuid, b.senderType)
 	}
@@ -65,7 +68,7 @@ func (b BackrunPublicClient) SendBackrunBundle(
 		if err != nil {
 			return SendBundleResponse{}, fmt.Errorf("sign flashbot request error: %w", err)
 		}
-		headers = append(headers, [2]string{"X-Flashbots-Signature", signature})
+		headers = append(headers, [2]string{b.xSignatureHeader, signature})
 	}
 
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, b.endpoint, bytes.NewBuffer(reqBody))

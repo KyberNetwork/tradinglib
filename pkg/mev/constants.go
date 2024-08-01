@@ -20,4 +20,6 @@ const (
 	FlashbotBuilderRegistrationPenguinBuild  = "penguinbuild"
 	FlashbotBuilderRegistrationBobTheBuilder = "bobthebuilder"
 	FlashbotBuilderRegistrationBTCS          = "BTCS"
+	XFlashbotSignatureHeader                 = "X-Flashbots-Signature"
+	XBlinkSignatureHeader                    = "X-Blink-Signature"
 )

@@ -30,6 +30,8 @@ const (
 	BundleSenderTypeMevShare
 	BundleSenderTypeBackrunPublic
 	BundleSenderTypeMevBlocker
+	BundleSenderTypeBlink
+	BundleSenderTypeMerkle
 )
 
 const (
@@ -55,7 +57,7 @@ type IBackrunSender interface {
 		uuid *string,
 		blockNumber uint64,
 		maxBlockNumber uint64,
-		pendingTxHash common.Hash,
+		pendingTxHashes []common.Hash,
 		targetBuilders []string,
 		tx ...*types.Transaction,
 	) (SendBundleResponse, error)

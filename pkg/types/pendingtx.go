@@ -121,7 +121,7 @@ func (m Message) GetAllLogs() []*types.Log {
 			return results
 		}
 	case MevBlockerMempool, PublicMempool:
-		if m.InternalTx == nil {
+		if m.InternalTx != nil {
 			return m.InternalTx.getLogs()
 		}
 	default:
