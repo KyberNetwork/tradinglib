@@ -120,7 +120,7 @@ func (m Message) GetAllLogs() []*types.Log {
 			}
 			return results
 		}
-	case MevBlockerMempool, PublicMempool:
+	case MevBlockerMempool, PublicMempool, BlinkMempool, MerkleMempool:
 		if m.InternalTx != nil {
 			return m.InternalTx.getLogs()
 		}
