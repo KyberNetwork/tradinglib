@@ -301,6 +301,7 @@ func (p *SendBundleParams) SetPendingTxHash(txHash common.Hash) *SendBundleParam
 	return p
 }
 
+// SetPendingTxHashes will prepend the txHashes to the current list of transactions.
 func (p *SendBundleParams) SetPendingTxHashes(txHashes ...common.Hash) *SendBundleParams {
 	if len(txHashes) == 0 {
 		return p
