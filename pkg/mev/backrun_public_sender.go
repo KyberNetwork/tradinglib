@@ -51,6 +51,8 @@ func (b BackrunPublicClient) SendBackrunBundle(
 		JSONRPC: JSONRPC2,
 		Method:  ETHSendBundleMethod,
 	}
+
+	// we set transactions first, then prepend pendingTxHashes
 	p := new(SendBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...).SetPendingTxHashes(pendingTxHashes...)
 	if uuid != nil {
 		p.SetUUID(*uuid, b.senderType)
