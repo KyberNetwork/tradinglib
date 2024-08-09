@@ -1,7 +1,9 @@
 package eth
 
 import (
+	"errors"
 	"fmt"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -47,4 +49,16 @@ func RecoverSignerAddress(hexEncodedHash string, hexEncodedSignature string) (co
 func GetFrom(tx *types.Transaction) (common.Address, error) {
 	from, err := types.Sender(types.LatestSignerForChainID(tx.ChainId()), tx)
 	return from, err
+}
+
+func DecodeSignature(sig []byte) (r, s, v *big.Int, err error) {
+	if len(sig) != crypto.SignatureLength {
+		return nil, nil, nil, errors.New("invalid signature length")
+	}
+
+	r = new(big.Int).SetBytes(sig[:32])
+	s = new(big.Int).SetBytes(sig[32:64])
+	v = new(big.Int).SetBytes([]byte{sig[64] + 27})
+
+	return r, v, s, nil
 }
