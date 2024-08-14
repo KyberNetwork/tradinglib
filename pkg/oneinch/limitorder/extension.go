@@ -1,4 +1,4 @@
-package fusionorder
+package limitorder
 
 import (
 	"fmt"
@@ -32,8 +32,8 @@ type Extension struct {
 	CustomData       string
 }
 
-func (e Extension) IsDefault() bool {
-	return e == defaultExtension()
+func (e Extension) IsEmpty() bool {
+	return len(e.getConcatenatedInteractions()) == 0
 }
 
 func (e Extension) Encode() string {
