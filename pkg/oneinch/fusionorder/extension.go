@@ -16,20 +16,6 @@ const (
 	offsetLengthInHex    = offsetLengthInBytes * 2
 )
 
-var (
-	defaultExtension = Extension{
-		MakerAssetSuffix: ZX,
-		TakerAssetSuffix: ZX,
-		MakingAmountData: ZX,
-		TakingAmountData: ZX,
-		Predicate:        ZX,
-		MakerPermit:      ZX,
-		PreInteraction:   ZX,
-		PostInteraction:  ZX,
-		CustomData:       ZX,
-	}
-)
-
 // Extension represents the extension data of a 1inch order.
 // This is copied from
 // nolint: lll
@@ -47,7 +33,7 @@ type Extension struct {
 }
 
 func (e Extension) IsDefault() bool {
-	return e == defaultExtension
+	return e == defaultExtension()
 }
 
 func (e Extension) Encode() string {
@@ -86,7 +72,8 @@ func (e Extension) getConcatenatedInteractions() string {
 func (e Extension) getOffsets() *big.Int {
 	var lengthMap [totalOffsetSlots]int
 	for i, interaction := range e.interactionsArray() {
-		lengthMap[i] = len(trim0x(interaction)) / 2
+		// nolint: gomnd
+		lengthMap[i] = len(trim0x(interaction)) / 2 // divide by 2 because each byte is represented by 2 hex characters
 	}
 
 	cumulativeSum := 0
@@ -106,15 +93,17 @@ func (e Extension) getOffsets() *big.Int {
 
 // DecodeExtension decodes the encoded extension string into an Extension struct.
 // The encoded extension string is expected to be in the format of "0x" followed by the hex-encoded extension data.
-// The hex-encoded extension data is expected to be in the format of 32 bytes of offset data followed by the extension data.
+// The hex-encoded extension data is expected to be in
+// the format of 32 bytes of offset data followed by the extension data.
 func DecodeExtension(encodedExtension string) (Extension, error) {
 	if encodedExtension == ZX {
-		return defaultExtension, nil
+		return defaultExtension(), nil
 	}
 
 	encodedExtension = trim0x(encodedExtension)
 
-	offset, ok := new(big.Int).SetString(encodedExtension[:offsetLengthInHex], 16) // 64 hex characters = 32 bytes
+	// nolint: gomnd
+	offset, ok := new(big.Int).SetString(encodedExtension[:offsetLengthInHex], 16)
 	if !ok {
 		return Extension{}, fmt.Errorf("decode offset from encoded extension")
 	}
@@ -134,8 +123,8 @@ func DecodeExtension(encodedExtension string) (Extension, error) {
 		).Int64())
 
 		// multiply by 2 because each byte is represented by 2 hex characters
-		start := prevLength * 2
-		end := length * 2
+		start := prevLength * 2 // nolint: gomnd
+		end := length * 2       // nolint: gomnd
 
 		data[i] = extensionData[start:end]
 
@@ -154,6 +143,20 @@ func DecodeExtension(encodedExtension string) (Extension, error) {
 		PostInteraction:  add0x(data[7]),
 		CustomData:       add0x(customData),
 	}, nil
+}
+
+func defaultExtension() Extension {
+	return Extension{
+		MakerAssetSuffix: ZX,
+		TakerAssetSuffix: ZX,
+		MakingAmountData: ZX,
+		TakingAmountData: ZX,
+		Predicate:        ZX,
+		MakerPermit:      ZX,
+		PreInteraction:   ZX,
+		PostInteraction:  ZX,
+		CustomData:       ZX,
+	}
 }
 
 func trim0x(s string) string {
