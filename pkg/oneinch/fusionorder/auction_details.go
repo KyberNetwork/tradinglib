@@ -148,8 +148,8 @@ func (a AuctionDetails) Encode() string {
 	buf.Write(utils.PadOrTrim(a.Duration.Bytes(), 3))
 	buf.Write(utils.PadOrTrim(a.InitialRateBump.Bytes(), 3))
 	for _, point := range a.Points {
-		buf.Write(utils.PadOrTrim(big.NewInt(point.Delay).Bytes(), 3))
-		buf.Write(utils.PadOrTrim(big.NewInt(point.Coefficient).Bytes(), 2))
+		buf.Write(utils.PadOrTrim(big.NewInt(point.Coefficient).Bytes(), 3))
+		buf.Write(utils.PadOrTrim(big.NewInt(point.Delay).Bytes(), 2))
 	}
 
 	return utils.Add0x(hex.EncodeToString(buf.Bytes()))

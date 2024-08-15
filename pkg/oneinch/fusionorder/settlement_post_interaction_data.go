@@ -97,7 +97,7 @@ func NewSettlementPostInteractionDataFromSettlementSuffixData(
 		copy(addressHalf[:], item.Address.Bytes()[common.AddressLength-addressHalfLength:]) // take the last 10 bytes
 		whitelist = append(whitelist, WhitelistItem{
 			AddressHalf: addressHalf,
-			Delay:       delay,
+			Delay:       uint16(delay.Uint64()),
 		})
 	}
 
@@ -112,7 +112,7 @@ func NewSettlementPostInteractionDataFromSettlementSuffixData(
 
 type WhitelistItem struct {
 	AddressHalf AddressHalf
-	Delay       *big.Int
+	Delay       uint16
 }
 
 type IntegratorFee struct {
@@ -135,4 +135,23 @@ type SettlementSuffixData struct {
 	BankFee            *big.Int
 	ResolvingStartTime *big.Int
 	CustomReceiver     common.Address
+}
+
+func (s SettlementPostInteractionData) CanExecuteAt(executor common.Address, executionTime *big.Int) bool {
+	var addressHalf AddressHalf
+	copy(addressHalf[:], executor.Bytes()[common.AddressLength-addressHalfLength:]) // take the last 10 bytes
+
+	allowedFrom := s.ResolvingStartTime
+
+	for _, item := range s.Whitelist {
+		allowedFrom = new(big.Int).Add(allowedFrom, big.NewInt(int64(item.Delay)))
+
+		if addressHalf == item.AddressHalf {
+			return executionTime.Cmp(allowedFrom) >= 0 // executionTime >= allowedFrom
+		} else if executionTime.Cmp(allowedFrom) < 0 { // executionTime < allowedFrom
+			return false
+		}
+	}
+
+	return false
 }
