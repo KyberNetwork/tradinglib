@@ -1,0 +1,95 @@
+package fusionorder_test
+
+import (
+	"math/big"
+	"testing"
+
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder"
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/utils"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestAuctionDetail(t *testing.T) {
+	t.Run("should encode/decode", func(t *testing.T) {
+		auctionDetail, err := fusionorder.NewAuctionDetails(
+			big.NewInt(1673548149),
+			big.NewInt(50_000),
+			big.NewInt(180),
+			[]fusionorder.AuctionPoint{
+				{
+					Delay:       10,
+					Coefficient: 10_000,
+				},
+				{
+					Delay:       20,
+					Coefficient: 5_000,
+				},
+			},
+			fusionorder.AuctionGasCostInfo{},
+		)
+		require.NoError(t, err)
+
+		encodedAuctionDetail := auctionDetail.Encode()
+		t.Logf("encodedAuctionDetail: %s", encodedAuctionDetail)
+		decodedAuctionDetail, err := fusionorder.DecodeAuctionDetails(encodedAuctionDetail)
+		require.NoError(t, err)
+
+		assertAuctionDetailsEqual(t, auctionDetail, decodedAuctionDetail)
+	})
+
+	t.Run("decode", func(t *testing.T) {
+		makingAmountData := "0xfb2809a5314473e1165f6b58018e20ed8f07b84000f1b8000005e566bb30120000b401def800f1b800b4"
+		decodeAuctionDetails, err := fusionorder.DecodeAuctionDetails(
+			utils.Add0x(makingAmountData[42:]),
+		)
+		require.NoError(t, err)
+
+		t.Logf("AuctionDetails: %+v", decodeAuctionDetails)
+	})
+
+	t.Run("decode 2", func(t *testing.T) {
+		// This data is get from
+		// https://app.blocksec.com/explorer/tx/eth/0x73e317981af9c352f26bac125b1a6d3e1d31076b87c679a4f771b4a5c5a7f76f?line=4&debugLine=4
+		extraData := "0x01e9f1000005d866bda8b40000b404fa0103d477003c01e9f10078"
+		decodeAuctionDetails, err := fusionorder.DecodeAuctionDetails(extraData)
+		require.NoError(t, err)
+
+		// those value is collected from
+		// https://app.blocksec.com/explorer/tx/eth/0x73e317981af9c352f26bac125b1a6d3e1d31076b87c679a4f771b4a5c5a7f76f?line=79&debugLine=79
+		expectedStartTime := big.NewInt(1_723_705_524)
+		expectedDuration := new(big.Int).Sub(big.NewInt(1_723_705_704), expectedStartTime)
+		initialRateBump := big.NewInt(326_145)
+		// those value is collected from running decode function in fusion-sdk with this extraData
+		// https://github.com/1inch/fusion-sdk/blob/8721c62612b08cc7c0e01423a1bdd62594e7b8d0/src/fusion-order/auction-details/auction-details.ts#L76
+		points := []fusionorder.AuctionPoint{
+			{
+				Delay:       60,
+				Coefficient: 250_999,
+			},
+			{
+				Delay:       120,
+				Coefficient: 125_425,
+			},
+		}
+		gasBumpEstimate := big.NewInt(125_425)
+		gasPriceEstimate := big.NewInt(1496)
+
+		assert.Equal(t, expectedStartTime, decodeAuctionDetails.StartTime)
+		assert.Equal(t, expectedDuration, decodeAuctionDetails.Duration)
+		assert.Equal(t, initialRateBump, decodeAuctionDetails.InitialRateBump)
+		assert.ElementsMatch(t, points, decodeAuctionDetails.Points)
+		assert.Equal(t, gasBumpEstimate, decodeAuctionDetails.GasCost.GasBumpEstimate)
+		assert.Equal(t, gasPriceEstimate, decodeAuctionDetails.GasCost.GasPriceEstimate)
+	})
+}
+
+func assertAuctionDetailsEqual(t *testing.T, expected, actual fusionorder.AuctionDetails) {
+	t.Helper()
+	assert.Equal(t, expected.StartTime, actual.StartTime)
+	assert.Equal(t, expected.Duration, actual.Duration)
+	assert.Equal(t, expected.InitialRateBump, actual.InitialRateBump)
+	assert.ElementsMatch(t, expected.Points, actual.Points)
+	assert.Equal(t, expected.GasCost.GasBumpEstimate.Int64(), actual.GasCost.GasBumpEstimate.Int64())
+	assert.Equal(t, expected.GasCost.GasPriceEstimate.Int64(), actual.GasCost.GasPriceEstimate.Int64())
+}
