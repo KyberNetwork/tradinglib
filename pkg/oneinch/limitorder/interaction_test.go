@@ -7,6 +7,7 @@ import (
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/limitorder"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestInteraction(t *testing.T) {
@@ -17,7 +18,8 @@ func TestInteraction(t *testing.T) {
 		}
 
 		encodedInteraction := interaction.Encode()
-		decodedInteraction := limitorder.DecodeInteraction(encodedInteraction)
+		decodedInteraction, err := limitorder.DecodeInteraction(encodedInteraction)
+		require.NoError(t, err)
 
 		assert.Equal(t, interaction, decodedInteraction)
 	})

@@ -5,6 +5,8 @@ import (
 	"math"
 	"math/big"
 	"strings"
+
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/utils"
 )
 
 const (
@@ -32,6 +34,37 @@ type Extension struct {
 	CustomData       string
 }
 
+func (e Extension) validate() error {
+	if !utils.IsHexString(e.MakerAssetSuffix) {
+		return fmt.Errorf("invalid maker asset suffix: %s", e.MakerAssetSuffix)
+	}
+	if !utils.IsHexString(e.TakerAssetSuffix) {
+		return fmt.Errorf("invalid taker asset suffix: %s", e.TakerAssetSuffix)
+	}
+	if !utils.IsHexString(e.MakingAmountData) {
+		return fmt.Errorf("invalid making amount data: %s", e.MakingAmountData)
+	}
+	if !utils.IsHexString(e.TakingAmountData) {
+		return fmt.Errorf("invalid taking amount data: %s", e.TakingAmountData)
+	}
+	if !utils.IsHexString(e.Predicate) {
+		return fmt.Errorf("invalid predicate: %s", e.Predicate)
+	}
+	if !utils.IsHexString(e.MakerPermit) {
+		return fmt.Errorf("invalid maker permit: %s", e.MakerPermit)
+	}
+	if !utils.IsHexString(e.PreInteraction) {
+		return fmt.Errorf("invalid pre interaction: %s", e.PreInteraction)
+	}
+	if !utils.IsHexString(e.PostInteraction) {
+		return fmt.Errorf("invalid post interaction: %s", e.PostInteraction)
+	}
+	if !utils.IsHexString(e.CustomData) {
+		return fmt.Errorf("invalid custom data: %s", e.CustomData)
+	}
+	return nil
+}
+
 func (e Extension) IsEmpty() bool {
 	return len(e.getConcatenatedInteractions()) == 0
 }
@@ -44,7 +77,7 @@ func (e Extension) Encode() string {
 
 	offsetsBytes := e.getOffsets()
 	paddedOffsetHex := fmt.Sprintf("%064x", offsetsBytes)
-	return ZX + paddedOffsetHex + interactionsConcatenated + trim0x(e.CustomData)
+	return ZX + paddedOffsetHex + interactionsConcatenated + utils.Trim0x(e.CustomData)
 }
 
 func (e Extension) interactionsArray() [totalOffsetSlots]string {
@@ -63,7 +96,7 @@ func (e Extension) interactionsArray() [totalOffsetSlots]string {
 func (e Extension) getConcatenatedInteractions() string {
 	var builder strings.Builder
 	for _, interaction := range e.interactionsArray() {
-		interaction = trim0x(interaction)
+		interaction = utils.Trim0x(interaction)
 		builder.WriteString(interaction)
 	}
 	return builder.String()
@@ -73,7 +106,7 @@ func (e Extension) getOffsets() *big.Int {
 	var lengthMap [totalOffsetSlots]int
 	for i, interaction := range e.interactionsArray() {
 		// nolint: gomnd
-		lengthMap[i] = len(trim0x(interaction)) / 2 // divide by 2 because each byte is represented by 2 hex characters
+		lengthMap[i] = len(utils.Trim0x(interaction)) / 2 // divide by 2 because each byte is represented by 2 hex characters
 	}
 
 	cumulativeSum := 0
@@ -100,7 +133,7 @@ func DecodeExtension(encodedExtension string) (Extension, error) {
 		return defaultExtension(), nil
 	}
 
-	encodedExtension = trim0x(encodedExtension)
+	encodedExtension = utils.Trim0x(encodedExtension)
 
 	// nolint: gomnd
 	offset, ok := new(big.Int).SetString(encodedExtension[:offsetLengthInHex], 16)
@@ -132,17 +165,19 @@ func DecodeExtension(encodedExtension string) (Extension, error) {
 	}
 	customData := extensionData[prevLength*2:]
 
-	return Extension{
-		MakerAssetSuffix: add0x(data[0]),
-		TakerAssetSuffix: add0x(data[1]),
-		MakingAmountData: add0x(data[2]),
-		TakingAmountData: add0x(data[3]),
-		Predicate:        add0x(data[4]),
-		MakerPermit:      add0x(data[5]),
-		PreInteraction:   add0x(data[6]),
-		PostInteraction:  add0x(data[7]),
-		CustomData:       add0x(customData),
-	}, nil
+	e := Extension{
+		MakerAssetSuffix: utils.Add0x(data[0]),
+		TakerAssetSuffix: utils.Add0x(data[1]),
+		MakingAmountData: utils.Add0x(data[2]),
+		TakingAmountData: utils.Add0x(data[3]),
+		Predicate:        utils.Add0x(data[4]),
+		MakerPermit:      utils.Add0x(data[5]),
+		PreInteraction:   utils.Add0x(data[6]),
+		PostInteraction:  utils.Add0x(data[7]),
+		CustomData:       utils.Add0x(customData),
+	}
+
+	return e, e.validate()
 }
 
 func defaultExtension() Extension {
@@ -157,12 +192,4 @@ func defaultExtension() Extension {
 		PostInteraction:  ZX,
 		CustomData:       ZX,
 	}
-}
-
-func trim0x(s string) string {
-	return strings.TrimPrefix(s, "0x")
-}
-
-func add0x(s string) string {
-	return "0x" + s
 }
