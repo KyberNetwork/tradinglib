@@ -65,6 +65,10 @@ func (e Extension) validate() error {
 	return nil
 }
 
+func (e Extension) HasMakerPermit() bool {
+	return e.MakerPermit != ZX
+}
+
 func (e Extension) IsEmpty() bool {
 	return len(e.getConcatenatedInteractions()) == 0
 }
