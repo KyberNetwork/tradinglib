@@ -15,9 +15,7 @@ type FusionExtension struct {
 	MakerPermit         limitorder.Interaction
 }
 
-var (
-	ErrSettlementContractMismatch = errors.New("settlement contract mismatch")
-)
+var ErrSettlementContractMismatch = errors.New("settlement contract mismatch")
 
 func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExtension, error) {
 	settlementContract := AddressFromFirstBytes(extension.MakingAmountData)

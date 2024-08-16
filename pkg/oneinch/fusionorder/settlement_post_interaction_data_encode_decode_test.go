@@ -11,6 +11,7 @@ import (
 )
 
 // Those tests are copied from
+// nolint: lll,funlen
 // https://github.com/1inch/fusion-sdk/blob/8721c62612b08cc7c0e01423a1bdd62594e7b8d0/src/fusion-order/settlement-post-interaction-data/settlement-post-interaction-data.spec.ts#L6
 func TestSettlementPostInteractionData(t *testing.T) {
 	t.Run("Should encode/decode with bank fee and whitelist", func(t *testing.T) {
@@ -30,7 +31,7 @@ func TestSettlementPostInteractionData(t *testing.T) {
 
 		encoded := data.Encode()
 
-		assert.Equal(t, 21, len(encoded))
+		assert.Len(t, encoded, 21)
 
 		decoded, err := fusionorder.DecodeSettlementPostInteractionData(encoded)
 		require.NoError(t, err)
@@ -54,7 +55,7 @@ func TestSettlementPostInteractionData(t *testing.T) {
 
 		encoded := data.Encode()
 
-		assert.Equal(t, 17, len(encoded))
+		assert.Len(t, encoded, 17)
 
 		decoded, err := fusionorder.DecodeSettlementPostInteractionData(encoded)
 		require.NoError(t, err)
@@ -179,7 +180,10 @@ func TestSettlementPostInteractionData(t *testing.T) {
 	})
 }
 
-func assertSettlementPostInteractionDataEqual(t *testing.T, expected, actual fusionorder.SettlementPostInteractionData) {
+func assertSettlementPostInteractionDataEqual(
+	t *testing.T, expected, actual fusionorder.SettlementPostInteractionData,
+) {
+	t.Helper()
 	assert.ElementsMatch(t, expected.Whitelist, actual.Whitelist)
 	assert.Equal(t, expected.IntegratorFee.Ratio, actual.IntegratorFee.Ratio)
 	assert.Equal(t, expected.IntegratorFee.Receiver, actual.IntegratorFee.Receiver)

@@ -36,7 +36,6 @@ func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteraction
 	bankFee := big.NewInt(0)
 	var integratorFee IntegratorFee
 	var customReceiver common.Address
-	resolvingStartTime := big.NewInt(0)
 
 	if resolverFeeEnabled(flags) {
 		bankFee.SetBytes(data[:4])
@@ -59,7 +58,7 @@ func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteraction
 		}
 	}
 
-	resolvingStartTime = new(big.Int).SetBytes(data[:4])
+	resolvingStartTime := new(big.Int).SetBytes(data[:4])
 	data = data[4:]
 
 	whitelistCount := resolversCount(flags)
@@ -88,6 +87,8 @@ func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteraction
 	}, nil
 }
 
+// Encode encodes SettlementPostInteractionData to bytes
+// nolint: gomnd
 func (s SettlementPostInteractionData) Encode() []byte {
 	buf := new(bytes.Buffer)
 	var flags byte

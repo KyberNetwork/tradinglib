@@ -3,7 +3,7 @@ package fusionorder
 import "math/big"
 
 // padOrTrim returns (size) bytes from input (bb)
-// Short bb gets zeros prefixed, Long bb gets left/MSB bits trimmed
+// Short bb gets zeros prefixed, Long bb gets left/MSB bits trimmed.
 func padOrTrim(bb []byte, size int) []byte {
 	l := len(bb)
 	if l == size {

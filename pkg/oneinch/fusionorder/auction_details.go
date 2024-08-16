@@ -103,8 +103,8 @@ func DecodeAuctionDetails(hexData []byte) (AuctionDetails, error) {
 		AuctionGasCostInfo{
 			GasBumpEstimate:  gasBumpEstimate,
 			GasPriceEstimate: gasPriceEstimate,
-		})
-
+		},
+	)
 }
 
 func decodeAuctionPoints(data []byte) []AuctionPoint {
@@ -121,6 +121,8 @@ func decodeAuctionPoints(data []byte) []AuctionPoint {
 	return points
 }
 
+// Encode encodes AuctionDetails to bytes
+// nolint: gomnd
 func (a AuctionDetails) Encode() []byte {
 	buf := new(bytes.Buffer)
 	buf.Write(encodeInt64ToBytes(a.GasCost.GasBumpEstimate, 3))

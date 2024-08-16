@@ -1,11 +1,11 @@
 package fusionorder_test
 
 import (
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"testing"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -51,6 +51,7 @@ func TestAuctionDetail(t *testing.T) {
 		t.Logf("AuctionDetails: %+v", decodeAuctionDetails)
 	})
 
+	// nolint: lll
 	t.Run("decode 2", func(t *testing.T) {
 		// This data is get from
 		// https://app.blocksec.com/explorer/tx/eth/0x73e317981af9c352f26bac125b1a6d3e1d31076b87c679a4f771b4a5c5a7f76f?line=4&debugLine=4
