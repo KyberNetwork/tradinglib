@@ -11,8 +11,6 @@ import (
 )
 
 const (
-	ZX = "0x"
-
 	totalOffsetSlots     = 8
 	offsetSlotSizeInBits = 32
 	offsetLength         = totalOffsetSlots * offsetSlotSizeInBits / 8
@@ -43,14 +41,15 @@ func (e Extension) IsEmpty() bool {
 }
 
 func (e Extension) Encode() string {
+	const zx = "0x"
 	interactionsConcatenated := e.getConcatenatedInteractions()
 	if len(interactionsConcatenated) == 0 {
-		return ZX
+		return zx
 	}
 
 	offsetsBytes := e.getOffsets()
 	paddedOffsetHex := fmt.Sprintf("%064x", offsetsBytes)
-	return ZX + paddedOffsetHex + hex.EncodeToString(interactionsConcatenated) + hex.EncodeToString(e.CustomData)
+	return zx + paddedOffsetHex + hex.EncodeToString(interactionsConcatenated) + hex.EncodeToString(e.CustomData)
 }
 
 func (e Extension) interactionsArray() [totalOffsetSlots][]byte {
@@ -100,13 +99,13 @@ func (e Extension) getOffsets() *big.Int {
 // The hex-encoded extension data is expected to be in
 // the format of 32 bytes of offset data followed by the extension data.
 func DecodeExtension(encodedExtension string) (Extension, error) {
-	if encodedExtension == ZX {
-		return defaultExtension(), nil
-	}
-
 	extensionDataBytes, err := hexutil.Decode(encodedExtension)
 	if err != nil {
 		return Extension{}, fmt.Errorf("decode extension data: %w", err)
+	}
+
+	if len(extensionDataBytes) == 0 {
+		return defaultExtension(), nil
 	}
 
 	offset := new(big.Int).SetBytes(extensionDataBytes[:offsetLength])
