@@ -57,7 +57,7 @@ func DecodeSettlementPostInteractionData(extraData string) (SettlementPostIntera
 	}
 
 	if integratorFeeEnabled(flags) {
-		integratorFeeRatio := new(big.Int).SetBytes(data[:2])
+		integratorFeeRatio := new(big.Int).SetBytes(data[:2]).Int64()
 		integratorAddress := common.BytesToAddress(data[2:22])
 		integratorFee = IntegratorFee{
 			Ratio:    integratorFeeRatio,
@@ -88,15 +88,15 @@ func DecodeSettlementPostInteractionData(extraData string) (SettlementPostIntera
 
 		whitelist = append(whitelist, WhitelistItem{
 			AddressHalf: address,
-			Delay:       uint16(delay.Uint64()),
+			Delay:       delay.Int64(),
 		})
 	}
 
 	return SettlementPostInteractionData{
 		Whitelist:          whitelist,
 		IntegratorFee:      integratorFee,
-		BankFee:            bankFee,
-		ResolvingStartTime: resolvingStartTime,
+		BankFee:            bankFee.Int64(),
+		ResolvingStartTime: resolvingStartTime.Int64(),
 		CustomReceiver:     customReceiver,
 	}, nil
 }
@@ -104,20 +104,20 @@ func DecodeSettlementPostInteractionData(extraData string) (SettlementPostIntera
 func (s SettlementPostInteractionData) Encode() string {
 	buf := new(bytes.Buffer)
 	var flags byte
-	if s.BankFee != nil && s.BankFee.Cmp(big.NewInt(0)) != 0 {
+	if s.BankFee != 0 {
 		flags |= resolverFeeFlag
-		buf.Write(utils.PadOrTrim(s.BankFee.Bytes(), 4))
+		buf.Write(utils.PadOrTrim(big.NewInt(s.BankFee).Bytes(), 4))
 	}
-	if s.IntegratorFee.Ratio != nil && s.IntegratorFee.Ratio.Cmp(big.NewInt(0)) != 0 {
+	if s.IntegratorFee.Ratio != 0 {
 		flags |= integratorFeeFlag
-		buf.Write(utils.PadOrTrim(s.IntegratorFee.Ratio.Bytes(), 2))
+		buf.Write(utils.PadOrTrim(big.NewInt(s.IntegratorFee.Ratio).Bytes(), 2))
 		buf.Write(s.IntegratorFee.Receiver.Bytes())
 		if s.CustomReceiver != (common.Address{}) {
 			flags |= customReceiverFlag
 			buf.Write(s.CustomReceiver.Bytes())
 		}
 	}
-	buf.Write(utils.PadOrTrim(s.ResolvingStartTime.Bytes(), 4))
+	buf.Write(utils.PadOrTrim(big.NewInt(s.ResolvingStartTime).Bytes(), 4))
 
 	for _, wl := range s.Whitelist {
 		buf.Write(wl.AddressHalf[:])
