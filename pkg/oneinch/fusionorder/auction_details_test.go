@@ -1,10 +1,11 @@
 package fusionorder_test
 
 import (
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"testing"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder"
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -30,7 +31,7 @@ func TestAuctionDetail(t *testing.T) {
 		require.NoError(t, err)
 
 		encodedAuctionDetail := auctionDetail.Encode()
-		t.Logf("encodedAuctionDetail: %s", encodedAuctionDetail)
+
 		decodedAuctionDetail, err := fusionorder.DecodeAuctionDetails(encodedAuctionDetail)
 		require.NoError(t, err)
 
@@ -38,9 +39,12 @@ func TestAuctionDetail(t *testing.T) {
 	})
 
 	t.Run("decode", func(t *testing.T) {
-		makingAmountData := "0xfb2809a5314473e1165f6b58018e20ed8f07b84000f1b8000005e566bb30120000b401def800f1b800b4"
+		makingAmountData, err := hexutil.Decode(
+			"0xfb2809a5314473e1165f6b58018e20ed8f07b84000f1b8000005e566bb30120000b401def800f1b800b4",
+		)
+		require.NoError(t, err)
 		decodeAuctionDetails, err := fusionorder.DecodeAuctionDetails(
-			utils.Add0x(makingAmountData[42:]),
+			makingAmountData[common.AddressLength:],
 		)
 		require.NoError(t, err)
 
@@ -50,7 +54,8 @@ func TestAuctionDetail(t *testing.T) {
 	t.Run("decode 2", func(t *testing.T) {
 		// This data is get from
 		// https://app.blocksec.com/explorer/tx/eth/0x73e317981af9c352f26bac125b1a6d3e1d31076b87c679a4f771b4a5c5a7f76f?line=4&debugLine=4
-		extraData := "0x01e9f1000005d866bda8b40000b404fa0103d477003c01e9f10078"
+		extraData, err := hexutil.Decode("0x01e9f1000005d866bda8b40000b404fa0103d477003c01e9f10078")
+		require.NoError(t, err)
 		decodeAuctionDetails, err := fusionorder.DecodeAuctionDetails(extraData)
 		require.NoError(t, err)
 

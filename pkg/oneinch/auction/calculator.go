@@ -25,36 +25,27 @@ type Calculator struct {
 }
 
 func NewCalculator(
-	startTime *big.Int,
-	duration *big.Int,
-	initialRateBump *big.Int,
+	startTime int64,
+	duration int64,
+	initialRateBump int64,
 	points []fusionorder.AuctionPoint,
-	takerFeeRatio *big.Int,
+	takerFeeRatio int64,
 	gasCost fusionorder.AuctionGasCostInfo,
 ) Calculator {
-	if gasCost.GasBumpEstimate == nil {
-		gasCost.GasBumpEstimate = big.NewInt(0)
-	}
-	if gasCost.GasPriceEstimate == nil {
-		gasCost.GasPriceEstimate = big.NewInt(0)
-	}
 	return Calculator{
-		startTime:       startTime,
-		duration:        duration,
-		initialRateBump: initialRateBump,
+		startTime:       big.NewInt(startTime),
+		duration:        big.NewInt(duration),
+		initialRateBump: big.NewInt(initialRateBump),
 		points:          points,
-		takerFeeRatio:   takerFeeRatio,
+		takerFeeRatio:   big.NewInt(takerFeeRatio),
 		gasCost:         gasCost,
 	}
 }
 
 func NewCalculatorFromAuctionData(
-	takerFeeRatio *big.Int,
+	takerFeeRatio int64,
 	auctionDetails fusionorder.AuctionDetails,
 ) Calculator {
-	if takerFeeRatio == nil {
-		takerFeeRatio = big.NewInt(0)
-	}
 	return NewCalculator(
 		auctionDetails.StartTime,
 		auctionDetails.Duration,
@@ -82,23 +73,24 @@ func (c Calculator) CalcRateBump(time, blockBaseFee *big.Int) int64 {
 }
 
 func (c Calculator) getGasPriceBump(blockBaseFee *big.Int) *big.Int {
-	zeroBigInt := new(big.Int)
+	zeroBigInt := big.NewInt(0)
 	if zeroBigInt.Cmp(blockBaseFee) == 0 {
 		return zeroBigInt
 	}
-	if zeroBigInt.Cmp(c.gasCost.GasPriceEstimate) == 0 {
+	if c.gasCost.GasPriceEstimate == 0 {
 		return zeroBigInt
 	}
-	if zeroBigInt.Cmp(c.gasCost.GasBumpEstimate) == 0 {
+	if c.gasCost.GasBumpEstimate == 0 {
 		return zeroBigInt
 	}
 
 	return new(big.Int).Div(
 		new(big.Int).Div(
 			new(big.Int).Mul(
-				c.gasCost.GasBumpEstimate, blockBaseFee,
+				big.NewInt(c.gasCost.GasBumpEstimate), blockBaseFee,
 			),
-			c.gasCost.GasPriceEstimate),
+			big.NewInt(c.gasCost.GasPriceEstimate),
+		),
 		big.NewInt(GasPriceBase),
 	)
 }

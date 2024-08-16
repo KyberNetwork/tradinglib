@@ -1,9 +1,9 @@
 package limitorder_test
 
 import (
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/limitorder"
 	"testing"
 
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/limitorder"
 	"github.com/stretchr/testify/require"
 )
 

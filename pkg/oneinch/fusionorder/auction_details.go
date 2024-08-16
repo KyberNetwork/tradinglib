@@ -2,9 +2,7 @@ package fusionorder
 
 import (
 	"bytes"
-	"encoding/hex"
 	"errors"
-	"fmt"
 	"math/big"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/utils"
@@ -89,16 +87,7 @@ type AuctionGasCostInfo struct {
 // Logic is copied from
 // https://etherscan.io/address/0xfb2809a5314473e1165f6b58018e20ed8f07b840#code#F23#L140
 // nolint: gomnd
-func DecodeAuctionDetails(data string) (AuctionDetails, error) {
-	if !utils.IsHexString(data) {
-		return AuctionDetails{}, errors.New("invalid auction details data")
-	}
-
-	hexData, err := hex.DecodeString(utils.Trim0x(data))
-	if err != nil {
-		return AuctionDetails{}, fmt.Errorf("decode auction details: %w", err)
-	}
-
+func DecodeAuctionDetails(hexData []byte) (AuctionDetails, error) {
 	gasBumpEstimate := new(big.Int).SetBytes(hexData[:3]).Int64()
 	gasPriceEstimate := new(big.Int).SetBytes(hexData[3:7]).Int64()
 	startTime := new(big.Int).SetBytes(hexData[7:11]).Int64()
@@ -133,7 +122,7 @@ func decodeAuctionPoints(data []byte) []AuctionPoint {
 	return points
 }
 
-func (a AuctionDetails) Encode() string {
+func (a AuctionDetails) Encode() []byte {
 	buf := new(bytes.Buffer)
 	buf.Write(utils.PadOrTrim(big.NewInt(a.GasCost.GasBumpEstimate).Bytes(), 3))
 	buf.Write(utils.PadOrTrim(big.NewInt(a.GasCost.GasPriceEstimate).Bytes(), 4))
@@ -145,5 +134,5 @@ func (a AuctionDetails) Encode() string {
 		buf.Write(utils.PadOrTrim(big.NewInt(point.Delay).Bytes(), 2))
 	}
 
-	return utils.Add0x(hex.EncodeToString(buf.Bytes()))
+	return buf.Bytes()
 }

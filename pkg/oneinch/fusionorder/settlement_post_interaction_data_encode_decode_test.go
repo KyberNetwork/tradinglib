@@ -31,7 +31,7 @@ func TestSettlementPostInteractionData(t *testing.T) {
 
 		encoded := data.Encode()
 
-		assert.Equal(t, 44, len(encoded))
+		assert.Equal(t, 21, len(encoded))
 
 		decoded, err := fusionorder.DecodeSettlementPostInteractionData(encoded)
 		require.NoError(t, err)
@@ -55,7 +55,7 @@ func TestSettlementPostInteractionData(t *testing.T) {
 
 		encoded := data.Encode()
 
-		assert.Equal(t, 36, len(encoded))
+		assert.Equal(t, 17, len(encoded))
 
 		decoded, err := fusionorder.DecodeSettlementPostInteractionData(encoded)
 		require.NoError(t, err)

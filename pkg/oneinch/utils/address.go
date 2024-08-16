@@ -2,7 +2,6 @@ package utils
 
 import "github.com/ethereum/go-ethereum/common"
 
-func AddressFromFirstBytes(s string) common.Address {
-	const addressLength = 42
-	return common.HexToAddress(s[:addressLength])
+func AddressFromFirstBytes(s []byte) common.Address {
+	return common.BytesToAddress(s[:common.AddressLength])
 }

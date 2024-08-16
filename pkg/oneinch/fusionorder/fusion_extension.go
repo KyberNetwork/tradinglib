@@ -32,15 +32,13 @@ func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExte
 			fmt.Errorf("post interaction settlement contract mismatch: %w", ErrSettlementContractMismatch)
 	}
 
-	auctionDetails, err := DecodeAuctionDetails(
-		utils.Add0x(extension.MakingAmountData[42:]),
-	)
+	auctionDetails, err := DecodeAuctionDetails(extension.MakingAmountData[common.AddressLength:])
 	if err != nil {
 		return FusionExtension{}, fmt.Errorf("decode auction details: %w", err)
 	}
 
 	postInteractionData, err := DecodeSettlementPostInteractionData(
-		utils.Add0x(extension.PostInteraction[42:]),
+		extension.PostInteraction[common.AddressLength:],
 	)
 	if err != nil {
 		return FusionExtension{}, fmt.Errorf("decode post interaction data: %w", err)
@@ -48,10 +46,7 @@ func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExte
 
 	var makerPermit limitorder.Interaction
 	if extension.HasMakerPermit() {
-		makerPermit, err = limitorder.DecodeInteraction(extension.MakerPermit)
-		if err != nil {
-			return FusionExtension{}, fmt.Errorf("decode maker permit: %w", err)
-		}
+		makerPermit = limitorder.DecodeInteraction(extension.MakerPermit)
 	}
 
 	return FusionExtension{

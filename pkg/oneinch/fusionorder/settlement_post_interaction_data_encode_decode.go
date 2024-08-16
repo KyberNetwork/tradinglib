@@ -2,9 +2,6 @@ package fusionorder
 
 import (
 	"bytes"
-	"encoding/hex"
-	"errors"
-	"fmt"
 	"math/big"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/utils"
@@ -34,16 +31,7 @@ func resolversCount(flags byte) byte {
 	return flags >> whitelistShift
 }
 
-func DecodeSettlementPostInteractionData(extraData string) (SettlementPostInteractionData, error) {
-	if !utils.IsHexString(extraData) {
-		return SettlementPostInteractionData{}, errors.New("invalid auction details data")
-	}
-
-	data, err := hex.DecodeString(utils.Trim0x(extraData))
-	if err != nil {
-		return SettlementPostInteractionData{}, fmt.Errorf("decode settlement post interaction data: %w", err)
-	}
-
+func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteractionData, error) {
 	flags := data[len(data)-1]
 
 	bankFee := big.NewInt(0)
@@ -101,7 +89,7 @@ func DecodeSettlementPostInteractionData(extraData string) (SettlementPostIntera
 	}, nil
 }
 
-func (s SettlementPostInteractionData) Encode() string {
+func (s SettlementPostInteractionData) Encode() []byte {
 	buf := new(bytes.Buffer)
 	var flags byte
 	if s.BankFee != 0 {
@@ -128,5 +116,5 @@ func (s SettlementPostInteractionData) Encode() string {
 
 	buf.WriteByte(flags)
 
-	return utils.Add0x(hex.EncodeToString(buf.Bytes()))
+	return buf.Bytes()
 }
