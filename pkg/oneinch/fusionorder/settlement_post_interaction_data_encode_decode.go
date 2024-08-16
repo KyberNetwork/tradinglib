@@ -93,22 +93,22 @@ func (s SettlementPostInteractionData) Encode() []byte {
 	var flags byte
 	if s.BankFee != 0 {
 		flags |= resolverFeeFlag
-		buf.Write(PadOrTrim(big.NewInt(s.BankFee).Bytes(), 4))
+		buf.Write(encodeInt64ToBytes(s.BankFee, 4))
 	}
 	if s.IntegratorFee.Ratio != 0 {
 		flags |= integratorFeeFlag
-		buf.Write(PadOrTrim(big.NewInt(s.IntegratorFee.Ratio).Bytes(), 2))
+		buf.Write(encodeInt64ToBytes(s.IntegratorFee.Ratio, 2))
 		buf.Write(s.IntegratorFee.Receiver.Bytes())
 		if s.CustomReceiver != (common.Address{}) {
 			flags |= customReceiverFlag
 			buf.Write(s.CustomReceiver.Bytes())
 		}
 	}
-	buf.Write(PadOrTrim(big.NewInt(s.ResolvingStartTime).Bytes(), 4))
+	buf.Write(encodeInt64ToBytes(s.ResolvingStartTime, 4))
 
 	for _, wl := range s.Whitelist {
 		buf.Write(wl.AddressHalf[:])
-		buf.Write(PadOrTrim(big.NewInt(int64(int(wl.Delay))).Bytes(), 2))
+		buf.Write(encodeInt64ToBytes(wl.Delay, 2))
 	}
 
 	flags |= byte(len(s.Whitelist)) << whitelistShift

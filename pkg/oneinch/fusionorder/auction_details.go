@@ -123,14 +123,14 @@ func decodeAuctionPoints(data []byte) []AuctionPoint {
 
 func (a AuctionDetails) Encode() []byte {
 	buf := new(bytes.Buffer)
-	buf.Write(PadOrTrim(big.NewInt(a.GasCost.GasBumpEstimate).Bytes(), 3))
-	buf.Write(PadOrTrim(big.NewInt(a.GasCost.GasPriceEstimate).Bytes(), 4))
-	buf.Write(PadOrTrim(big.NewInt(a.StartTime).Bytes(), 4))
-	buf.Write(PadOrTrim(big.NewInt(a.Duration).Bytes(), 3))
-	buf.Write(PadOrTrim(big.NewInt(a.InitialRateBump).Bytes(), 3))
+	buf.Write(encodeInt64ToBytes(a.GasCost.GasBumpEstimate, 3))
+	buf.Write(encodeInt64ToBytes(a.GasCost.GasPriceEstimate, 4))
+	buf.Write(encodeInt64ToBytes(a.StartTime, 4))
+	buf.Write(encodeInt64ToBytes(a.Duration, 3))
+	buf.Write(encodeInt64ToBytes(a.InitialRateBump, 3))
 	for _, point := range a.Points {
-		buf.Write(PadOrTrim(big.NewInt(point.Coefficient).Bytes(), 3))
-		buf.Write(PadOrTrim(big.NewInt(point.Delay).Bytes(), 2))
+		buf.Write(encodeInt64ToBytes(point.Coefficient, 3))
+		buf.Write(encodeInt64ToBytes(point.Delay, 2))
 	}
 
 	return buf.Bytes()
