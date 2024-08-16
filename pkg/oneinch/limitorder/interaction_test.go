@@ -23,7 +23,7 @@ func TestInteraction(t *testing.T) {
 		encodedInteraction, err := hexutil.Decode(interaction.Encode())
 		require.NoError(t, err)
 
-		decodedInteraction := limitorder.DecodeInteraction(encodedInteraction)
+		decodedInteraction, err := limitorder.DecodeInteraction(encodedInteraction)
 		require.NoError(t, err)
 
 		assert.Equal(t, interaction, decodedInteraction)

@@ -43,7 +43,10 @@ func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExte
 
 	var makerPermit limitorder.Interaction
 	if extension.HasMakerPermit() {
-		makerPermit = limitorder.DecodeInteraction(extension.MakerPermit)
+		makerPermit, err = limitorder.DecodeInteraction(extension.MakerPermit)
+		if err != nil {
+			return FusionExtension{}, fmt.Errorf("decode maker permit: %w", err)
+		}
 	}
 
 	return FusionExtension{

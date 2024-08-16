@@ -3,6 +3,7 @@ package fusionorder_test
 import (
 	"testing"
 
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -10,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// nolint: lll,funlen
 func TestAuctionDetail(t *testing.T) {
 	t.Run("should encode/decode", func(t *testing.T) {
 		auctionDetail, err := fusionorder.NewAuctionDetails(
@@ -52,7 +54,7 @@ func TestAuctionDetail(t *testing.T) {
 	})
 
 	// nolint: lll
-	t.Run("decode 2", func(t *testing.T) {
+	t.Run("decode real data", func(t *testing.T) {
 		// This data is get from
 		// https://app.blocksec.com/explorer/tx/eth/0x73e317981af9c352f26bac125b1a6d3e1d31076b87c679a4f771b4a5c5a7f76f?line=4&debugLine=4
 		extraData, err := hexutil.Decode("0x01e9f1000005d866bda8b40000b404fa0103d477003c01e9f10078")
@@ -86,6 +88,15 @@ func TestAuctionDetail(t *testing.T) {
 		assert.ElementsMatch(t, points, decodeAuctionDetails.Points)
 		assert.EqualValues(t, gasBumpEstimate, decodeAuctionDetails.GasCost.GasBumpEstimate)
 		assert.EqualValues(t, gasPriceEstimate, decodeAuctionDetails.GasCost.GasPriceEstimate)
+	})
+
+	t.Run("should return error when data invalid", func(t *testing.T) {
+		extraData, err := hexutil.Decode("0x01e9f1000005d866bda8b40000b404fa0103d4")
+		require.NoError(t, err)
+
+		_, err = fusionorder.DecodeAuctionDetails(extraData)
+
+		require.ErrorIs(t, err, decode.ErrInvalidDataLength)
 	})
 }
 

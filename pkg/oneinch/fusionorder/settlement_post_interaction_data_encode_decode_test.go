@@ -4,8 +4,10 @@ import (
 	"math/big"
 	"testing"
 
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -177,6 +179,22 @@ func TestSettlementPostInteractionData(t *testing.T) {
 		assert.False(t,
 			data.CanExecuteAt(common.BigToAddress(big.NewInt(2)), start+50),
 		)
+	})
+}
+
+func TestSettlementPostInteractionData_invalid_data_length(t *testing.T) {
+	t.Run("empty data", func(t *testing.T) {
+		_, err := fusionorder.DecodeSettlementPostInteractionData([]byte{})
+		require.ErrorIs(t, err, decode.ErrInvalidDataLength)
+	})
+
+	t.Run("invalid data", func(t *testing.T) {
+		data, err := hexutil.Decode("0x010203")
+		require.NoError(t, err)
+
+		_, err = fusionorder.DecodeSettlementPostInteractionData(data)
+
+		require.ErrorIs(t, err, decode.ErrInvalidDataLength)
 	})
 }
 

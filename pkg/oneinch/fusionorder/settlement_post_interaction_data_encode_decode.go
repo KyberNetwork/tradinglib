@@ -2,8 +2,10 @@ package fusionorder
 
 import (
 	"bytes"
+	"fmt"
 	"math/big"
 
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -31,6 +33,12 @@ func resolversCount(flags byte) byte {
 }
 
 func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteractionData, error) {
+	// must have at least 1 byte for flags
+	// nolint: gomnd
+	if err := decode.ValidateDataLength(data, 1); err != nil {
+		return SettlementPostInteractionData{}, err
+	}
+
 	flags := data[len(data)-1]
 
 	bankFee := big.NewInt(0)
@@ -38,23 +46,34 @@ func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteraction
 	var customReceiver common.Address
 
 	if resolverFeeEnabled(flags) {
-		bankFee.SetBytes(data[:4])
-		data = data[4:]
+		const lengthBankFee = 4
+		if err := decode.ValidateDataLength(data, lengthBankFee); err != nil {
+			return SettlementPostInteractionData{}, fmt.Errorf("get bank fee: %w", err)
+		}
+		bankFee.SetBytes(data[:lengthBankFee])
+		data = data[lengthBankFee:]
 	}
 
 	if integratorFeeEnabled(flags) {
+		const lengthIntegratorFee = 2 + common.AddressLength
+		if err := decode.ValidateDataLength(data, lengthIntegratorFee); err != nil {
+			return SettlementPostInteractionData{}, fmt.Errorf("get integrator fee: %w", err)
+		}
 		integratorFeeRatio := new(big.Int).SetBytes(data[:2]).Int64()
-		integratorAddress := common.BytesToAddress(data[2:22])
+		integratorAddress := common.BytesToAddress(data[2:lengthIntegratorFee])
 		integratorFee = IntegratorFee{
 			Ratio:    integratorFeeRatio,
 			Receiver: integratorAddress,
 		}
 
-		data = data[22:]
+		data = data[lengthIntegratorFee:]
 
 		if hasCustomReceiver(flags) {
-			customReceiver = common.BytesToAddress(data[:20])
-			data = data[20:]
+			if err := decode.ValidateDataLength(data, common.AddressLength); err != nil {
+				return SettlementPostInteractionData{}, fmt.Errorf("get custom receiver: %w", err)
+			}
+			customReceiver = common.BytesToAddress(data[:common.AddressLength])
+			data = data[common.AddressLength:]
 		}
 	}
 
@@ -65,6 +84,11 @@ func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteraction
 	whitelist := make([]WhitelistItem, 0, whitelistCount)
 
 	for i := byte(0); i < whitelistCount; i++ {
+		const lengthWhitelistItem = addressHalfLength + 2
+		if err := decode.ValidateDataLength(data, lengthWhitelistItem); err != nil {
+			return SettlementPostInteractionData{}, fmt.Errorf("get whitelist item: %w", err)
+		}
+
 		var address AddressHalf
 		copy(address[:], data[:addressHalfLength])
 		data = data[addressHalfLength:]

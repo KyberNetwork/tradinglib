@@ -3,8 +3,10 @@ package fusionorder
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"math/big"
 
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 	"github.com/ethereum/go-ethereum/common/math"
 )
 
@@ -87,13 +89,20 @@ type AuctionGasCostInfo struct {
 // https://etherscan.io/address/0xfb2809a5314473e1165f6b58018e20ed8f07b840#code#F23#L140
 // nolint: gomnd
 func DecodeAuctionDetails(hexData []byte) (AuctionDetails, error) {
+	const firstLength = 17
+	if err := decode.ValidateDataLength(hexData, firstLength); err != nil {
+		return AuctionDetails{}, fmt.Errorf("validate out of range for auction details: %w", err)
+	}
 	gasBumpEstimate := new(big.Int).SetBytes(hexData[:3]).Int64()
 	gasPriceEstimate := new(big.Int).SetBytes(hexData[3:7]).Int64()
 	startTime := new(big.Int).SetBytes(hexData[7:11]).Int64()
 	duration := new(big.Int).SetBytes(hexData[11:14]).Int64()
 	initialRateBump := new(big.Int).SetBytes(hexData[14:17]).Int64()
 
-	points := decodeAuctionPoints(hexData[17:])
+	points, err := decodeAuctionPoints(hexData[firstLength:])
+	if err != nil {
+		return AuctionDetails{}, fmt.Errorf("decode auction points: %w", err)
+	}
 
 	return NewAuctionDetails(
 		startTime,
@@ -107,18 +116,22 @@ func DecodeAuctionDetails(hexData []byte) (AuctionDetails, error) {
 	)
 }
 
-func decodeAuctionPoints(data []byte) []AuctionPoint {
+func decodeAuctionPoints(data []byte) ([]AuctionPoint, error) {
 	points := make([]AuctionPoint, 0)
 	for len(data) > 0 {
+		const pointLength = 5
+		if err := decode.ValidateDataLength(data, pointLength); err != nil {
+			return nil, fmt.Errorf("validate out of range for auction point: %w", err)
+		}
 		coefficient := new(big.Int).SetBytes(data[:3]).Int64()
 		delay := new(big.Int).SetBytes(data[3:5]).Int64()
 		points = append(points, AuctionPoint{
 			Coefficient: coefficient,
 			Delay:       delay,
 		})
-		data = data[5:]
+		data = data[pointLength:]
 	}
-	return points
+	return points, nil
 }
 
 // Encode encodes AuctionDetails to bytes
