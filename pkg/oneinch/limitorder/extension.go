@@ -1,10 +1,11 @@
 package limitorder
 
 import (
+	"bytes"
+	"encoding/hex"
 	"fmt"
 	"math"
 	"math/big"
-	"strings"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
@@ -43,42 +44,40 @@ func (e Extension) IsEmpty() bool {
 
 func (e Extension) Encode() string {
 	interactionsConcatenated := e.getConcatenatedInteractions()
-	if interactionsConcatenated == "" {
+	if len(interactionsConcatenated) == 0 {
 		return ZX
 	}
 
 	offsetsBytes := e.getOffsets()
 	paddedOffsetHex := fmt.Sprintf("%064x", offsetsBytes)
-	return ZX + paddedOffsetHex + interactionsConcatenated + trim0x(hexutil.Encode(e.CustomData))
+	return ZX + paddedOffsetHex + hex.EncodeToString(interactionsConcatenated) + hex.EncodeToString(e.CustomData)
 }
 
-func (e Extension) interactionsArray() [totalOffsetSlots]string {
-	return [totalOffsetSlots]string{
-		hexutil.Encode(e.MakerAssetSuffix),
-		hexutil.Encode(e.TakerAssetSuffix),
-		hexutil.Encode(e.MakingAmountData),
-		hexutil.Encode(e.TakingAmountData),
-		hexutil.Encode(e.Predicate),
-		hexutil.Encode(e.MakerPermit),
-		hexutil.Encode(e.PreInteraction),
-		hexutil.Encode(e.PostInteraction),
+func (e Extension) interactionsArray() [totalOffsetSlots][]byte {
+	return [totalOffsetSlots][]byte{
+		e.MakerAssetSuffix,
+		e.TakerAssetSuffix,
+		e.MakingAmountData,
+		e.TakingAmountData,
+		e.Predicate,
+		e.MakerPermit,
+		e.PreInteraction,
+		e.PostInteraction,
 	}
 }
 
-func (e Extension) getConcatenatedInteractions() string {
-	var builder strings.Builder
+func (e Extension) getConcatenatedInteractions() []byte {
+	builder := new(bytes.Buffer)
 	for _, interaction := range e.interactionsArray() {
-		interaction = trim0x(interaction)
-		builder.WriteString(interaction)
+		builder.Write(interaction)
 	}
-	return builder.String()
+	return builder.Bytes()
 }
 
 func (e Extension) getOffsets() *big.Int {
 	var lengthMap [totalOffsetSlots]int
 	for i, interaction := range e.interactionsArray() {
-		// nolint: gomnd
-		lengthMap[i] = len(trim0x(interaction)) / 2 // divide by 2 because each byte is represented by 2 hex characters
+		lengthMap[i] = len(interaction)
 	}
 
 	cumulativeSum := 0
@@ -110,7 +109,6 @@ func DecodeExtension(encodedExtension string) (Extension, error) {
 		return Extension{}, fmt.Errorf("decode extension data: %w", err)
 	}
 
-	// nolint: gomnd
 	offset := new(big.Int).SetBytes(extensionDataBytes[:offsetLength])
 
 	maxInt32 := big.NewInt(math.MaxInt32)

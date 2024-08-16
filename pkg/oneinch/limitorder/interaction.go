@@ -1,8 +1,9 @@
 package limitorder
 
 import (
+	"encoding/hex"
+
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 type Interaction struct {
@@ -15,7 +16,7 @@ func (i Interaction) IsZero() bool {
 }
 
 func (i Interaction) Encode() string {
-	return i.Target.String() + trim0x(hexutil.Encode(i.Data))
+	return i.Target.String() + hex.EncodeToString(i.Data)
 }
 
 func DecodeInteraction(encoded []byte) Interaction {
