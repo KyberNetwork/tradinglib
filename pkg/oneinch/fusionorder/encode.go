@@ -1,4 +1,4 @@
-package utils
+package fusionorder
 
 // PadOrTrim returns (size) bytes from input (bb)
 // Short bb gets zeros prefixed, Long bb gets left/MSB bits trimmed

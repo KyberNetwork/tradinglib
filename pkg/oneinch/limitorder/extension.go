@@ -6,7 +6,6 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/utils"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
@@ -50,7 +49,7 @@ func (e Extension) Encode() string {
 
 	offsetsBytes := e.getOffsets()
 	paddedOffsetHex := fmt.Sprintf("%064x", offsetsBytes)
-	return ZX + paddedOffsetHex + interactionsConcatenated + utils.Trim0x(hexutil.Encode(e.CustomData))
+	return ZX + paddedOffsetHex + interactionsConcatenated + trim0x(hexutil.Encode(e.CustomData))
 }
 
 func (e Extension) interactionsArray() [totalOffsetSlots]string {
@@ -69,7 +68,7 @@ func (e Extension) interactionsArray() [totalOffsetSlots]string {
 func (e Extension) getConcatenatedInteractions() string {
 	var builder strings.Builder
 	for _, interaction := range e.interactionsArray() {
-		interaction = utils.Trim0x(interaction)
+		interaction = trim0x(interaction)
 		builder.WriteString(interaction)
 	}
 	return builder.String()
@@ -79,7 +78,7 @@ func (e Extension) getOffsets() *big.Int {
 	var lengthMap [totalOffsetSlots]int
 	for i, interaction := range e.interactionsArray() {
 		// nolint: gomnd
-		lengthMap[i] = len(utils.Trim0x(interaction)) / 2 // divide by 2 because each byte is represented by 2 hex characters
+		lengthMap[i] = len(trim0x(interaction)) / 2 // divide by 2 because each byte is represented by 2 hex characters
 	}
 
 	cumulativeSum := 0

@@ -2,16 +2,11 @@ package fusionorder
 
 import (
 	"errors"
+	"math"
+
 	"github.com/ethereum/go-ethereum/common"
 	"golang.org/x/exp/slices"
-	"math"
 )
-
-const (
-	addressHalfLength = common.AddressLength / 2
-)
-
-type AddressHalf [addressHalfLength]byte
 
 var (
 	ErrEmptyWhitelist              = errors.New("white list cannot be empty")
@@ -87,10 +82,8 @@ func NewSettlementPostInteractionDataFromSettlementSuffixData(
 			return SettlementPostInteractionData{}, ErrTooBigDiffBetweenTimestamps
 		}
 
-		var addressHalf AddressHalf
-		copy(addressHalf[:], item.Address.Bytes()[common.AddressLength-addressHalfLength:]) // take the last 10 bytes
 		whitelist = append(whitelist, WhitelistItem{
-			AddressHalf: addressHalf,
+			AddressHalf: HalfAddressFromAddress(item.Address),
 			Delay:       delay,
 		})
 	}
@@ -132,8 +125,7 @@ type SettlementSuffixData struct {
 }
 
 func (s SettlementPostInteractionData) CanExecuteAt(executor common.Address, executionTime int64) bool {
-	var addressHalf AddressHalf
-	copy(addressHalf[:], executor.Bytes()[common.AddressLength-addressHalfLength:]) // take the last 10 bytes
+	addressHalf := HalfAddressFromAddress(executor)
 
 	allowedFrom := s.ResolvingStartTime
 

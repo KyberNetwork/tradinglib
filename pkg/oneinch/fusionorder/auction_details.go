@@ -5,7 +5,6 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/utils"
 	"github.com/ethereum/go-ethereum/common/math"
 )
 
@@ -124,14 +123,14 @@ func decodeAuctionPoints(data []byte) []AuctionPoint {
 
 func (a AuctionDetails) Encode() []byte {
 	buf := new(bytes.Buffer)
-	buf.Write(utils.PadOrTrim(big.NewInt(a.GasCost.GasBumpEstimate).Bytes(), 3))
-	buf.Write(utils.PadOrTrim(big.NewInt(a.GasCost.GasPriceEstimate).Bytes(), 4))
-	buf.Write(utils.PadOrTrim(big.NewInt(a.StartTime).Bytes(), 4))
-	buf.Write(utils.PadOrTrim(big.NewInt(a.Duration).Bytes(), 3))
-	buf.Write(utils.PadOrTrim(big.NewInt(a.InitialRateBump).Bytes(), 3))
+	buf.Write(PadOrTrim(big.NewInt(a.GasCost.GasBumpEstimate).Bytes(), 3))
+	buf.Write(PadOrTrim(big.NewInt(a.GasCost.GasPriceEstimate).Bytes(), 4))
+	buf.Write(PadOrTrim(big.NewInt(a.StartTime).Bytes(), 4))
+	buf.Write(PadOrTrim(big.NewInt(a.Duration).Bytes(), 3))
+	buf.Write(PadOrTrim(big.NewInt(a.InitialRateBump).Bytes(), 3))
 	for _, point := range a.Points {
-		buf.Write(utils.PadOrTrim(big.NewInt(point.Coefficient).Bytes(), 3))
-		buf.Write(utils.PadOrTrim(big.NewInt(point.Delay).Bytes(), 2))
+		buf.Write(PadOrTrim(big.NewInt(point.Coefficient).Bytes(), 3))
+		buf.Write(PadOrTrim(big.NewInt(point.Delay).Bytes(), 2))
 	}
 
 	return buf.Bytes()

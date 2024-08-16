@@ -1,7 +1,6 @@
 package limitorder
 
 import (
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
@@ -16,7 +15,7 @@ func (i Interaction) IsZero() bool {
 }
 
 func (i Interaction) Encode() string {
-	return i.Target.String() + utils.Trim0x(hexutil.Encode(i.Data))
+	return i.Target.String() + trim0x(hexutil.Encode(i.Data))
 }
 
 func DecodeInteraction(encoded []byte) Interaction {

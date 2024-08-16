@@ -4,7 +4,6 @@ import (
 	"math/big"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder"
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionutils"
 )
 
 const (
@@ -163,7 +162,7 @@ func calcAuctionTakingAmount(takingAmount *big.Int, rate int64, takerFeeRatio *b
 		return auctionTakingAmount
 	}
 
-	return fusionutils.AddRatioToAmount(auctionTakingAmount, takerFeeRatio)
+	return fusionorder.AddRatioToAmount(auctionTakingAmount, takerFeeRatio)
 }
 
 func CalcInitialRateBump(startAmount *big.Int, endAmount *big.Int) int64 {

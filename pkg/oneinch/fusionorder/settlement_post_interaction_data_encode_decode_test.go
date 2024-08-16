@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder"
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionutils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -75,7 +74,7 @@ func TestSettlementPostInteractionData(t *testing.T) {
 					},
 				},
 				IntegratorFee: fusionorder.IntegratorFee{
-					Ratio:    fusionutils.BpsToRatioFormat(10).Int64(),
+					Ratio:    fusionorder.BpsToRatioFormat(10).Int64(),
 					Receiver: common.BigToAddress(big.NewInt(1)),
 				},
 			},
@@ -99,7 +98,7 @@ func TestSettlementPostInteractionData(t *testing.T) {
 					},
 				},
 				IntegratorFee: fusionorder.IntegratorFee{
-					Ratio:    fusionutils.BpsToRatioFormat(10).Int64(),
+					Ratio:    fusionorder.BpsToRatioFormat(10).Int64(),
 					Receiver: common.BigToAddress(big.NewInt(1)),
 				},
 				CustomReceiver: common.BigToAddress(big.NewInt(1337)),

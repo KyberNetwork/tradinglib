@@ -8,7 +8,6 @@ import (
 	"github.com/KyberNetwork/tradinglib/pkg/convert"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/auction"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder"
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionutils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -20,7 +19,7 @@ func TestAuctionCalculator(t *testing.T) {
 		postInteraction, err := fusionorder.NewSettlementPostInteractionDataFromSettlementSuffixData(
 			fusionorder.SettlementSuffixData{
 				IntegratorFee: fusionorder.IntegratorFee{
-					Ratio:    fusionutils.BpsToRatioFormat(1).Int64(),
+					Ratio:    fusionorder.BpsToRatioFormat(1).Int64(),
 					Receiver: common.BigToAddress(big.NewInt(1)),
 				},
 				BankFee:            0,

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"math/big"
 
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/utils"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -94,22 +93,22 @@ func (s SettlementPostInteractionData) Encode() []byte {
 	var flags byte
 	if s.BankFee != 0 {
 		flags |= resolverFeeFlag
-		buf.Write(utils.PadOrTrim(big.NewInt(s.BankFee).Bytes(), 4))
+		buf.Write(PadOrTrim(big.NewInt(s.BankFee).Bytes(), 4))
 	}
 	if s.IntegratorFee.Ratio != 0 {
 		flags |= integratorFeeFlag
-		buf.Write(utils.PadOrTrim(big.NewInt(s.IntegratorFee.Ratio).Bytes(), 2))
+		buf.Write(PadOrTrim(big.NewInt(s.IntegratorFee.Ratio).Bytes(), 2))
 		buf.Write(s.IntegratorFee.Receiver.Bytes())
 		if s.CustomReceiver != (common.Address{}) {
 			flags |= customReceiverFlag
 			buf.Write(s.CustomReceiver.Bytes())
 		}
 	}
-	buf.Write(utils.PadOrTrim(big.NewInt(s.ResolvingStartTime).Bytes(), 4))
+	buf.Write(PadOrTrim(big.NewInt(s.ResolvingStartTime).Bytes(), 4))
 
 	for _, wl := range s.Whitelist {
 		buf.Write(wl.AddressHalf[:])
-		buf.Write(utils.PadOrTrim(big.NewInt(int64(int(wl.Delay))).Bytes(), 2))
+		buf.Write(PadOrTrim(big.NewInt(int64(int(wl.Delay))).Bytes(), 2))
 	}
 
 	flags |= byte(len(s.Whitelist)) << whitelistShift

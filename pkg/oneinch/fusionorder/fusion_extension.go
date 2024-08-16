@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/limitorder"
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/utils"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -21,13 +20,13 @@ var (
 )
 
 func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExtension, error) {
-	settlementContract := utils.AddressFromFirstBytes(extension.MakingAmountData)
+	settlementContract := AddressFromFirstBytes(extension.MakingAmountData)
 
-	if utils.AddressFromFirstBytes(extension.TakingAmountData) != settlementContract {
+	if AddressFromFirstBytes(extension.TakingAmountData) != settlementContract {
 		return FusionExtension{},
 			fmt.Errorf("taking amount data settlement contract mismatch: %w", ErrSettlementContractMismatch)
 	}
-	if utils.AddressFromFirstBytes(extension.PostInteraction) != settlementContract {
+	if AddressFromFirstBytes(extension.PostInteraction) != settlementContract {
 		return FusionExtension{},
 			fmt.Errorf("post interaction settlement contract mismatch: %w", ErrSettlementContractMismatch)
 	}
