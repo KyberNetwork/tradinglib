@@ -10,15 +10,15 @@ import (
 func TestExtension(t *testing.T) {
 	t.Run("should encode/decode", func(t *testing.T) {
 		extension := limitorder.Extension{
-			MakerAssetSuffix: "0x01",
-			TakerAssetSuffix: "0x02",
-			MakingAmountData: "0x03",
-			TakingAmountData: "0x04",
-			Predicate:        "0x05",
-			MakerPermit:      "0x06",
-			PreInteraction:   "0x07",
-			PostInteraction:  "0x08",
-			CustomData:       "0xff",
+			MakerAssetSuffix: []byte{0x01},
+			TakerAssetSuffix: []byte{0x02},
+			MakingAmountData: []byte{0x03},
+			TakingAmountData: []byte{0x04},
+			Predicate:        []byte{0x05},
+			MakerPermit:      []byte{0x06},
+			PreInteraction:   []byte{0x07},
+			PostInteraction:  []byte{0x08},
+			CustomData:       []byte{0xff},
 		}
 
 		encodedExtension := extension.Encode()
