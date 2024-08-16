@@ -24,40 +24,33 @@ var (
 )
 
 type AuctionDetails struct {
-	StartTime       *big.Int
-	Duration        *big.Int
-	InitialRateBump *big.Int
+	StartTime       int64
+	Duration        int64
+	InitialRateBump int64
 	Points          []AuctionPoint
 	GasCost         AuctionGasCostInfo
 }
 
 func NewAuctionDetails(
-	startTime *big.Int,
-	initialRateBump *big.Int,
-	duration *big.Int,
+	startTime int64,
+	initialRateBump int64,
+	duration int64,
 	points []AuctionPoint,
 	gasCost AuctionGasCostInfo,
 ) (AuctionDetails, error) {
-	if gasCost.GasPriceEstimate == nil {
-		gasCost.GasPriceEstimate = big.NewInt(0)
-	}
-	if gasCost.GasBumpEstimate == nil {
-		gasCost.GasBumpEstimate = big.NewInt(0)
-	}
-
-	if gasCost.GasBumpEstimate.Cmp(big.NewInt(MaxUint24)) > 0 { // gasCost.GasBumpEstimate > MaxUint24
+	if gasCost.GasBumpEstimate > MaxUint24 {
 		return AuctionDetails{}, ErrGasBumpEstimateTooLarge
 	}
-	if gasCost.GasPriceEstimate.Cmp(big.NewInt(math.MaxUint32)) > 0 { // gasCost.GasPriceEstimate > MaxUint32
+	if gasCost.GasPriceEstimate > math.MaxUint32 {
 		return AuctionDetails{}, ErrGasPriceEstimateTooLarge
 	}
-	if startTime.Cmp(big.NewInt(math.MaxUint32)) > 0 { // startTime > MaxUint32
+	if startTime > math.MaxUint32 {
 		return AuctionDetails{}, ErrStartTimeTooLarge
 	}
-	if duration.Cmp(big.NewInt(MaxUint24)) > 0 { // duration > MaxUint24
+	if duration > MaxUint24 {
 		return AuctionDetails{}, ErrDurationTooLarge
 	}
-	if initialRateBump.Cmp(big.NewInt(MaxUint24)) > 0 { // initialRateBump > MaxUint24
+	if initialRateBump > MaxUint24 {
 		return AuctionDetails{}, ErrInitialRateBumpTooLarge
 	}
 
@@ -76,8 +69,8 @@ type AuctionPoint struct {
 }
 
 type AuctionGasCostInfo struct {
-	GasBumpEstimate  *big.Int
-	GasPriceEstimate *big.Int
+	GasBumpEstimate  int64
+	GasPriceEstimate int64
 }
 
 // DecodeAuctionDetails decodes auction details from hex string
@@ -106,11 +99,11 @@ func DecodeAuctionDetails(data string) (AuctionDetails, error) {
 		return AuctionDetails{}, fmt.Errorf("decode auction details: %w", err)
 	}
 
-	gasBumpEstimate := new(big.Int).SetBytes(hexData[:3])
-	gasPriceEstimate := new(big.Int).SetBytes(hexData[3:7])
-	startTime := new(big.Int).SetBytes(hexData[7:11])
-	duration := new(big.Int).SetBytes(hexData[11:14])
-	initialRateBump := new(big.Int).SetBytes(hexData[14:17])
+	gasBumpEstimate := new(big.Int).SetBytes(hexData[:3]).Int64()
+	gasPriceEstimate := new(big.Int).SetBytes(hexData[3:7]).Int64()
+	startTime := new(big.Int).SetBytes(hexData[7:11]).Int64()
+	duration := new(big.Int).SetBytes(hexData[11:14]).Int64()
+	initialRateBump := new(big.Int).SetBytes(hexData[14:17]).Int64()
 
 	points := decodeAuctionPoints(hexData[17:])
 
@@ -142,11 +135,11 @@ func decodeAuctionPoints(data []byte) []AuctionPoint {
 
 func (a AuctionDetails) Encode() string {
 	buf := new(bytes.Buffer)
-	buf.Write(utils.PadOrTrim(a.GasCost.GasBumpEstimate.Bytes(), 3))
-	buf.Write(utils.PadOrTrim(a.GasCost.GasPriceEstimate.Bytes(), 4))
-	buf.Write(utils.PadOrTrim(a.StartTime.Bytes(), 4))
-	buf.Write(utils.PadOrTrim(a.Duration.Bytes(), 3))
-	buf.Write(utils.PadOrTrim(a.InitialRateBump.Bytes(), 3))
+	buf.Write(utils.PadOrTrim(big.NewInt(a.GasCost.GasBumpEstimate).Bytes(), 3))
+	buf.Write(utils.PadOrTrim(big.NewInt(a.GasCost.GasPriceEstimate).Bytes(), 4))
+	buf.Write(utils.PadOrTrim(big.NewInt(a.StartTime).Bytes(), 4))
+	buf.Write(utils.PadOrTrim(big.NewInt(a.Duration).Bytes(), 3))
+	buf.Write(utils.PadOrTrim(big.NewInt(a.InitialRateBump).Bytes(), 3))
 	for _, point := range a.Points {
 		buf.Write(utils.PadOrTrim(big.NewInt(point.Coefficient).Bytes(), 3))
 		buf.Write(utils.PadOrTrim(big.NewInt(point.Delay).Bytes(), 2))

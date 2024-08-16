@@ -1,7 +1,6 @@
 package fusionorder_test
 
 import (
-	"math/big"
 	"testing"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder"
@@ -13,9 +12,9 @@ import (
 func TestAuctionDetail(t *testing.T) {
 	t.Run("should encode/decode", func(t *testing.T) {
 		auctionDetail, err := fusionorder.NewAuctionDetails(
-			big.NewInt(1673548149),
-			big.NewInt(50_000),
-			big.NewInt(180),
+			1_673_548_149,
+			50_000,
+			180,
 			[]fusionorder.AuctionPoint{
 				{
 					Delay:       10,
@@ -57,9 +56,9 @@ func TestAuctionDetail(t *testing.T) {
 
 		// those value is collected from
 		// https://app.blocksec.com/explorer/tx/eth/0x73e317981af9c352f26bac125b1a6d3e1d31076b87c679a4f771b4a5c5a7f76f?line=79&debugLine=79
-		expectedStartTime := big.NewInt(1_723_705_524)
-		expectedDuration := new(big.Int).Sub(big.NewInt(1_723_705_704), expectedStartTime)
-		initialRateBump := big.NewInt(326_145)
+		expectedStartTime := uint64(1_723_705_524)
+		expectedDuration := 1_723_705_704 - expectedStartTime
+		initialRateBump := 326_145
 		// those value is collected from running decode function in fusion-sdk with this extraData
 		// https://github.com/1inch/fusion-sdk/blob/8721c62612b08cc7c0e01423a1bdd62594e7b8d0/src/fusion-order/auction-details/auction-details.ts#L76
 		points := []fusionorder.AuctionPoint{
@@ -72,15 +71,15 @@ func TestAuctionDetail(t *testing.T) {
 				Coefficient: 125_425,
 			},
 		}
-		gasBumpEstimate := big.NewInt(125_425)
-		gasPriceEstimate := big.NewInt(1496)
+		gasBumpEstimate := 125_425
+		gasPriceEstimate := 1496
 
-		assert.Equal(t, expectedStartTime, decodeAuctionDetails.StartTime)
-		assert.Equal(t, expectedDuration, decodeAuctionDetails.Duration)
-		assert.Equal(t, initialRateBump, decodeAuctionDetails.InitialRateBump)
+		assert.EqualValues(t, expectedStartTime, decodeAuctionDetails.StartTime)
+		assert.EqualValues(t, expectedDuration, decodeAuctionDetails.Duration)
+		assert.EqualValues(t, initialRateBump, decodeAuctionDetails.InitialRateBump)
 		assert.ElementsMatch(t, points, decodeAuctionDetails.Points)
-		assert.Equal(t, gasBumpEstimate, decodeAuctionDetails.GasCost.GasBumpEstimate)
-		assert.Equal(t, gasPriceEstimate, decodeAuctionDetails.GasCost.GasPriceEstimate)
+		assert.EqualValues(t, gasBumpEstimate, decodeAuctionDetails.GasCost.GasBumpEstimate)
+		assert.EqualValues(t, gasPriceEstimate, decodeAuctionDetails.GasCost.GasPriceEstimate)
 	})
 }
 
@@ -90,6 +89,6 @@ func assertAuctionDetailsEqual(t *testing.T, expected, actual fusionorder.Auctio
 	assert.Equal(t, expected.Duration, actual.Duration)
 	assert.Equal(t, expected.InitialRateBump, actual.InitialRateBump)
 	assert.ElementsMatch(t, expected.Points, actual.Points)
-	assert.Equal(t, expected.GasCost.GasBumpEstimate.Int64(), actual.GasCost.GasBumpEstimate.Int64())
-	assert.Equal(t, expected.GasCost.GasPriceEstimate.Int64(), actual.GasCost.GasPriceEstimate.Int64())
+	assert.Equal(t, expected.GasCost.GasBumpEstimate, actual.GasCost.GasBumpEstimate)
+	assert.Equal(t, expected.GasCost.GasPriceEstimate, actual.GasCost.GasPriceEstimate)
 }
