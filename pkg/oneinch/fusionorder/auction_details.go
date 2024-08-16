@@ -90,16 +90,18 @@ type AuctionGasCostInfo struct {
 // nolint: gomnd
 func DecodeAuctionDetails(hexData []byte) (AuctionDetails, error) {
 	const firstLength = 17
-	if err := decode.ValidateDataLength(hexData, firstLength); err != nil {
-		return AuctionDetails{}, fmt.Errorf("validate out of range for auction details: %w", err)
+	offsetData, remainingData, err := decode.Next(hexData, firstLength)
+	if err != nil {
+		return AuctionDetails{}, fmt.Errorf("next offset: %w", err)
 	}
-	gasBumpEstimate := new(big.Int).SetBytes(hexData[:3]).Int64()
-	gasPriceEstimate := new(big.Int).SetBytes(hexData[3:7]).Int64()
-	startTime := new(big.Int).SetBytes(hexData[7:11]).Int64()
-	duration := new(big.Int).SetBytes(hexData[11:14]).Int64()
-	initialRateBump := new(big.Int).SetBytes(hexData[14:17]).Int64()
 
-	points, err := decodeAuctionPoints(hexData[firstLength:])
+	gasBumpEstimate := new(big.Int).SetBytes(offsetData[:3]).Int64()
+	gasPriceEstimate := new(big.Int).SetBytes(offsetData[3:7]).Int64()
+	startTime := new(big.Int).SetBytes(offsetData[7:11]).Int64()
+	duration := new(big.Int).SetBytes(offsetData[11:14]).Int64()
+	initialRateBump := new(big.Int).SetBytes(offsetData[14:17]).Int64()
+
+	points, err := decodeAuctionPoints(remainingData)
 	if err != nil {
 		return AuctionDetails{}, fmt.Errorf("decode auction points: %w", err)
 	}
@@ -120,16 +122,19 @@ func decodeAuctionPoints(data []byte) ([]AuctionPoint, error) {
 	points := make([]AuctionPoint, 0)
 	for len(data) > 0 {
 		const pointLength = 5
-		if err := decode.ValidateDataLength(data, pointLength); err != nil {
-			return nil, fmt.Errorf("validate out of range for auction point: %w", err)
+		pointData, remainingData, err := decode.Next(data, pointLength)
+		if err != nil {
+			return nil, fmt.Errorf("next auction point: %w", err)
 		}
-		coefficient := new(big.Int).SetBytes(data[:3]).Int64()
-		delay := new(big.Int).SetBytes(data[3:5]).Int64()
+
+		coefficient := new(big.Int).SetBytes(pointData[:3]).Int64()
+		delay := new(big.Int).SetBytes(pointData[3:5]).Int64()
 		points = append(points, AuctionPoint{
 			Coefficient: coefficient,
 			Delay:       delay,
 		})
-		data = data[pointLength:]
+
+		data = remainingData
 	}
 	return points, nil
 }
