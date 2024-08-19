@@ -5,7 +5,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
-type FlashbotMevshareLog struct {
+type SimulatedPrivateMempoolLog struct {
 	// address of the contract that generated the event
 	Address common.Address `json:"address"`
 	// list of topics provided by the contract.
@@ -22,9 +22,9 @@ type FlashbotMevShareTxHint struct {
 }
 
 type FlashbotMevshareEvent struct {
-	Hash        common.Hash              `json:"hash"`
-	Logs        []FlashbotMevshareLog    `json:"logs"`
-	Txs         []FlashbotMevShareTxHint `json:"txs"`
-	MevGasPrice *hexutil.Big             `json:"mevGasPrice,omitempty"`
-	GasUsed     *hexutil.Uint64          `json:"gasUsed,omitempty"`
+	Hash        common.Hash                  `json:"hash"`
+	Logs        []SimulatedPrivateMempoolLog `json:"logs"`
+	Txs         []FlashbotMevShareTxHint     `json:"txs"`
+	MevGasPrice *hexutil.Big                 `json:"mevGasPrice,omitempty"`
+	GasUsed     *hexutil.Uint64              `json:"gasUsed,omitempty"`
 }

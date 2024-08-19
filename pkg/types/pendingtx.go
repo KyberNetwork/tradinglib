@@ -21,23 +21,24 @@ const (
 )
 
 type Message struct {
-	PendingBlockNumber    uint64                 `json:"pending_block_number"`
-	TxHash                string                 `json:"tx_hash"`
-	SimDebugInfo          SimDebugInfo           `json:"sim_debug_info"`
-	InternalTx            *CallFrame             `json:"internal_txs"`
-	Prestate              *Prestate              `json:"prestate_diff"`
-	BaseFee               *big.Int               `json:"base_fee"`
-	CurrentBlockTime      uint64                 `json:"current_block_time"`
-	GasFeeCap             *big.Int               `json:"gas_fee_cap"`
-	GasPrice              *big.Int               `json:"gas_price"`
-	GasTip                *big.Int               `json:"gas_tip"`
-	Gas                   uint64                 `json:"gas"`
-	GasUsed               uint64                 `json:"gas_used"`
-	From                  string                 `json:"from"`
-	Nonce                 uint64                 `json:"nonce"`
-	Source                MempoolSource          `json:"source"`
-	Type                  *big.Int               `json:"type"`
-	FlashbotMevshareEvent *FlashbotMevshareEvent `json:"flashbot_mevshare_event,omitempty"`
+	PendingBlockNumber    uint64                       `json:"pending_block_number"`
+	TxHash                string                       `json:"tx_hash"`
+	SimDebugInfo          SimDebugInfo                 `json:"sim_debug_info"`
+	InternalTx            *CallFrame                   `json:"internal_txs"`
+	Prestate              *Prestate                    `json:"prestate_diff"`
+	BaseFee               *big.Int                     `json:"base_fee"`
+	CurrentBlockTime      uint64                       `json:"current_block_time"`
+	GasFeeCap             *big.Int                     `json:"gas_fee_cap"`
+	GasPrice              *big.Int                     `json:"gas_price"`
+	GasTip                *big.Int                     `json:"gas_tip"`
+	Gas                   uint64                       `json:"gas"`
+	GasUsed               uint64                       `json:"gas_used"`
+	From                  string                       `json:"from"`
+	Nonce                 uint64                       `json:"nonce"`
+	Source                MempoolSource                `json:"source"`
+	Type                  *big.Int                     `json:"type"`
+	FlashbotMevshareEvent *FlashbotMevshareEvent       `json:"flashbot_mevshare_event,omitempty"`
+	Logs                  []SimulatedPrivateMempoolLog `json:"logs,omitempty"`
 }
 
 type Prestate struct {
