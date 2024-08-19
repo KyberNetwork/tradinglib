@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 	"github.com/ethereum/go-ethereum/common/math"
 )
@@ -13,11 +14,11 @@ const (
 )
 
 var (
-	ErrGasBumpEstimateTooLarge  = errors.New("gas bump estimate is too large")
-	ErrGasPriceEstimateTooLarge = errors.New("gas price estimate is too large")
-	ErrStartTimeTooLarge        = errors.New("start time is too large")
-	ErrDurationTooLarge         = errors.New("duration is too large")
-	ErrInitialRateBumpTooLarge  = errors.New("initial rate bump is too large")
+	ErrGasBumpEstimateInvalid  = errors.New("gas bump estimate is invalid")
+	ErrGasPriceEstimateInvalid = errors.New("gas price estimate is invalid")
+	ErrStartTimeInvalid        = errors.New("start time is invalid")
+	ErrDurationInvalid         = errors.New("duration is invalid")
+	ErrInitialRateBumpInvalid  = errors.New("initial rate bump is invalid")
 )
 
 type AuctionDetails struct {
@@ -35,20 +36,20 @@ func NewAuctionDetails(
 	points []AuctionPoint,
 	gasCost AuctionGasCostInfo,
 ) (AuctionDetails, error) {
-	if gasCost.GasBumpEstimate > MaxUint24 {
-		return AuctionDetails{}, ErrGasBumpEstimateTooLarge
+	if gasCost.GasBumpEstimate > MaxUint24 || gasCost.GasBumpEstimate < 0 {
+		return AuctionDetails{}, ErrGasBumpEstimateInvalid
 	}
-	if gasCost.GasPriceEstimate > math.MaxUint32 {
-		return AuctionDetails{}, ErrGasPriceEstimateTooLarge
+	if gasCost.GasPriceEstimate > math.MaxUint32 || gasCost.GasPriceEstimate < 0 {
+		return AuctionDetails{}, ErrGasPriceEstimateInvalid
 	}
-	if startTime > math.MaxUint32 {
-		return AuctionDetails{}, ErrStartTimeTooLarge
+	if startTime > math.MaxUint32 || startTime <= 0 {
+		return AuctionDetails{}, ErrStartTimeInvalid
 	}
-	if duration > MaxUint24 {
-		return AuctionDetails{}, ErrDurationTooLarge
+	if duration > MaxUint24 || duration <= 0 {
+		return AuctionDetails{}, ErrDurationInvalid
 	}
-	if initialRateBump > MaxUint24 {
-		return AuctionDetails{}, ErrInitialRateBumpTooLarge
+	if initialRateBump > MaxUint24 || initialRateBump < 0 {
+		return AuctionDetails{}, ErrInitialRateBumpInvalid
 	}
 
 	return AuctionDetails{
@@ -143,7 +144,6 @@ func decodeAuctionPoints(data []byte) ([]AuctionPoint, error) {
 			Coefficient: int64(coefficient),
 			Delay:       int64(delay),
 		})
-
 	}
 	return points, nil
 }
