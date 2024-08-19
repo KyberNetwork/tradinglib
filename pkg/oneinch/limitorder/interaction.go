@@ -2,6 +2,7 @@ package limitorder
 
 import (
 	"encoding/hex"
+	"fmt"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 	"github.com/ethereum/go-ethereum/common"
@@ -20,12 +21,14 @@ func (i Interaction) Encode() string {
 	return i.Target.String() + hex.EncodeToString(i.Data)
 }
 
-func DecodeInteraction(encoded []byte) (Interaction, error) {
-	if err := decode.ValidateDataLength(encoded, common.AddressLength); err != nil {
-		return Interaction{}, err
+func DecodeInteraction(data []byte) (Interaction, error) {
+	bi := decode.NewBytesIterator(data)
+	target, err := bi.NextBytes(common.AddressLength)
+	if err != nil {
+		return Interaction{}, fmt.Errorf("get target: %w", err)
 	}
 	return Interaction{
-		Target: common.BytesToAddress(encoded[:common.AddressLength]),
-		Data:   encoded[common.AddressLength:],
+		Target: common.BytesToAddress(target),
+		Data:   bi.RemainingData(),
 	}, nil
 }

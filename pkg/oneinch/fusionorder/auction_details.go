@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"math/big"
-
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 	"github.com/ethereum/go-ethereum/common/math"
 )
@@ -88,53 +86,64 @@ type AuctionGasCostInfo struct {
 // Logic is copied from
 // https://etherscan.io/address/0xfb2809a5314473e1165f6b58018e20ed8f07b840#code#F23#L140
 // nolint: gomnd
-func DecodeAuctionDetails(hexData []byte) (AuctionDetails, error) {
-	const firstLength = 17
-	offsetData, remainingData, err := decode.Next(hexData, firstLength)
+func DecodeAuctionDetails(data []byte) (AuctionDetails, error) {
+	bi := decode.NewBytesIterator(data)
+
+	gasBumpEstimate, err := bi.NextUint24()
 	if err != nil {
-		return AuctionDetails{}, fmt.Errorf("next offset: %w", err)
+		return AuctionDetails{}, fmt.Errorf("next gas bump estimate: %w", err)
+	}
+	gasPriceEstimate, err := bi.NextUint32()
+	if err != nil {
+		return AuctionDetails{}, fmt.Errorf("next gas price estimate: %w", err)
+	}
+	startTime, err := bi.NextUint32()
+	if err != nil {
+		return AuctionDetails{}, fmt.Errorf("next start time: %w", err)
+	}
+	duration, err := bi.NextUint24()
+	if err != nil {
+		return AuctionDetails{}, fmt.Errorf("next duration: %w", err)
+	}
+	initialRateBump, err := bi.NextUint24()
+	if err != nil {
+		return AuctionDetails{}, fmt.Errorf("next initial rate bump: %w", err)
 	}
 
-	gasBumpEstimate := new(big.Int).SetBytes(offsetData[:3]).Int64()
-	gasPriceEstimate := new(big.Int).SetBytes(offsetData[3:7]).Int64()
-	startTime := new(big.Int).SetBytes(offsetData[7:11]).Int64()
-	duration := new(big.Int).SetBytes(offsetData[11:14]).Int64()
-	initialRateBump := new(big.Int).SetBytes(offsetData[14:17]).Int64()
-
-	points, err := decodeAuctionPoints(remainingData)
+	points, err := decodeAuctionPoints(bi.RemainingData())
 	if err != nil {
 		return AuctionDetails{}, fmt.Errorf("decode auction points: %w", err)
 	}
 
 	return NewAuctionDetails(
-		startTime,
-		initialRateBump,
-		duration,
+		int64(startTime),
+		int64(initialRateBump),
+		int64(duration),
 		points,
 		AuctionGasCostInfo{
-			GasBumpEstimate:  gasBumpEstimate,
-			GasPriceEstimate: gasPriceEstimate,
+			GasBumpEstimate:  int64(gasBumpEstimate),
+			GasPriceEstimate: int64(gasPriceEstimate),
 		},
 	)
 }
 
 func decodeAuctionPoints(data []byte) ([]AuctionPoint, error) {
+	bi := decode.NewBytesIterator(data)
 	points := make([]AuctionPoint, 0)
-	for len(data) > 0 {
-		const pointLength = 5
-		pointData, remainingData, err := decode.Next(data, pointLength)
+	for bi.HasMore() {
+		coefficient, err := bi.NextUint24()
 		if err != nil {
-			return nil, fmt.Errorf("next auction point: %w", err)
+			return nil, fmt.Errorf("next coefficient: %w", err)
 		}
-
-		coefficient := new(big.Int).SetBytes(pointData[:3]).Int64()
-		delay := new(big.Int).SetBytes(pointData[3:5]).Int64()
+		delay, err := bi.NextUint16()
+		if err != nil {
+			return nil, fmt.Errorf("next delay: %w", err)
+		}
 		points = append(points, AuctionPoint{
-			Coefficient: coefficient,
-			Delay:       delay,
+			Coefficient: int64(coefficient),
+			Delay:       int64(delay),
 		})
 
-		data = remainingData
 	}
 	return points, nil
 }

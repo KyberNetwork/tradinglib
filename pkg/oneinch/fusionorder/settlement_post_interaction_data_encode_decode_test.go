@@ -185,7 +185,7 @@ func TestSettlementPostInteractionData(t *testing.T) {
 func TestSettlementPostInteractionData_invalid_data_length(t *testing.T) {
 	t.Run("empty data", func(t *testing.T) {
 		_, err := fusionorder.DecodeSettlementPostInteractionData([]byte{})
-		require.ErrorIs(t, err, decode.ErrInvalidDataLength)
+		require.ErrorIs(t, err, fusionorder.ErrDataTooShort)
 	})
 
 	t.Run("invalid data", func(t *testing.T) {
@@ -194,7 +194,7 @@ func TestSettlementPostInteractionData_invalid_data_length(t *testing.T) {
 
 		_, err = fusionorder.DecodeSettlementPostInteractionData(data)
 
-		require.ErrorIs(t, err, decode.ErrInvalidDataLength)
+		require.ErrorIs(t, err, decode.ErrOutOfData)
 	})
 }
 

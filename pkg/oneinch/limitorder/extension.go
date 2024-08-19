@@ -7,7 +7,6 @@ import (
 	"math"
 	"math/big"
 
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
@@ -109,9 +108,12 @@ func DecodeExtension(encodedExtension string) (Extension, error) {
 		return defaultExtension(), nil
 	}
 
-	if err := decode.ValidateDataLength(extensionDataBytes, offsetLength); err != nil {
-		return Extension{}, fmt.Errorf("validate offset length: %w", err)
+	if len(extensionDataBytes) < offsetLength {
+		return Extension{},
+			fmt.Errorf("extension data length (%d) is less than offset length (%d)",
+				len(extensionDataBytes), offsetLength)
 	}
+
 	offset := new(big.Int).SetBytes(extensionDataBytes[:offsetLength])
 
 	maxInt32 := big.NewInt(math.MaxInt32)
@@ -131,8 +133,9 @@ func DecodeExtension(encodedExtension string) (Extension, error) {
 		start := prevLength
 		end := length
 
-		if decode.ValidateDataLength(extensionData, end) != nil {
-			return Extension{}, fmt.Errorf("validate data length: %w", err)
+		if len(extensionData) < end {
+			return Extension{},
+				fmt.Errorf("extension data length (%d) is less than expected (%d)", len(extensionData), end)
 		}
 
 		data[i] = extensionData[start:end]

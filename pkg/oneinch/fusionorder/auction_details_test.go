@@ -96,7 +96,7 @@ func TestAuctionDetail(t *testing.T) {
 
 		_, err = fusionorder.DecodeAuctionDetails(extraData)
 
-		require.ErrorIs(t, err, decode.ErrInvalidDataLength)
+		require.ErrorIs(t, err, decode.ErrOutOfData)
 	})
 }
 

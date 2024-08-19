@@ -2,6 +2,7 @@ package fusionorder
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
@@ -31,36 +32,37 @@ func resolversCount(flags byte) byte {
 	return flags >> whitelistShift
 }
 
+var ErrDataTooShort = errors.New("data is too short")
+
 // DecodeSettlementPostInteractionData decodes SettlementPostInteractionData from bytes
 // nolint: gomnd
 func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteractionData, error) {
 	// must have at least 1 byte for flags
-	if err := decode.ValidateDataLength(data, 1); err != nil {
-		return SettlementPostInteractionData{}, err
+	if len(data) < 1 {
+		return SettlementPostInteractionData{}, ErrDataTooShort
 	}
 
 	flags := data[len(data)-1]
+	bi := decode.NewBytesIterator(data[:len(data)-1])
 
-	var bankFee int64
+	var bankFee uint32
 	var integratorFee IntegratorFee
 	var customReceiver common.Address
-	var resolvingStartTime int64
 	var err error
 
 	if resolverFeeEnabled(flags) {
-		const lengthBankFee = 4
-		bankFee, data, err = decode.NextInt64(data, lengthBankFee)
+		bankFee, err = bi.NextUint32()
 		if err != nil {
 			return SettlementPostInteractionData{}, fmt.Errorf("get bank fee: %w", err)
 		}
 	}
 
-	integratorFee, customReceiver, data, err = decodeIntegratorFee(flags, data)
+	integratorFee, customReceiver, err = decodeIntegratorFee(flags, bi)
 	if err != nil {
 		return SettlementPostInteractionData{}, fmt.Errorf("get integrator fee: %w", err)
 	}
 
-	resolvingStartTime, data, err = decode.NextInt64(data, 4)
+	resolvingStartTime, err := bi.NextUint32()
 	if err != nil {
 		return SettlementPostInteractionData{}, fmt.Errorf("get resolving start time: %w", err)
 	}
@@ -69,8 +71,7 @@ func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteraction
 	whitelist := make([]WhitelistItem, 0, whitelistCount)
 
 	for i := byte(0); i < whitelistCount; i++ {
-		var addressHalfBytes []byte
-		addressHalfBytes, data, err = decode.Next(data, addressHalfLength)
+		addressHalfBytes, err := bi.NextBytes(addressHalfLength)
 		if err != nil {
 			return SettlementPostInteractionData{}, fmt.Errorf("get whitelist item address half: %w", err)
 		}
@@ -78,60 +79,57 @@ func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteraction
 		var address AddressHalf
 		copy(address[:], addressHalfBytes)
 
-		var delay int64
-		delay, data, err = decode.NextInt64(data, 2)
+		delay, err := bi.NextUint16()
 		if err != nil {
 			return SettlementPostInteractionData{}, fmt.Errorf("get whitelist item delay: %w", err)
 		}
 
 		whitelist = append(whitelist, WhitelistItem{
 			AddressHalf: address,
-			Delay:       delay,
+			Delay:       int64(delay),
 		})
 	}
 
 	return SettlementPostInteractionData{
 		Whitelist:          whitelist,
 		IntegratorFee:      integratorFee,
-		BankFee:            bankFee,
-		ResolvingStartTime: resolvingStartTime,
+		BankFee:            int64(bankFee),
+		ResolvingStartTime: int64(resolvingStartTime),
 		CustomReceiver:     customReceiver,
 	}, nil
 }
 
 func decodeIntegratorFee(
-	flags byte, data []byte,
-) (integratorFee IntegratorFee, customReceiver common.Address, remainingData []byte, err error) {
+	flags byte, bi *decode.BytesIterator,
+) (integratorFee IntegratorFee, customReceiver common.Address, err error) {
 	if !integratorFeeEnabled(flags) {
-		return integratorFee, customReceiver, data, nil
+		return integratorFee, customReceiver, nil
 	}
 
-	var integratorFeeRatio int64
-	integratorFeeRatio, data, err = decode.NextInt64(data, 2) // nolint: gomnd
+	integratorFeeRatio, err := bi.NextUint16()
 	if err != nil {
-		return integratorFee, customReceiver, data, fmt.Errorf("get integrator fee ratio: %w", err)
+		return integratorFee, customReceiver, fmt.Errorf("get integrator fee ratio: %w", err)
 	}
-	var integratorAddress []byte
-	integratorAddress, data, err = decode.Next(data, common.AddressLength)
+
+	integratorAddress, err := bi.NextBytes(common.AddressLength)
 	if err != nil {
-		return integratorFee, customReceiver, data, fmt.Errorf("get integrator fee address: %w", err)
+		return integratorFee, customReceiver, fmt.Errorf("get integrator fee address: %w", err)
 	}
 
 	integratorFee = IntegratorFee{
-		Ratio:    integratorFeeRatio,
+		Ratio:    int64(integratorFeeRatio),
 		Receiver: common.BytesToAddress(integratorAddress),
 	}
 
 	if hasCustomReceiver(flags) {
-		var customReceiverBytes []byte
-		customReceiverBytes, data, err = decode.Next(data, common.AddressLength)
+		customReceiverBytes, err := bi.NextBytes(common.AddressLength)
 		if err != nil {
-			return integratorFee, customReceiver, data, fmt.Errorf("get custom receiver: %w", err)
+			return integratorFee, customReceiver, fmt.Errorf("get custom receiver: %w", err)
 		}
 		customReceiver = common.BytesToAddress(customReceiverBytes)
 	}
 
-	return integratorFee, customReceiver, data, nil
+	return integratorFee, customReceiver, nil
 }
 
 // Encode encodes SettlementPostInteractionData to bytes
