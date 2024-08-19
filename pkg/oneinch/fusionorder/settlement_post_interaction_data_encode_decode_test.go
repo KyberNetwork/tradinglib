@@ -38,7 +38,7 @@ func TestSettlementPostInteractionData(t *testing.T) {
 		decoded, err := fusionorder.DecodeSettlementPostInteractionData(encoded)
 		require.NoError(t, err)
 
-		assertSettlementPostInteractionDataEqual(t, data, decoded)
+		assert.Equal(t, data, decoded)
 	})
 
 	t.Run("Should encode/decode with no fees and whitelist", func(t *testing.T) {
@@ -62,7 +62,7 @@ func TestSettlementPostInteractionData(t *testing.T) {
 		decoded, err := fusionorder.DecodeSettlementPostInteractionData(encoded)
 		require.NoError(t, err)
 
-		assertSettlementPostInteractionDataEqual(t, data, decoded)
+		assert.Equal(t, data, decoded)
 	})
 
 	t.Run("Should encode/decode with fees and whitelist", func(t *testing.T) {
@@ -87,7 +87,7 @@ func TestSettlementPostInteractionData(t *testing.T) {
 		decoded, err := fusionorder.DecodeSettlementPostInteractionData(data.Encode())
 		require.NoError(t, err)
 
-		assertSettlementPostInteractionDataEqual(t, data, decoded)
+		assert.Equal(t, data, decoded)
 	})
 	t.Run("Should encode/decode with fees, custom receiver and whitelist", func(t *testing.T) {
 		data, err := fusionorder.NewSettlementPostInteractionDataFromSettlementSuffixData(
@@ -112,7 +112,7 @@ func TestSettlementPostInteractionData(t *testing.T) {
 		decoded, err := fusionorder.DecodeSettlementPostInteractionData(data.Encode())
 		require.NoError(t, err)
 
-		assertSettlementPostInteractionDataEqual(t, data, decoded)
+		assert.Equal(t, data, decoded)
 	})
 
 	t.Run("Should generate correct whitelist", func(t *testing.T) {
@@ -196,16 +196,4 @@ func TestSettlementPostInteractionData_invalid_data_length(t *testing.T) {
 
 		require.ErrorIs(t, err, decode.ErrOutOfData)
 	})
-}
-
-func assertSettlementPostInteractionDataEqual(
-	t *testing.T, expected, actual fusionorder.SettlementPostInteractionData,
-) {
-	t.Helper()
-	assert.ElementsMatch(t, expected.Whitelist, actual.Whitelist)
-	assert.Equal(t, expected.IntegratorFee.Ratio, actual.IntegratorFee.Ratio)
-	assert.Equal(t, expected.IntegratorFee.Receiver, actual.IntegratorFee.Receiver)
-	assert.Equal(t, expected.BankFee, actual.BankFee)
-	assert.Equal(t, expected.ResolvingStartTime, actual.ResolvingStartTime)
-	assert.Equal(t, expected.CustomReceiver, actual.CustomReceiver)
 }

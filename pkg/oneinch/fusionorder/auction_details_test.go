@@ -37,7 +37,7 @@ func TestAuctionDetail(t *testing.T) {
 		decodedAuctionDetail, err := fusionorder.DecodeAuctionDetails(encodedAuctionDetail)
 		require.NoError(t, err)
 
-		assertAuctionDetailsEqual(t, auctionDetail, decodedAuctionDetail)
+		assert.Equal(t, auctionDetail, decodedAuctionDetail)
 	})
 
 	t.Run("decode", func(t *testing.T) {
@@ -98,14 +98,4 @@ func TestAuctionDetail(t *testing.T) {
 
 		require.ErrorIs(t, err, decode.ErrOutOfData)
 	})
-}
-
-func assertAuctionDetailsEqual(t *testing.T, expected, actual fusionorder.AuctionDetails) {
-	t.Helper()
-	assert.Equal(t, expected.StartTime, actual.StartTime)
-	assert.Equal(t, expected.Duration, actual.Duration)
-	assert.Equal(t, expected.InitialRateBump, actual.InitialRateBump)
-	assert.ElementsMatch(t, expected.Points, actual.Points)
-	assert.Equal(t, expected.GasCost.GasBumpEstimate, actual.GasCost.GasBumpEstimate)
-	assert.Equal(t, expected.GasCost.GasPriceEstimate, actual.GasCost.GasPriceEstimate)
 }

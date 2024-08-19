@@ -1,6 +1,7 @@
 package limitorder_test
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/limitorder"
@@ -27,6 +28,14 @@ func TestExtension(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Equal(t, extension, decodedExtension)
+	})
+
+	t.Run("decode emtpy", func(t *testing.T) {
+		encodedExtension := "0x"
+		e, err := limitorder.DecodeExtension(encodedExtension)
+		require.NoError(t, err)
+
+		assert.True(t, e.IsEmpty())
 	})
 
 	t.Run("decode", func(t *testing.T) {
