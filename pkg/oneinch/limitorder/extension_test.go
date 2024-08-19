@@ -45,5 +45,10 @@ func TestExtension(t *testing.T) {
 		require.NoError(t, err)
 
 		t.Logf("Extension: %+v", e)
+
+		assert.False(t, e.IsEmpty())
+		assert.NotZero(t, len(e.MakingAmountData))
+		assert.NotZero(t, len(e.TakingAmountData))
+		assert.NotZero(t, len(e.PostInteraction))
 	})
 }

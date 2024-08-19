@@ -51,6 +51,24 @@ func TestAuctionDetail(t *testing.T) {
 		require.NoError(t, err)
 
 		t.Logf("AuctionDetails: %+v", decodeAuctionDetails)
+
+		expected := fusionorder.AuctionDetails{
+			StartTime:       1723543570,
+			Duration:        180,
+			InitialRateBump: 122616,
+			Points: []fusionorder.AuctionPoint{
+				{
+					Delay:       180,
+					Coefficient: 61880,
+				},
+			},
+			GasCost: fusionorder.AuctionGasCostInfo{
+				GasBumpEstimate:  61880,
+				GasPriceEstimate: 1509,
+			},
+		}
+
+		assert.Equal(t, expected, decodeAuctionDetails)
 	})
 
 	// nolint: lll
