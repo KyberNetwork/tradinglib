@@ -3,7 +3,6 @@ package decode
 import (
 	"encoding/binary"
 	"errors"
-	"math/big"
 )
 
 var ErrOutOfData = errors.New("out of data")
@@ -77,5 +76,5 @@ func (bi *BytesIterator) NextUint64() (uint64, error) {
 		return 0, err
 	}
 
-	return big.NewInt(0).SetBytes(result).Uint64(), nil
+	return binary.BigEndian.Uint64(result), nil
 }
