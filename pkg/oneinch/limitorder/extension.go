@@ -2,12 +2,12 @@ package limitorder
 
 import (
 	"bytes"
-	"encoding/hex"
 	"fmt"
 	"math"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	eMath "github.com/ethereum/go-ethereum/common/math"
 )
 
 const (
@@ -41,15 +41,20 @@ func (e Extension) IsEmpty() bool {
 }
 
 func (e Extension) Encode() string {
-	const zx = "0x"
 	interactionsConcatenated := e.getConcatenatedInteractions()
 	if len(interactionsConcatenated) == 0 {
-		return zx
+		return hexutil.Encode(interactionsConcatenated)
 	}
 
 	offsetsBytes := e.getOffsets()
-	paddedOffsetHex := fmt.Sprintf("%064x", offsetsBytes)
-	return zx + paddedOffsetHex + hex.EncodeToString(interactionsConcatenated) + hex.EncodeToString(e.CustomData)
+
+	b := new(bytes.Buffer)
+
+	b.Write(eMath.PaddedBigBytes(offsetsBytes, offsetLength))
+	b.Write(interactionsConcatenated)
+	b.Write(e.CustomData)
+
+	return hexutil.Encode(b.Bytes())
 }
 
 func (e Extension) interactionsArray() [totalOffsetSlots][]byte {
