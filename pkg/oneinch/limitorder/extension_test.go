@@ -47,8 +47,8 @@ func TestExtension(t *testing.T) {
 		t.Logf("Extension: %+v", e)
 
 		assert.False(t, e.IsEmpty())
-		assert.NotZero(t, len(e.MakingAmountData))
-		assert.NotZero(t, len(e.TakingAmountData))
-		assert.NotZero(t, len(e.PostInteraction))
+		assert.NotEmpty(t, e.MakingAmountData)
+		assert.NotEmpty(t, e.TakingAmountData)
+		assert.NotEmpty(t, e.PostInteraction)
 	})
 }

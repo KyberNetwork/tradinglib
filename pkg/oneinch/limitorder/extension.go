@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	eMath "github.com/ethereum/go-ethereum/common/math"
 )
@@ -13,7 +14,7 @@ import (
 const (
 	totalOffsetSlots     = 8
 	offsetSlotSizeInBits = 32
-	offsetLength         = totalOffsetSlots * offsetSlotSizeInBits / 8
+	offsetLength         = common.HashLength
 )
 
 // Extension represents the extension data of a 1inch order.
@@ -46,11 +47,10 @@ func (e Extension) Encode() string {
 		return hexutil.Encode(interactionsConcatenated)
 	}
 
-	offsetsBytes := e.getOffsets()
+	offset := e.getOffsets()
 
 	b := new(bytes.Buffer)
-
-	b.Write(eMath.PaddedBigBytes(offsetsBytes, offsetLength))
+	b.Write(offset[:])
 	b.Write(interactionsConcatenated)
 	b.Write(e.CustomData)
 
@@ -78,7 +78,7 @@ func (e Extension) getConcatenatedInteractions() []byte {
 	return builder.Bytes()
 }
 
-func (e Extension) getOffsets() *big.Int {
+func (e Extension) getOffsets() common.Hash {
 	var lengthMap [totalOffsetSlots]int
 	for i, interaction := range e.interactionsArray() {
 		lengthMap[i] = len(interaction)
@@ -86,17 +86,15 @@ func (e Extension) getOffsets() *big.Int {
 
 	cumulativeSum := 0
 	bytesAccumulator := big.NewInt(0)
-	var index uint64
 
-	for _, length := range lengthMap {
+	for i, length := range lengthMap {
 		cumulativeSum += length
 		shiftVal := big.NewInt(int64(cumulativeSum))
-		shiftVal.Lsh(shiftVal, uint(offsetSlotSizeInBits*index)) // Shift left
-		bytesAccumulator.Add(bytesAccumulator, shiftVal)         // Add to accumulator
-		index++
+		shiftVal.Lsh(shiftVal, uint(offsetSlotSizeInBits*i)) // Shift left
+		bytesAccumulator.Add(bytesAccumulator, shiftVal)     // Add to accumulator
 	}
 
-	return bytesAccumulator
+	return common.Hash(eMath.PaddedBigBytes(bytesAccumulator, offsetLength))
 }
 
 // DecodeExtension decodes the encoded extension string into an Extension struct.
