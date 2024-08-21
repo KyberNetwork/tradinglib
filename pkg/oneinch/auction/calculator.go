@@ -145,10 +145,10 @@ func (c Calculator) getAuctionBump(blockTime *big.Int) *big.Int {
 }
 
 func (c Calculator) CalcAuctionTakingAmount(takingAmount *big.Int, rate int64) *big.Int {
-	return calcAuctionTakingAmount(takingAmount, rate, c.takerFeeRatio)
+	return CalcAuctionTakingAmount(takingAmount, rate, c.takerFeeRatio)
 }
 
-func calcAuctionTakingAmount(takingAmount *big.Int, rate int64, takerFeeRatio *big.Int) *big.Int {
+func CalcAuctionTakingAmount(takingAmount *big.Int, rate int64, takerFeeRatio *big.Int) *big.Int {
 	rateBumpDenominator := big.NewInt(RateBumpDenominator)
 	auctionTakingAmount := new(big.Int).Div(
 		new(big.Int).Mul(
@@ -158,7 +158,7 @@ func calcAuctionTakingAmount(takingAmount *big.Int, rate int64, takerFeeRatio *b
 		rateBumpDenominator,
 	)
 
-	if takingAmount.Cmp(big.NewInt(0)) == 0 {
+	if takerFeeRatio.Cmp(big.NewInt(0)) == 0 {
 		return auctionTakingAmount
 	}
 
