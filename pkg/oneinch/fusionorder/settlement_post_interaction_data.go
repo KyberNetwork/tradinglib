@@ -3,21 +3,14 @@ package fusionorder
 import (
 	"errors"
 	"math"
-	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 	"golang.org/x/exp/slices"
 )
 
-const (
-	addressHalfLength = common.AddressLength / 2
-)
-
-type AddressHalf [addressHalfLength]byte
-
 var (
 	ErrEmptyWhitelist              = errors.New("white list cannot be empty")
-	ErrResolvingStartTimeNil       = errors.New("resolving start time can not be nil")
+	ErrResolvingStartTimeZero      = errors.New("resolving start time can not be 0")
 	ErrFeeReceiverZero             = errors.New("fee receiver can not be zero when fee set")
 	ErrTooBigDiffBetweenTimestamps = errors.New("too big diff between timestamps")
 )
@@ -25,31 +18,26 @@ var (
 type SettlementPostInteractionData struct {
 	Whitelist          []WhitelistItem
 	IntegratorFee      IntegratorFee
-	BankFee            *big.Int
-	ResolvingStartTime *big.Int
+	BankFee            int64
+	ResolvingStartTime int64
 	CustomReceiver     common.Address
 }
 
 func NewSettlementPostInteractionData(
 	whitelist []WhitelistItem,
 	integratorFee IntegratorFee,
-	bankFee *big.Int,
-	resolvingStartTime *big.Int,
+	bankFee int64,
+	resolvingStartTime int64,
 	customReceiver common.Address,
 ) (SettlementPostInteractionData, error) {
-	// set default
-	if bankFee == nil {
-		bankFee = big.NewInt(0)
-	}
-
 	// assert
-	if !integratorFee.IsZero() && integratorFee.Ratio.Cmp(big.NewInt(0)) != 0 {
+	if !integratorFee.IsZero() && integratorFee.Ratio > 0 {
 		if integratorFee.Receiver.Cmp(common.Address{}) == 0 { // integrator fee receiver is empty
 			return SettlementPostInteractionData{}, ErrFeeReceiverZero
 		}
 	}
-	if resolvingStartTime == nil {
-		return SettlementPostInteractionData{}, ErrResolvingStartTimeNil
+	if resolvingStartTime == 0 {
+		return SettlementPostInteractionData{}, ErrResolvingStartTimeZero
 	}
 	return SettlementPostInteractionData{
 		Whitelist:          whitelist,
@@ -70,7 +58,7 @@ func NewSettlementPostInteractionDataFromSettlementSuffixData(
 	auctionWhitelist := make([]AuctionWhitelistItem, 0, len(data.Whitelist))
 	for _, item := range data.Whitelist {
 		allowFrom := item.AllowFrom
-		if allowFrom.Cmp(data.ResolvingStartTime) == -1 { // allowFrom < resolvingStartTime
+		if allowFrom < data.ResolvingStartTime {
 			allowFrom = data.ResolvingStartTime
 		}
 		auctionWhitelist = append(auctionWhitelist, AuctionWhitelistItem{
@@ -80,23 +68,22 @@ func NewSettlementPostInteractionDataFromSettlementSuffixData(
 	}
 
 	slices.SortFunc(auctionWhitelist, func(a, b AuctionWhitelistItem) int {
-		return a.AllowFrom.Cmp(b.AllowFrom) // sort by AllowFrom in ascending order
+		// sort by AllowFrom in ascending order
+		return int(a.AllowFrom - b.AllowFrom)
 	})
 
 	whitelist := make([]WhitelistItem, 0, len(data.Whitelist))
-	sumDelay := big.NewInt(0)
+	sumDelay := int64(0)
 	for _, item := range auctionWhitelist {
-		delay := new(big.Int).Sub(new(big.Int).Sub(item.AllowFrom, data.ResolvingStartTime), sumDelay)
-		sumDelay = new(big.Int).Add(sumDelay, delay)
+		delay := item.AllowFrom - data.ResolvingStartTime - sumDelay
+		sumDelay += delay
 
-		if delay.Cmp(new(big.Int).SetUint64(math.MaxUint16)) >= 0 { // delay >= math.MaxUint16
+		if delay > math.MaxUint16 {
 			return SettlementPostInteractionData{}, ErrTooBigDiffBetweenTimestamps
 		}
 
-		var addressHalf AddressHalf
-		copy(addressHalf[:], item.Address.Bytes()[common.AddressLength-addressHalfLength:]) // take the last 10 bytes
 		whitelist = append(whitelist, WhitelistItem{
-			AddressHalf: addressHalf,
+			AddressHalf: HalfAddressFromAddress(item.Address),
 			Delay:       delay,
 		})
 	}
@@ -112,11 +99,11 @@ func NewSettlementPostInteractionDataFromSettlementSuffixData(
 
 type WhitelistItem struct {
 	AddressHalf AddressHalf
-	Delay       *big.Int
+	Delay       int64
 }
 
 type IntegratorFee struct {
-	Ratio    *big.Int
+	Ratio    int64
 	Receiver common.Address
 }
 
@@ -126,13 +113,31 @@ func (f IntegratorFee) IsZero() bool {
 
 type AuctionWhitelistItem struct {
 	Address   common.Address
-	AllowFrom *big.Int
+	AllowFrom int64
 }
 
 type SettlementSuffixData struct {
 	Whitelist          []AuctionWhitelistItem
 	IntegratorFee      IntegratorFee
-	BankFee            *big.Int
-	ResolvingStartTime *big.Int
+	BankFee            int64
+	ResolvingStartTime int64
 	CustomReceiver     common.Address
+}
+
+func (s SettlementPostInteractionData) CanExecuteAt(executor common.Address, executionTime int64) bool {
+	addressHalf := HalfAddressFromAddress(executor)
+
+	allowedFrom := s.ResolvingStartTime
+
+	for _, item := range s.Whitelist {
+		allowedFrom += item.Delay
+
+		if addressHalf == item.AddressHalf {
+			return executionTime >= allowedFrom
+		} else if executionTime < allowedFrom {
+			return false
+		}
+	}
+
+	return false
 }

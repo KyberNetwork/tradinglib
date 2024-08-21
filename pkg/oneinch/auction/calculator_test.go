@@ -8,7 +8,6 @@ import (
 	"github.com/KyberNetwork/tradinglib/pkg/convert"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/auction"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder"
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionutils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -16,14 +15,14 @@ import (
 
 func TestAuctionCalculator(t *testing.T) {
 	t.Run("should be created successfully from suffix and salt", func(t *testing.T) {
-		auctionStartTime := big.NewInt(1708448252)
+		auctionStartTime := int64(1708448252)
 		postInteraction, err := fusionorder.NewSettlementPostInteractionDataFromSettlementSuffixData(
 			fusionorder.SettlementSuffixData{
 				IntegratorFee: fusionorder.IntegratorFee{
-					Ratio:    fusionutils.BpsToRatioFormat(1),
+					Ratio:    fusionorder.BpsToRatioFormat(1).Int64(),
 					Receiver: common.BigToAddress(big.NewInt(1)),
 				},
-				BankFee:            big.NewInt(0),
+				BankFee:            0,
 				ResolvingStartTime: auctionStartTime,
 				Whitelist: []fusionorder.AuctionWhitelistItem{
 					{
@@ -36,8 +35,8 @@ func TestAuctionCalculator(t *testing.T) {
 
 		actionDetails, err := fusionorder.NewAuctionDetails(
 			auctionStartTime,
-			big.NewInt(50_000),
-			big.NewInt(120),
+			50_000,
+			120,
 			nil,
 			fusionorder.AuctionGasCostInfo{},
 		)
@@ -48,7 +47,7 @@ func TestAuctionCalculator(t *testing.T) {
 		takingAmount, ok := new(big.Int).SetString("1420000000", 10)
 		require.True(t, ok)
 
-		rate := calculator.CalcRateBump(new(big.Int).Add(auctionStartTime, big.NewInt(60)), big.NewInt(0))
+		rate := calculator.CalcRateBump(big.NewInt(auctionStartTime+60), big.NewInt(0))
 		auctionTakingAmount := calculator.CalcAuctionTakingAmount(takingAmount, rate)
 
 		assert.Equal(t, int64(25000), rate)
@@ -57,46 +56,46 @@ func TestAuctionCalculator(t *testing.T) {
 }
 
 func TestCalculator_GasBump(t *testing.T) {
-	now := big.NewInt(time.Now().Unix())
-	duration := big.NewInt(1800) // 30 minutes
+	now := time.Now().Unix()
+	duration := int64(1800) // 30 minutes
 	takingAmount := parseEther(t, 1)
 	calculator := auction.NewCalculator(
-		new(big.Int).Sub(now, big.NewInt(60)),
+		now-60,
 		duration,
-		big.NewInt(1000000),
+		1000000,
 		[]fusionorder.AuctionPoint{
 			{
 				Delay:       60,
 				Coefficient: 500000,
 			},
 		},
-		big.NewInt(0),
+		0,
 		fusionorder.AuctionGasCostInfo{
-			GasBumpEstimate:  big.NewInt(10000),
-			GasPriceEstimate: big.NewInt(1000),
+			GasBumpEstimate:  10_000,
+			GasPriceEstimate: 1000,
 		},
 	)
 
 	t.Run("0 gwei = no gas fee", func(t *testing.T) {
-		bump := calculator.CalcRateBump(now, big.NewInt(0))
+		bump := calculator.CalcRateBump(big.NewInt(now), big.NewInt(0))
 		auctionTakingAmount := calculator.CalcAuctionTakingAmount(takingAmount, bump)
 		assert.Zero(t, auctionTakingAmount.Cmp(parseEther(t, 1.05)))
 	})
 
 	t.Run("0.1 gwei == 0.01% gas fee", func(t *testing.T) {
-		bump := calculator.CalcRateBump(now, parseUnits(t, 1, 8))
+		bump := calculator.CalcRateBump(big.NewInt(now), parseUnits(t, 1, 8))
 		auctionTakingAmount := calculator.CalcAuctionTakingAmount(takingAmount, bump)
 		assert.Zero(t, auctionTakingAmount.Cmp(parseEther(t, 1.0499)))
 	})
 
 	t.Run("15 gwei == 1.5% gas fee", func(t *testing.T) {
-		bump := calculator.CalcRateBump(now, parseUnits(t, 15, 9))
+		bump := calculator.CalcRateBump(big.NewInt(now), parseUnits(t, 15, 9))
 		auctionTakingAmount := calculator.CalcAuctionTakingAmount(takingAmount, bump)
 		assert.Zero(t, auctionTakingAmount.Cmp(parseEther(t, 1.035)))
 	})
 
 	t.Run("100 gwei == 10% gas fee", func(t *testing.T) {
-		bump := calculator.CalcRateBump(now, parseUnits(t, 100, 9))
+		bump := calculator.CalcRateBump(big.NewInt(now), parseUnits(t, 100, 9))
 		auctionTakingAmount := calculator.CalcAuctionTakingAmount(takingAmount, bump)
 		assert.Zero(t, auctionTakingAmount.Cmp(parseEther(t, 1)))
 	})
