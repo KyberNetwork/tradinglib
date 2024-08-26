@@ -1,15 +1,16 @@
 package mev
 
 import (
-	"fmt"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/flashbots/mev-share-node/mevshare"
-	"net/http"
-	"crypto/ecdsa"
-	"context"
-	"encoding/json"
 	"bytes"
+	"context"
+	"crypto/ecdsa"
+	"encoding/json"
+	"fmt"
+	"net/http"
+
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/flashbots/mev-share-node/mevshare"
 )
 
 type MerkleClient struct {
