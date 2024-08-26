@@ -186,6 +186,13 @@ type SendBundleResponse struct {
 	Error   SendBundleError  `json:"error,omitempty"`
 }
 
+type MerkleSendBundleResponse struct {
+	Jsonrpc string          `json:"jsonrpc,omitempty"`
+	ID      int             `json:"id,omitempty"`
+	Result  string          `json:"result,omitempty"`
+	Error   SendBundleError `json:"error,omitempty"`
+}
+
 type SendBundleError struct {
 	Code     int    `json:"code,omitempty"`
 	Messange string `json:"message,omitempty"`
