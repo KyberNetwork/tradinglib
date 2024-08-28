@@ -20,8 +20,7 @@ func TestInteraction(t *testing.T) {
 			Data:   data,
 		}
 
-		encodedInteraction, err := hexutil.Decode(interaction.Encode())
-		require.NoError(t, err)
+		encodedInteraction := interaction.Encode()
 
 		decodedInteraction, err := limitorder.DecodeInteraction(encodedInteraction)
 		require.NoError(t, err)

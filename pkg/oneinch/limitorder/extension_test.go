@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/limitorder"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -24,7 +25,7 @@ func TestExtension(t *testing.T) {
 
 		encodedExtension := extension.Encode()
 
-		decodedExtension, err := limitorder.DecodeExtension(encodedExtension)
+		decodedExtension, err := limitorder.DecodeExtension(hexutil.Encode(encodedExtension))
 		require.NoError(t, err)
 
 		require.Equal(t, extension, decodedExtension)
