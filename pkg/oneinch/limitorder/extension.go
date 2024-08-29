@@ -41,10 +41,10 @@ func (e Extension) IsEmpty() bool {
 	return len(e.getConcatenatedInteractions()) == 0
 }
 
-func (e Extension) Encode() string {
+func (e Extension) Encode() []byte {
 	interactionsConcatenated := e.getConcatenatedInteractions()
 	if len(interactionsConcatenated) == 0 {
-		return hexutil.Encode(interactionsConcatenated)
+		return interactionsConcatenated
 	}
 
 	offset := e.getOffsets()
@@ -54,7 +54,7 @@ func (e Extension) Encode() string {
 	b.Write(interactionsConcatenated)
 	b.Write(e.CustomData)
 
-	return hexutil.Encode(b.Bytes())
+	return b.Bytes()
 }
 
 func (e Extension) interactionsArray() [totalOffsetSlots][]byte {

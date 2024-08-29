@@ -1,7 +1,6 @@
 package limitorder
 
 import (
-	"encoding/hex"
 	"fmt"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
@@ -17,8 +16,9 @@ func (i Interaction) IsZero() bool {
 	return i.Target.String() == common.Address{}.String() && len(i.Data) == 0
 }
 
-func (i Interaction) Encode() string {
-	return i.Target.String() + hex.EncodeToString(i.Data)
+func (i Interaction) Encode() []byte {
+	res := make([]byte, 0, len(i.Target)+len(i.Data))
+	return append(append(res, i.Target.Bytes()...), i.Data...)
 }
 
 func DecodeInteraction(data []byte) (Interaction, error) {
