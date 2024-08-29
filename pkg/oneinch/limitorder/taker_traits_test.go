@@ -1,3 +1,4 @@
+//nolint:testpackage
 package limitorder
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+//nolint:lll
 func TestEncodeTakerTraits(t *testing.T) {
 	extension := Extension{
 		MakerAssetSuffix: []byte{0x01},
