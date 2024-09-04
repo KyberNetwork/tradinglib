@@ -1,6 +1,8 @@
 package hashset
 
-import "sync"
+import (
+	"sync"
+)
 
 type SyncHashSet[K comparable] struct {
 	rw sync.RWMutex
@@ -59,4 +61,11 @@ func (sh *SyncHashSet[K]) Clear() {
 	defer sh.rw.Unlock()
 
 	sh.s.Clear()
+}
+
+func (sh *SyncHashSet[K]) Keys() []K {
+	sh.rw.RLock()
+	defer sh.rw.RUnlock()
+
+	return sh.s.Keys()
 }

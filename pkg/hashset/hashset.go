@@ -33,3 +33,7 @@ func (h *HashSet[K]) Size() int {
 func (h *HashSet[K]) Clear() {
 	maps.Clear(h.m)
 }
+
+func (h *HashSet[K]) Keys() []K {
+	return maps.Keys(h.m)
+}
