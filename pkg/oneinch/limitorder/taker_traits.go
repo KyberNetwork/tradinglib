@@ -70,7 +70,7 @@ func (t *TakerTraits) SetExtension(ext Extension) *TakerTraits {
 	return t
 }
 
-func (t *TakerTraits) Encode() (common.Hash, []byte) {
+func (t *TakerTraits) Encode() (*big.Int, []byte) {
 	var extension, interaction []byte
 	if t.extension != nil {
 		extension = t.extension.Encode()
@@ -97,5 +97,5 @@ func (t *TakerTraits) Encode() (common.Hash, []byte) {
 	}
 	args = append(append(args, extension...), interaction...)
 
-	return common.BigToHash(flags), args
+	return flags, args
 }
