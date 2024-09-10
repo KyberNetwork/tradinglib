@@ -28,6 +28,6 @@ func TestEncodeTakerTraits(t *testing.T) {
 	takerTraits.SetExtension(extension).SetAmountMode(AmountModeMaker).SetAmountThreshold(big.NewInt(1))
 
 	encodedTakerTraits, args := takerTraits.Encode()
-	assert.Equal(t, common.HexToHash("0x8000002900000000000000000000000000000000000000000000000000000001"), encodedTakerTraits)
+	assert.Equal(t, common.HexToHash("0x8000002900000000000000000000000000000000000000000000000000000001").Big(), encodedTakerTraits)
 	assert.Equal(t, hexutil.Encode(extension.Encode()), hexutil.Encode(args))
 }
