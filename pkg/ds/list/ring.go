@@ -5,7 +5,9 @@ const (
 	resizeFactor    = 1.5
 )
 
-// Ring is a circular, resizable ring style buffer.
+// Ring is a circular, resizable ring style buffer, this list optimized for keeping short history data,
+// the oldest item keep on the left, newest on the right(virtually), new data append on the right position.
+// old data can be expired and slot available for later use.
 type Ring[T any] struct {
 	items     []T
 	writeIdx  int
@@ -68,7 +70,7 @@ func (r *Ring[T]) ExpireCond(pre func(e T) bool) {
 	r.Expire(removeCount)
 }
 
-// ScanAsc iterator items from left to right direction.
+// ScanAsc iterator items from left to right direction(oldest -> newest) direction.
 func (r *Ring[T]) ScanAsc(fn func(e T) bool) {
 	for i := 0; i < r.itemCount; i++ {
 		if !fn(r.items[(i+r.tailIdx)%len(r.items)]) {
@@ -77,7 +79,7 @@ func (r *Ring[T]) ScanAsc(fn func(e T) bool) {
 	}
 }
 
-// ScanReverse iterator items from right to left direction.
+// ScanReverse iterator items from right to left direction(newest -> oldest) direction.
 func (r *Ring[T]) ScanReverse(fn func(e T) bool) {
 	for i := 0; i < r.itemCount; i++ {
 		if !fn(r.items[(r.writeIdx-i-1+len(r.items))%len(r.items)]) {
