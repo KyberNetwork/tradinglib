@@ -192,7 +192,10 @@ func (s *Client) sendBundle(
 		JSONRPC: JSONRPC2,
 		Method:  method,
 	}
-	p := new(SendBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...).SetStateBlockNumber("latest")
+	p := new(SendBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...)
+	if s.senderType == BundleSenderTypeFlashbot {
+		p = p.SetStateBlockNumber("latest")
+	}
 	if uuid != nil {
 		p.SetUUID(*uuid, s.senderType)
 	}
