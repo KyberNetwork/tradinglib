@@ -14,12 +14,14 @@ import (
 )
 
 type Simulator struct {
-	c *rpc.Client
+	c          *rpc.Client
+	gethClient *gethclient.Client
 }
 
 func NewSimulator(c *rpc.Client) *Simulator {
 	return &Simulator{
-		c: c,
+		c:          c,
+		gethClient: gethclient.New(c),
 	}
 }
 
@@ -34,6 +36,13 @@ func (s *Simulator) EstimateGasWithOverrides(
 	)
 
 	return uint64(hex), err
+}
+
+func (s *Simulator) CallContract(
+	ctx context.Context, msg ethereum.CallMsg, blockNumber *big.Int,
+	overrides *map[common.Address]gethclient.OverrideAccount,
+) ([]byte, error) {
+	return s.gethClient.CallContract(ctx, msg, blockNumber, overrides)
 }
 
 func toBlockNumArg(number *big.Int) string {
