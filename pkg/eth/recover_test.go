@@ -7,6 +7,7 @@ import (
 
 	"github.com/KyberNetwork/tradinglib/pkg/eth"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/holiman/uint256"
@@ -150,4 +151,46 @@ func createTestTransaction(txType byte, chainID *big.Int) *types.Transaction {
 	default:
 		panic("Unsupported transaction type")
 	}
+}
+
+//nolint:lll
+func TestDecodeSignature(t *testing.T) {
+	tests := []struct {
+		signature []byte
+		hasErr    bool
+		r, s, v   *big.Int
+	}{
+		{
+			signature: hexutil.MustDecode("0xc6adf06b79d063692b6fbfe37a4ff63cb6608b57d2a5ed4f910c5e0a52127f883a9210a07b2096c9ef3513076c06c7669a16ed027015d5c227b0a553585a6c521b"),
+			hasErr:    false,
+			r:         newBigInt("89865267878359441783266783130315737362575213631262826917474409305209044107144"),
+			s:         newBigInt("26492219643786928250855466561742327433737321241920838080939601843149032025170"),
+			v:         big.NewInt(27),
+		},
+		{
+			signature: hexutil.MustDecode("0xc6adf06b79d063692b6fbfe37a4ff63cb6608b57d2a5ed4f910c5e0a52127f883a9210a07b2096c9ef3513076c06c7669a16ed027015d5c227b0a553585a6c521b00"),
+			hasErr:    true,
+		},
+	}
+
+	for _, test := range tests {
+		r, s, v, err := eth.DecodeSignature(test.signature)
+		if test.hasErr {
+			require.Error(t, err)
+		} else {
+			require.NoError(t, err)
+			assert.Equal(t, test.r, r)
+			assert.Equal(t, test.s, s)
+			assert.Equal(t, test.v, v)
+		}
+	}
+}
+
+func newBigInt(num string) *big.Int {
+	bi, ok := new(big.Int).SetString(num, 10)
+	if !ok {
+		panic("invalid big integer number")
+	}
+
+	return bi
 }
