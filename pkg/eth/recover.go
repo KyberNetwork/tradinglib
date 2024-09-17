@@ -60,5 +60,5 @@ func DecodeSignature(sig []byte) (r, s, v *big.Int, err error) {
 	s = new(big.Int).SetBytes(sig[32:64])
 	v = new(big.Int).SetBytes([]byte{sig[64] + 27})
 
-	return r, v, s, nil
+	return r, s, v, nil
 }
