@@ -26,6 +26,13 @@ linters:
     - structcheck # it shows elems in stack pkg is unused, but it is used :D
     - exhaustive # using default is enough x.x
     - gochecknoinits
+    - testifylint
+    - intrange
+    - mnd
+    - canonicalheader
+    - perfsprint
+    - revive
+    - gochecknoglobals
     
 linters-settings:
   funlen:
