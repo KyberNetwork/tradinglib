@@ -25,6 +25,8 @@ linters:
     - noctx
     - structcheck # it shows elems in stack pkg is unused, but it is used :D
     - exhaustive # using default is enough x.x
+    - gochecknoinits
+    
 linters-settings:
   funlen:
     # Checks the number of lines in a function.

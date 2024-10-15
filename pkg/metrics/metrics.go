@@ -23,10 +23,11 @@ func RecordFloat64Histogram(ctx context.Context, name string, value float64) err
 }
 
 func RecordFloat64Gause(ctx context.Context, name string, value float64) error {
-	_, err := m.Float64ObservableGauge(name, metric.WithFloat64Callback(func(ctx context.Context, fo metric.Float64Observer) error {
-		fo.Observe(value)
-		return nil
-	}))
+	_, err := m.Float64ObservableGauge(name,
+		metric.WithFloat64Callback(func(ctx context.Context, fo metric.Float64Observer) error {
+			fo.Observe(value)
+			return nil
+		}))
 	return err
 }
 
