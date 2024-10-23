@@ -122,7 +122,7 @@ func (m Message) GetAllLogs() []*types.Log {
 			}
 			return results
 		}
-	case MevBlockerMempool, PublicMempool, BlinkMempool, MerkleMempool:
+	case MevBlockerMempool, PublicMempool, BlinkMempool, MerkleMempool, BlinkV3Mempool:
 		if m.InternalTx != nil {
 			return m.InternalTx.getLogs()
 		}
