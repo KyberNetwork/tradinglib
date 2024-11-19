@@ -70,6 +70,12 @@ func (t *TakerTraits) SetExtension(ext Extension) *TakerTraits {
 	return t
 }
 
+// SetInteraction sets interaction, target should implement `ITakerInteraction` interface.
+func (t *TakerTraits) SetInteraction(interaction Interaction) *TakerTraits {
+	t.interaction = &interaction
+	return t
+}
+
 func (t *TakerTraits) Encode() (*big.Int, []byte) {
 	var extension, interaction []byte
 	if t.extension != nil {
