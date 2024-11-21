@@ -5,7 +5,7 @@ import (
 )
 
 // DefaultGasAlgebra
-// nolint: gochecknoglobals
+// nolint: gochecknoglobals, gomnd
 var (
 	DefaultGasAlgebra = map[valueobject.Exchange]int64{
 		valueobject.ExchangeQuickSwapV3: 280000,
