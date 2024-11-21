@@ -124,6 +124,7 @@ import (
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/source/wombat/wombatmain"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/source/woofiv2"
 	zkera "github.com/KyberNetwork/kyberswap-dex-lib/pkg/source/zkera-finance"
+	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/swaplimit"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/valueobject"
 )
 
@@ -377,14 +378,14 @@ func PoolSimulatorFromPool(pool ksent.Pool, chainID uint) (pkgpool.IPoolSimulato
 
 func newSwapLimit(dex string, limit map[string]*big.Int) pkgpool.SwapLimit {
 	switch dex {
-	case pooltypes.PoolTypes.KyberPMM,
-		pooltypes.PoolTypes.NativeV1:
-		return kyberpmm.NewInventory(limit)
-	case pooltypes.PoolTypes.Synthetix:
-		return synthetix.NewLimits(limit)
-	case pooltypes.PoolTypes.LimitOrder:
-		return limitorder.NewInventory(limit)
+	case pooltypes.PoolTypes.Synthetix,
+		pooltypes.PoolTypes.LimitOrder,
+		pooltypes.PoolTypes.KyberPMM,
+		pooltypes.PoolTypes.NativeV1,
+		pooltypes.PoolTypes.Dexalot:
+		return swaplimit.NewInventory(dex, limit)
 	}
+
 	return nil
 }
 
