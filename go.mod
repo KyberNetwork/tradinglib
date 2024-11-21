@@ -2,8 +2,6 @@ module github.com/KyberNetwork/tradinglib
 
 go 1.22.7
 
-toolchain go1.22.9
-
 replace (
 	github.com/daoleno/uniswap-sdk-core v0.1.5 => github.com/KyberNetwork/uniswap-sdk-core v0.1.5
 	github.com/daoleno/uniswapv3-sdk v0.4.0 => github.com/KyberNetwork/uniswapv3-sdk v0.5.0
