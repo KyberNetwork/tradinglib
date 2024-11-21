@@ -130,6 +130,8 @@ import (
 
 var ErrPoolTypeNotSupported = errors.New("pool type is not supported")
 
+// PoolSimulatorFromPool
+// nolint: funlen
 func PoolSimulatorFromPool(pool ksent.Pool, chainID uint) (pkgpool.IPoolSimulator, error) {
 	var (
 		pSim pkgpool.IPoolSimulator
@@ -195,7 +197,8 @@ func PoolSimulatorFromPool(pool ksent.Pool, chainID uint) (pkgpool.IPoolSimulato
 		pSim, err = saddle.NewPoolSimulator(pool)
 	case pooltypes.PoolTypes.Velodrome:
 		pSim, err = velodromev1.NewPoolSimulator(pool)
-	case pooltypes.PoolTypes.Ramses, pooltypes.PoolTypes.MuteSwitch, pooltypes.PoolTypes.Dystopia, pooltypes.PoolTypes.Pearl:
+	case pooltypes.PoolTypes.Ramses, pooltypes.PoolTypes.MuteSwitch,
+		pooltypes.PoolTypes.Dystopia, pooltypes.PoolTypes.Pearl:
 		pSim, err = velodromelegacy.NewPoolSimulator(pool)
 	case pooltypes.PoolTypes.VelodromeV2:
 		pSim, err = velodromev2.NewPoolSimulator(pool)
@@ -391,8 +394,10 @@ func newSwapLimit(dex string, limit map[string]*big.Int) pkgpool.SwapLimit {
 
 func NewSwapLimit(limits map[string]map[string]*big.Int) map[string]pkgpool.SwapLimit {
 	var limitMap = make(map[string]pkgpool.SwapLimit, len(limits))
+
 	for dex, limit := range limits {
 		limitMap[dex] = newSwapLimit(dex, limit)
 	}
+
 	return limitMap
 }
