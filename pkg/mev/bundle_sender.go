@@ -240,7 +240,7 @@ func (s *Client) sendBundle(
 	return resp, nil
 }
 
-func (s *Client) sendPrivateRawTransaction(
+func (s *Client) SendPrivateRawTransaction(
 	ctx context.Context,
 	tx *types.Transaction,
 ) (SendPrivateRawTransactionResponse, error) {
