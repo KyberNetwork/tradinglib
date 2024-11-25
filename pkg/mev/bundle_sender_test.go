@@ -71,7 +71,7 @@ func TestSendBundle(t *testing.T) {
 
 	uuid := uuid.NewString()
 	require.NoError(t, err)
-	sender, err := mev.NewClient(client, endpoint, privateKey, false, mev.BundleSenderTypeFlashbot)
+	sender, err := mev.NewClient(client, endpoint, privateKey, mev.BundleSenderTypeFlashbot, false, false)
 	require.NoError(t, err)
 
 	resp, err := sender.SendBundle(ctx, &uuid, blockNumber+12, signedTx)
@@ -101,7 +101,7 @@ func TestCancelBeaver(t *testing.T) {
 		bundleUUID = uuid.New().String()
 	)
 
-	sender, err := mev.NewClient(client, endpoint, nil, true, mev.BundleSenderTypeBeaver)
+	sender, err := mev.NewClient(client, endpoint, nil, mev.BundleSenderTypeBeaver, true, false)
 	require.NoError(t, err)
 
 	require.NoError(t, sender.CancelBundle(ctx, bundleUUID))
@@ -145,8 +145,8 @@ func Test_SimulateBundle(t *testing.T) {
 	}
 
 	client, err := mev.NewClient(http.DefaultClient,
-		simulationEndpoint, privateKey, false,
-		mev.BundleSenderTypeFlashbot)
+		simulationEndpoint, privateKey,
+		mev.BundleSenderTypeFlashbot, false, false)
 	require.NoError(t, err)
 
 	simulationResponse, err := client.SimulateBundle(context.Background(), uint64(blockNumber), txs...)
@@ -288,8 +288,8 @@ func TestClient_GetBundleStats(t *testing.T) {
 	t.Log(res.BundleHash.String(), "bundleHash")
 
 	client, err := mev.NewClient(http.DefaultClient,
-		SimulationEndpoint, fbSigningKey, false,
-		mev.BundleSenderTypeFlashbot)
+		SimulationEndpoint, fbSigningKey,
+		mev.BundleSenderTypeFlashbot, false, false)
 	require.NoError(t, err)
 	// Get bundle stats
 	stats, err := client.GetBundleStats(context.Background(), blockNumber+1, res.BundleHash)

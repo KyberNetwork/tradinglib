@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum"
@@ -47,6 +48,7 @@ const (
 	EthCallBundleMethod          = "eth_callBundle"
 	ETHCancelBundleMethod        = "eth_cancelBundle"
 	ETHEstimateGasBundleMethod   = "eth_estimateGasBundle"
+	ETHSendPrivateRawTransaction = "eth_sendPrivateRawTransaction"
 	MevSendBundleMethod          = "mev_sendBundle"
 	MaxBlockFromTarget           = 3
 )
@@ -183,17 +185,24 @@ type SendBundleResponse struct {
 	Jsonrpc string           `json:"jsonrpc,omitempty"`
 	ID      int              `json:"id,omitempty"`
 	Result  SendBundleResult `json:"result,omitempty"`
-	Error   SendBundleError  `json:"error,omitempty"`
+	Error   ErrorResponse    `json:"error,omitempty"`
+}
+
+type SendPrivateRawTransactionResponse struct {
+	Jsonrpc string        `json:"jsonrpc"`
+	ID      int           `json:"id"`
+	Result  string        `json:"result"`
+	Error   ErrorResponse `json:"error,omitempty"`
 }
 
 type MerkleSendBundleResponse struct {
-	Jsonrpc string          `json:"jsonrpc,omitempty"`
-	ID      int             `json:"id,omitempty"`
-	Result  string          `json:"result,omitempty"`
-	Error   SendBundleError `json:"error,omitempty"`
+	Jsonrpc string        `json:"jsonrpc,omitempty"`
+	ID      int           `json:"id,omitempty"`
+	Result  string        `json:"result,omitempty"`
+	Error   ErrorResponse `json:"error,omitempty"`
 }
 
-type SendBundleError struct {
+type ErrorResponse struct {
 	Code     int    `json:"code,omitempty"`
 	Messange string `json:"message,omitempty"`
 }
@@ -216,8 +225,17 @@ type SendBundleResult struct {
 }
 
 func (r *SendBundleResult) UnmarshalJSON(b []byte) error {
-	if str := string(b); (str == "\"nil\"" || str == "\"null\"") && r != nil {
-		*r = SendBundleResult{}
+	if str := string(b); r != nil {
+		switch {
+		case (str == "\"nil\"" || str == "\"null\""):
+			*r = SendBundleResult{}
+
+		// handle Blink sendBundle
+		case strings.HasPrefix(str, "\"0x"):
+			*r = SendBundleResult{
+				BundleHash: str,
+			}
+		}
 		return nil
 	}
 
@@ -240,10 +258,10 @@ type SendBundleResults struct {
 }
 
 type FlashbotCancelBundleResponse struct {
-	Jsonrpc string          `json:"jsonrpc,omitempty"`
-	ID      int             `json:"id,omitempty"`
-	Result  []string        `json:"result,omitempty"`
-	Error   SendBundleError `json:"error,omitempty"`
+	Jsonrpc string        `json:"jsonrpc,omitempty"`
+	ID      int           `json:"id,omitempty"`
+	Result  []string      `json:"result,omitempty"`
+	Error   ErrorResponse `json:"error,omitempty"`
 }
 
 func (resp FlashbotCancelBundleResponse) ToSendBundleResponse() SendBundleResponse {
@@ -260,10 +278,10 @@ func (resp FlashbotCancelBundleResponse) ToSendBundleResponse() SendBundleRespon
 }
 
 type TitanCancelBundleResponse struct {
-	Jsonrpc string          `json:"jsonrpc,omitempty"`
-	ID      int             `json:"id,omitempty"`
-	Result  int             `json:"result,omitempty"`
-	Error   SendBundleError `json:"error,omitempty"`
+	Jsonrpc string        `json:"jsonrpc,omitempty"`
+	ID      int           `json:"id,omitempty"`
+	Result  int           `json:"result,omitempty"`
+	Error   ErrorResponse `json:"error,omitempty"`
 }
 
 func ToCallArg(msg ethereum.CallMsg) interface{} {

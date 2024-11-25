@@ -13,6 +13,7 @@ func TestUnmarshalSendBundleResponse1(t *testing.T) {
 		"{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"nil\"}",
 		"{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{}}",
 		"{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"bundleHash\": \"0x0\"}}",
+		"{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"0x1ae69e3198840607d9946c52b0564624ab421d0678402e8696d08f9e5bc93a01\"}",
 	}
 
 	for _, raw := range raws {
