@@ -46,7 +46,7 @@ func (b BackrunPublicClient) SendBackrunBundle(
 	_ []string,
 	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
-	req := SendBundleRequest{
+	req := SendRequest{
 		ID:      SendBundleID,
 		JSONRPC: JSONRPC2,
 		Method:  ETHSendBundleMethod,

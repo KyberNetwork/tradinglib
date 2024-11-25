@@ -18,11 +18,12 @@ import (
 // Client https://beaverbuild.org/docs.html; https://rsync-builder.xyz/docs;
 // https://docs.flashbots.net/flashbots-auction/advanced/rpc-endpoint#eth_sendbundle
 type Client struct {
-	c                  *http.Client
-	endpoint           string
-	flashbotKey        *ecdsa.PrivateKey
-	cancelBySendBundle bool
-	senderType         BundleSenderType
+	c                    *http.Client
+	endpoint             string
+	flashbotKey          *ecdsa.PrivateKey
+	cancelBySendBundle   bool
+	senderType           BundleSenderType
+	enableSendPrivateRaw bool
 }
 
 // NewClient set the flashbotKey to nil will skip adding the signature header.
@@ -30,15 +31,17 @@ func NewClient(
 	c *http.Client,
 	endpoint string,
 	flashbotKey *ecdsa.PrivateKey,
-	cancelBySendBundle bool,
 	senderType BundleSenderType,
+	cancelBySendBundle bool,
+	enableSendPrivateRaw bool,
 ) (*Client, error) {
 	return &Client{
-		c:                  c,
-		endpoint:           endpoint,
-		flashbotKey:        flashbotKey,
-		cancelBySendBundle: cancelBySendBundle,
-		senderType:         senderType,
+		c:                    c,
+		endpoint:             endpoint,
+		flashbotKey:          flashbotKey,
+		cancelBySendBundle:   cancelBySendBundle,
+		senderType:           senderType,
+		enableSendPrivateRaw: enableSendPrivateRaw,
 	}, nil
 }
 
@@ -80,7 +83,7 @@ func (s *Client) CancelBundle(
 	p := CancelBundleParams{
 		ReplacementUUID: bundleUUID,
 	}
-	req := SendBundleRequest{
+	req := SendRequest{
 		ID:      SendBundleID,
 		JSONRPC: JSONRPC2,
 		Method:  ETHCancelBundleMethod,
@@ -106,7 +109,7 @@ func (s *Client) CancelBundle(
 	}
 
 	// do
-	var errResp SendBundleError
+	var errResp ErrorResponse
 	switch s.senderType {
 	case BundleSenderTypeFlashbot:
 		resp, err := doRequest[FlashbotCancelBundleResponse](s.c, httpReq, headers...)
@@ -187,7 +190,11 @@ func (s *Client) sendBundle(
 	blockNumber uint64,
 	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
-	req := SendBundleRequest{
+	if !s.enableSendPrivateRaw {
+		return SendBundleResponse{}, nil
+	}
+
+	req := SendRequest{
 		ID:      SendBundleID,
 		JSONRPC: JSONRPC2,
 		Method:  method,
@@ -233,6 +240,49 @@ func (s *Client) sendBundle(
 	return resp, nil
 }
 
+func (s *Client) SendPrivateRawTransaction(
+	ctx context.Context,
+	tx *types.Transaction,
+) (SendPrivateRawTransactionResponse, error) {
+	req := SendRequest{
+		ID:      SendBundleID,
+		JSONRPC: JSONRPC2,
+		Method:  ETHSendPrivateRawTransaction,
+		Params:  []any{"0x" + txToRlp(tx)},
+	}
+
+	reqBody, err := json.Marshal(req)
+	if err != nil {
+		return SendPrivateRawTransactionResponse{}, fmt.Errorf("marshal json error: %w", err)
+	}
+
+	var headers [][2]string
+	if s.flashbotKey != nil {
+		signature, err := requestSignature(s.flashbotKey, reqBody)
+		if err != nil {
+			return SendPrivateRawTransactionResponse{}, fmt.Errorf("sign flashbot request error: %w", err)
+		}
+		headers = append(headers, [2]string{"X-Flashbots-Signature", signature})
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, s.endpoint, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return SendPrivateRawTransactionResponse{}, fmt.Errorf("new http request error: %w", err)
+	}
+
+	resp, err := doRequest[SendPrivateRawTransactionResponse](s.c, httpReq, headers...)
+	if err != nil {
+		return SendPrivateRawTransactionResponse{}, err
+	}
+
+	if len(resp.Error.Messange) != 0 {
+		return SendPrivateRawTransactionResponse{}, fmt.Errorf("response error, code: [%d], message: [%s]",
+			resp.Error.Code, resp.Error.Messange)
+	}
+
+	return resp, nil
+}
+
 func requestSignature(key *ecdsa.PrivateKey, body []byte) (string, error) {
 	hashed := crypto.Keccak256Hash(body).Hex()
 	signature, err := crypto.Sign(accounts.TextHash([]byte(hashed)), key)
@@ -265,7 +315,7 @@ func (b *GetBundleStatsParams) SetBundleHash(bundleHash common.Hash) *GetBundleS
 	return b
 }
 
-type SendBundleRequest struct {
+type SendRequest struct {
 	ID      int    `json:"id"`
 	JSONRPC string `json:"jsonrpc"`
 	Method  string `json:"method"`
