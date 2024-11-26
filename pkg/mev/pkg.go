@@ -233,14 +233,15 @@ func (r *SendBundleResult) UnmarshalJSON(b []byte) error {
 		switch {
 		case (str == "\"nil\"" || str == "\"null\""):
 			*r = SendBundleResult{}
+			return nil
 
 		// handle Blink sendBundle
 		case strings.HasPrefix(str, "\"0x"):
 			*r = SendBundleResult{
 				BundleHash: str,
 			}
+			return nil
 		}
-		return nil
 	}
 
 	// Otherwise, unmarshal the data as usual
