@@ -190,10 +190,6 @@ func (s *Client) sendBundle(
 	blockNumber uint64,
 	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
-	if !s.enableSendPrivateRaw {
-		return SendBundleResponse{}, nil
-	}
-
 	req := SendRequest{
 		ID:      SendBundleID,
 		JSONRPC: JSONRPC2,
@@ -244,6 +240,10 @@ func (s *Client) SendPrivateRawTransaction(
 	ctx context.Context,
 	tx *types.Transaction,
 ) (SendPrivateRawTransactionResponse, error) {
+	if !s.enableSendPrivateRaw {
+		return SendPrivateRawTransactionResponse{}, nil
+	}
+
 	req := SendRequest{
 		ID:      SendBundleID,
 		JSONRPC: JSONRPC2,

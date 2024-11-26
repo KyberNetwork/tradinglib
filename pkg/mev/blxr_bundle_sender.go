@@ -123,6 +123,13 @@ func (s *BloxrouteClient) SendBundle(
 	return SendBundleResponse(resp), nil
 }
 
+func (s *BloxrouteClient) SendPrivateRawTransaction(
+	ctx context.Context,
+	tx *types.Transaction,
+) (SendPrivateRawTransactionResponse, error) {
+	return SendPrivateRawTransactionResponse{}, nil
+}
+
 func (s *BloxrouteClient) CancelBundle(
 	ctx context.Context, bundleUUID string,
 ) error {

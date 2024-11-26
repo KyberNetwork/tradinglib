@@ -82,6 +82,10 @@ type IBundleSender interface {
 	CancelBundle(
 		ctx context.Context, bundleUUID string,
 	) error
+	SendPrivateRawTransaction(
+		ctx context.Context,
+		tx *types.Transaction,
+	) (SendPrivateRawTransactionResponse, error)
 	SimulateBundle(ctx context.Context, blockNumber uint64, txs ...*types.Transaction) (SendBundleResponse, error)
 	GetSenderType() BundleSenderType
 	GetBundleStats(
