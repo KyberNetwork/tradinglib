@@ -45,20 +45,6 @@ func (s *Simulator) CallContract(
 	return s.gethClient.CallContract(ctx, msg, blockNumber, overrides)
 }
 
-func (s *Simulator) EstimateGasWithBlockOverrides(
-	ctx context.Context, msg ethereum.CallMsg, blockNumber *big.Int,
-	overrides *map[common.Address]gethclient.OverrideAccount,
-	blockOverrides gethclient.BlockOverrides,
-) (uint64, error) {
-	var gas hexutil.Uint64
-	err := s.c.CallContext(
-		ctx, &gas, "eth_estimateGas", mev.ToCallArg(msg),
-		toBlockNumArg(blockNumber), overrides, blockOverrides,
-	)
-
-	return uint64(gas), err
-}
-
 func toBlockNumArg(number *big.Int) string {
 	if number == nil {
 		return "latest"
