@@ -29,6 +29,7 @@ import (
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/ethena/susde"
 	ethervista "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/ether-vista"
 	etherfieeth "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/etherfi/eeth"
+	etherfivampire "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/etherfi/vampire"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/etherfi/weeth"
 	dexT1 "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/fluid/dex-t1"
 	vaultT1 "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/fluid/vault-t1"
@@ -130,7 +131,7 @@ import (
 
 var ErrPoolTypeNotSupported = errors.New("pool type is not supported")
 
-// PoolSimulatorFromPool
+// PoolSimulatorFromPool init pool sim
 // nolint: funlen, gocyclo, cyclop, maintidx
 func PoolSimulatorFromPool(pool ksent.Pool, chainID uint) (pkgpool.IPoolSimulator, error) {
 	var (
@@ -305,7 +306,7 @@ func PoolSimulatorFromPool(pool ksent.Pool, chainID uint) (pkgpool.IPoolSimulato
 	case pooltypes.PoolTypes.SwaapV2:
 		pSim, err = swaapv2.NewPoolSimulator(pool)
 	case pooltypes.PoolTypes.EtherVista:
-		pSim, err = ethervista.NewPoolSimulator(pool)
+		pSim, err = ethervista.NewPoolSimulator(pool, valueobject.ChainID(chainID))
 	case pooltypes.PoolTypes.LitePSM:
 		pSim, err = litepsm.NewPoolSimulator(pool)
 	case pooltypes.PoolTypes.Integral:
@@ -372,6 +373,8 @@ func PoolSimulatorFromPool(pool ksent.Pool, chainID uint) (pkgpool.IPoolSimulato
 		pSim, err = sfrxeth.NewPoolSimulator(pool)
 	case pooltypes.PoolTypes.SfrxETHConvertor:
 		pSim, err = sfrxeth_convertor.NewPoolSimulator(pool)
+	case pooltypes.PoolTypes.EtherfiVampire:
+		pSim, err = etherfivampire.NewPoolSimulator(pool)
 	default:
 		err = fmt.Errorf("%w: %s %s", ErrPoolTypeNotSupported, pool.Type, pool.Address)
 	}
