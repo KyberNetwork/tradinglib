@@ -9,7 +9,7 @@ replace (
 
 require (
 	github.com/KyberNetwork/kyber-trace-go v0.1.1
-	github.com/KyberNetwork/kyberswap-dex-lib v0.80.8
+	github.com/KyberNetwork/kyberswap-dex-lib v0.81.1
 	github.com/duoxehyon/mev-share-go v0.3.0
 	github.com/ethereum/go-ethereum v1.13.14
 	github.com/flashbots/mev-share-node v0.0.0-20230926173018-7862d944990a
