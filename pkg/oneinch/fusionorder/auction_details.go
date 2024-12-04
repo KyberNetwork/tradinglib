@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"math"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
-	"github.com/ethereum/go-ethereum/common/math"
 )
 
 const (
