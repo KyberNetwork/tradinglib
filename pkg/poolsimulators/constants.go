@@ -16,4 +16,13 @@ var (
 		valueobject.ExchangeZyberSwapV3: 280000,
 		valueobject.ExchangeThenaFusion: 280000,
 	}
+
+	DefaultGasAlgebraIntegral = map[valueobject.Exchange]int64{
+		valueobject.ExchangeHorizonIntegral: 280000,
+		valueobject.ExchangeSwapsicle:       280000,
+		valueobject.ExchangeScribe:          280000,
+		valueobject.ExchangeSilverSwap:      280000,
+		valueobject.ExchangeFenix:           280000,
+		valueobject.ExchangeBlade:           280000,
+	}
 )
