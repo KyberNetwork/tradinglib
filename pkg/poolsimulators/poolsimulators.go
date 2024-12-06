@@ -6,6 +6,7 @@ import (
 	"math/big"
 
 	ksent "github.com/KyberNetwork/kyberswap-dex-lib/pkg/entity"
+	algebraintegral "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/algebra/integral"
 	balancerv1 "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/balancer-v1"
 	balancerv2composablestable "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/balancer-v2/composable-stable"
 	balancerv2stable "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/balancer-v2/stable"
@@ -375,6 +376,9 @@ func PoolSimulatorFromPool(pool ksent.Pool, chainID uint) (pkgpool.IPoolSimulato
 		pSim, err = sfrxeth_convertor.NewPoolSimulator(pool)
 	case pooltypes.PoolTypes.EtherfiVampire:
 		pSim, err = etherfivampire.NewPoolSimulator(pool)
+	case pooltypes.PoolTypes.AlgebraIntegral:
+		defaultGas := DefaultGasAlgebraIntegral[valueobject.Exchange(pool.Exchange)]
+		pSim, err = algebraintegral.NewPoolSimulator(pool, defaultGas)
 	default:
 		err = fmt.Errorf("%w: %s %s", ErrPoolTypeNotSupported, pool.Type, pool.Address)
 	}
