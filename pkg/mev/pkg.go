@@ -19,6 +19,7 @@ import (
 	"github.com/flashbots/mev-share-node/mevshare"
 )
 
+//go:generate go run -mod=vendor github.com/dmarkham/enumer -type=BundleSenderType -linecomment
 type BundleSenderType int
 
 const (
@@ -34,53 +35,6 @@ const (
 	BundleSenderTypeBlink
 	BundleSenderTypeMerkle
 )
-
-func (b BundleSenderType) String() string {
-	return [...]string{
-		"unknown",        // 0
-		"flashbot",       // 1
-		"beaver",         // 2
-		"rsync",          // 3
-		"titan",          // 4
-		"bloxroute",      // 5
-		"all",            // 6
-		"mevshare",       // 7
-		"backrun_public", // 8
-		"mev_blocker",    // 9
-		"blink",          // 10
-		"merkle",         // 11
-	}[b]
-}
-
-// BundleSenderTypeFromString Convert string back to BundleSenderType
-func BundleSenderTypeFromString(s string) BundleSenderType {
-	switch s {
-	case "flashbot":
-		return BundleSenderTypeFlashbot
-	case "beaver":
-		return BundleSenderTypeBeaver
-	case "rsync":
-		return BundleSenderTypeRsync
-	case "titan":
-		return BundleSenderTypeTitan
-	case "bloxroute":
-		return BundleSenderTypeBloxroute
-	case "all":
-		return BundleSenderTypeAll
-	case "mevshare":
-		return BundleSenderTypeMevShare
-	case "backrun_public":
-		return BundleSenderTypeBackrunPublic
-	case "mev_blocker":
-		return BundleSenderTypeMevBlocker
-	case "blink":
-		return BundleSenderTypeBlink
-	case "merkle":
-		return BundleSenderTypeMerkle
-	default:
-		return BundleSenderType(0) // unknown
-	}
-}
 
 const (
 	JSONRPC2                        = "2.0"
