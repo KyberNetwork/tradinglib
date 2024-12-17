@@ -19,6 +19,7 @@ import (
 	"github.com/flashbots/mev-share-node/mevshare"
 )
 
+//go:generate go run -mod=vendor github.com/dmarkham/enumer -type=BundleSenderType -linecomment
 type BundleSenderType int
 
 const (
