@@ -13,4 +13,5 @@ type ExecuteBundle struct {
 	BlockNumber uint64         `db:"block_number"`
 	SubmitAt    time.Time      `db:"submit_at"`
 	BuilderName string         `db:"builder_name"`
+	Sender      string         `db:"sender"`
 }
