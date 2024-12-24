@@ -409,7 +409,9 @@ func (p *SendBundleParams) SetBlockNumber(block uint64) *SendBundleParams {
 }
 
 func (p *SendBundleParams) SetUUID(uuid string, senderType BundleSenderType) *SendBundleParams {
-	if senderType == BundleSenderTypeBeaver {
+	if senderType == BundleSenderTypeBeaver ||
+		senderType == BundleSenderTypeLoki ||
+		senderType == BundleSenderTypeJetbldr {
 		p.UUID = uuid
 		return p
 	}
