@@ -22,3 +22,56 @@ func TestUnmarshalSendBundleResponse1(t *testing.T) {
 		t.Logf("%+v\n", resp)
 	}
 }
+
+func TestCleanBundleHash(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "hash with escaped quotes",
+			input:    "\"0xf72e9e8afd22af2904857e03575eb6f125cabc0d18fe7fb89ee1f8c6861687ae\"",
+			expected: "0xf72e9e8afd22af2904857e03575eb6f125cabc0d18fe7fb89ee1f8c6861687ae",
+		},
+		{
+			name:     "hash with regular quotes",
+			input:    "\"0xabc123\"",
+			expected: "0xabc123",
+		},
+		{
+			name:     "hash without quotes",
+			input:    "0xdef456",
+			expected: "0xdef456",
+		},
+		{
+			name:     "empty string",
+			input:    "",
+			expected: "",
+		},
+		{
+			name:     "only quotes",
+			input:    "\"\"",
+			expected: "",
+		},
+		{
+			name:     "multiple escaped quotes",
+			input:    "\"\\\"0xabc123\\\"\"",
+			expected: "0xabc123",
+		},
+		{
+			name:     "mixed quotes",
+			input:    "\\\"0xabc123\"",
+			expected: "0xabc123",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := mev.CleanBundleHash(tt.input)
+			if got != tt.expected {
+				t.Errorf("cleanBundleHash() = %v, want %v", got, tt.expected)
+			}
+		})
+	}
+}

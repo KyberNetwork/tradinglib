@@ -233,6 +233,18 @@ func (s *Client) sendBundle(
 			resp.Error.Code, resp.Error.Messange)
 	}
 
+	// for some case, blink builder resp contains "" wrap around the bundle hash like
+	/*
+		2024-12-24T03:58:38Z	info	operator/broadcaster.go:465	send bundle (multiple)
+		success	{"RequestID": "ctl32rfdqqbc73cb4m80", "id": "builder-blink",
+		"tx": ["0xd629cbb2b4b741f6e71f8daafdbe1d484c5b53020b9cca9a407e0a7cb65f394c"],
+		"uuid": null, "block": 21469801, "response":
+		{"jsonrpc":"2.0","id":1,"result":{"bundleHash":"\"0xf72e9e8afd22af2904857e03575eb6f125cabc0d18fe7fb89ee1f8c6861687ae\""},"error":{}},
+		"time": "661.127521ms", "start": "2024-12-24 03:58:37.475914455 +0000 UTC"}
+
+		so we need to strip before save to db
+	*/
+	resp.Result.BundleHash = CleanBundleHash(resp.Result.BundleHash)
 	return resp, nil
 }
 

@@ -312,3 +312,13 @@ func ToCallArg(msg ethereum.CallMsg) interface{} {
 	}
 	return arg
 }
+
+func CleanBundleHash(hash string) string {
+	// First remove escaped quotes if they exist
+	hash = strings.ReplaceAll(hash, "\\\"", "")
+
+	// Then remove any remaining regular quotes
+	hash = strings.Trim(hash, "\"")
+
+	return hash
+}
