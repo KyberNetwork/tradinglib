@@ -34,6 +34,9 @@ const (
 	BundleSenderTypeMevBlocker
 	BundleSenderTypeBlink
 	BundleSenderTypeMerkle
+	BundleSenderTypeJetbldr
+	BundleSenderTypePenguin
+	BundleSenderTypeLoki
 )
 
 const (
@@ -308,4 +311,14 @@ func ToCallArg(msg ethereum.CallMsg) interface{} {
 		arg["gasPrice"] = (*hexutil.Big)(msg.GasPrice)
 	}
 	return arg
+}
+
+func CleanBundleHash(hash string) string {
+	// First remove escaped quotes if they exist
+	hash = strings.ReplaceAll(hash, "\\\"", "")
+
+	// Then remove any remaining regular quotes
+	hash = strings.Trim(hash, "\"")
+
+	return hash
 }
