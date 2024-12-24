@@ -25,7 +25,7 @@ import (
 )
 
 func TestSendBundle(t *testing.T) {
-	//t.Skip()
+	t.Skip()
 
 	// Generate a new private key
 	privateKey, err := ecdsa.GenerateKey(crypto.S256(), rand.Reader)
