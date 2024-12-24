@@ -34,6 +34,9 @@ const (
 	BundleSenderTypeMevBlocker
 	BundleSenderTypeBlink
 	BundleSenderTypeMerkle
+	BundleSenderTypeJetbldr
+	BundleSenderTypePenguin
+	BundleSenderTypeLoki
 )
 
 const (

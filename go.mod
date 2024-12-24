@@ -17,6 +17,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/holiman/uint256 v1.3.1
 	github.com/jmoiron/sqlx v1.3.5
+	github.com/lib/pq v1.10.9
 	github.com/shopspring/decimal v1.4.0
 	github.com/sourcegraph/conc v0.3.0
 	github.com/stretchr/testify v1.9.0
@@ -66,7 +67,6 @@ require (
 	github.com/holiman/bloomfilter/v2 v2.0.3 // indirect
 	github.com/huin/goupnp v1.3.0 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect
-	github.com/lib/pq v1.10.9 // indirect
 	github.com/machinebox/graphql v0.2.2 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/metachris/flashbotsrpc v0.6.0 // indirect

@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-const _BundleSenderTypeName = "BundleSenderTypeFlashbotBundleSenderTypeBeaverBundleSenderTypeRsyncBundleSenderTypeTitanBundleSenderTypeBloxrouteBundleSenderTypeAllBundleSenderTypeMevShareBundleSenderTypeBackrunPublicBundleSenderTypeMevBlockerBundleSenderTypeBlinkBundleSenderTypeMerkle"
+const _BundleSenderTypeName = "BundleSenderTypeFlashbotBundleSenderTypeBeaverBundleSenderTypeRsyncBundleSenderTypeTitanBundleSenderTypeBloxrouteBundleSenderTypeAllBundleSenderTypeMevShareBundleSenderTypeBackrunPublicBundleSenderTypeMevBlockerBundleSenderTypeBlinkBundleSenderTypeMerkleBundleSenderTypeJetbldrBundleSenderTypePenguinBundleSenderTypeLoki"
 
-var _BundleSenderTypeIndex = [...]uint8{0, 24, 46, 67, 88, 113, 132, 156, 185, 211, 232, 254}
+var _BundleSenderTypeIndex = [...]uint16{0, 24, 46, 67, 88, 113, 132, 156, 185, 211, 232, 254, 277, 300, 320}
 
-const _BundleSenderTypeLowerName = "bundlesendertypeflashbotbundlesendertypebeaverbundlesendertypersyncbundlesendertypetitanbundlesendertypebloxroutebundlesendertypeallbundlesendertypemevsharebundlesendertypebackrunpublicbundlesendertypemevblockerbundlesendertypeblinkbundlesendertypemerkle"
+const _BundleSenderTypeLowerName = "bundlesendertypeflashbotbundlesendertypebeaverbundlesendertypersyncbundlesendertypetitanbundlesendertypebloxroutebundlesendertypeallbundlesendertypemevsharebundlesendertypebackrunpublicbundlesendertypemevblockerbundlesendertypeblinkbundlesendertypemerklebundlesendertypejetbldrbundlesendertypepenguinbundlesendertypeloki"
 
 func (i BundleSenderType) String() string {
 	i -= 1
@@ -36,9 +36,12 @@ func _BundleSenderTypeNoOp() {
 	_ = x[BundleSenderTypeMevBlocker-(9)]
 	_ = x[BundleSenderTypeBlink-(10)]
 	_ = x[BundleSenderTypeMerkle-(11)]
+	_ = x[BundleSenderTypeJetbldr-(12)]
+	_ = x[BundleSenderTypePenguin-(13)]
+	_ = x[BundleSenderTypeLoki-(14)]
 }
 
-var _BundleSenderTypeValues = []BundleSenderType{BundleSenderTypeFlashbot, BundleSenderTypeBeaver, BundleSenderTypeRsync, BundleSenderTypeTitan, BundleSenderTypeBloxroute, BundleSenderTypeAll, BundleSenderTypeMevShare, BundleSenderTypeBackrunPublic, BundleSenderTypeMevBlocker, BundleSenderTypeBlink, BundleSenderTypeMerkle}
+var _BundleSenderTypeValues = []BundleSenderType{BundleSenderTypeFlashbot, BundleSenderTypeBeaver, BundleSenderTypeRsync, BundleSenderTypeTitan, BundleSenderTypeBloxroute, BundleSenderTypeAll, BundleSenderTypeMevShare, BundleSenderTypeBackrunPublic, BundleSenderTypeMevBlocker, BundleSenderTypeBlink, BundleSenderTypeMerkle, BundleSenderTypeJetbldr, BundleSenderTypePenguin, BundleSenderTypeLoki}
 
 var _BundleSenderTypeNameToValueMap = map[string]BundleSenderType{
 	_BundleSenderTypeName[0:24]:         BundleSenderTypeFlashbot,
@@ -63,6 +66,12 @@ var _BundleSenderTypeNameToValueMap = map[string]BundleSenderType{
 	_BundleSenderTypeLowerName[211:232]: BundleSenderTypeBlink,
 	_BundleSenderTypeName[232:254]:      BundleSenderTypeMerkle,
 	_BundleSenderTypeLowerName[232:254]: BundleSenderTypeMerkle,
+	_BundleSenderTypeName[254:277]:      BundleSenderTypeJetbldr,
+	_BundleSenderTypeLowerName[254:277]: BundleSenderTypeJetbldr,
+	_BundleSenderTypeName[277:300]:      BundleSenderTypePenguin,
+	_BundleSenderTypeLowerName[277:300]: BundleSenderTypePenguin,
+	_BundleSenderTypeName[300:320]:      BundleSenderTypeLoki,
+	_BundleSenderTypeLowerName[300:320]: BundleSenderTypeLoki,
 }
 
 var _BundleSenderTypeNames = []string{
@@ -77,6 +86,9 @@ var _BundleSenderTypeNames = []string{
 	_BundleSenderTypeName[185:211],
 	_BundleSenderTypeName[211:232],
 	_BundleSenderTypeName[232:254],
+	_BundleSenderTypeName[254:277],
+	_BundleSenderTypeName[277:300],
+	_BundleSenderTypeName[300:320],
 }
 
 // BundleSenderTypeString retrieves an enum value from the enum constants string name.
