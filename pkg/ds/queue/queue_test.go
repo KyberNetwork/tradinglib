@@ -49,7 +49,7 @@ func TestPopBack(t *testing.T) {
 		assert.Equal(t, testVal, v)
 
 		testVals = testVals[:len(testVals)-1]
-		assert.Equal(t, len(testVals), int((q.Size())))
+		assert.EqualValues(t, len(testVals), q.Size())
 		if len(testVals) == 0 {
 			assert.Equal(t, 0, len(q.List()))
 			break
@@ -76,7 +76,7 @@ func TestPopFront(t *testing.T) {
 		assert.Equal(t, testVal, v)
 
 		testVals = testVals[1:]
-		assert.Equal(t, len(testVals), int((q.Size())))
+		assert.Equal(t, len(testVals), int(q.Size())) // nolint:gosec
 		if len(testVals) == 0 {
 			assert.Equal(t, 0, len(q.List()))
 			break
@@ -104,13 +104,13 @@ func TestQueue(t *testing.T) {
 	q.PushFront(5)
 	assert.Equal(t, []int{5, 2, 1, 3, 4}, q.List())
 
-	assert.Equal(t, 5, int(q.Size()))
+	assert.Equal(t, 5, int(q.Size())) // nolint:gosec
 
 	v, ok := q.PopBack()
 	assert.True(t, ok)
 	assert.Equal(t, 4, v)
 	assert.Equal(t, []int{5, 2, 1, 3}, q.List())
-	assert.Equal(t, 4, int(q.Size()))
+	assert.EqualValues(t, 4, q.Size())
 	v, ok = q.PeekFront()
 	assert.True(t, ok)
 	assert.Equal(t, 5, v)
@@ -122,7 +122,7 @@ func TestQueue(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, 5, v)
 	assert.Equal(t, []int{2, 1, 3}, q.List())
-	assert.Equal(t, 3, int(q.Size()))
+	assert.EqualValues(t, 3, q.Size())
 	v, ok = q.PeekFront()
 	assert.True(t, ok)
 	assert.Equal(t, 2, v)

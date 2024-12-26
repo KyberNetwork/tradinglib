@@ -44,9 +44,11 @@ import (
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/integral"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/kelp/rseth"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/litepsm"
+	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/lo1inch"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/maker/savingsdai"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/mantle/meth"
 	mkrsky "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/mkr-sky"
+	mxtrading "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/mx-trading"
 	nativev1 "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/native-v1"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/nomiswap/nomiswapstable"
 	ondo_usdy "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/ondo-usdy"
@@ -66,6 +68,7 @@ import (
 	velocorev2wombatstable "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/velocore-v2/wombat-stable"
 	velodromev1 "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/velodrome-v1"
 	velodromev2 "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/velodrome-v2"
+	virtualfun "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/virtual-fun"
 	woofiv21 "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/woofi-v21"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/pooltypes"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/source/algebrav1"
@@ -379,6 +382,12 @@ func PoolSimulatorFromPool(pool ksent.Pool, chainID uint) (pkgpool.IPoolSimulato
 	case pooltypes.PoolTypes.AlgebraIntegral:
 		defaultGas := DefaultGasAlgebraIntegral[valueobject.Exchange(pool.Exchange)]
 		pSim, err = algebraintegral.NewPoolSimulator(pool, defaultGas)
+	case pooltypes.PoolTypes.MxTrading:
+		pSim, err = mxtrading.NewPoolSimulator(pool)
+	case pooltypes.PoolTypes.LO1inch:
+		pSim, err = lo1inch.NewPoolSimulator(pool)
+	case pooltypes.PoolTypes.VirtualFun:
+		pSim, err = virtualfun.NewPoolSimulator(pool)
 	default:
 		err = fmt.Errorf("%w: %s %s", ErrPoolTypeNotSupported, pool.Type, pool.Address)
 	}

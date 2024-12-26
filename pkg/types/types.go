@@ -27,7 +27,7 @@ func (e *APIError) Error() string {
 }
 
 // BigInt is helper use to marshal,unmarhsal bigInt as json string (with double quote).
-type BigInt big.Int
+type BigInt big.Int // nolint: recvcheck
 
 func (b BigInt) String() string {
 	return b.Int().String()
@@ -60,10 +60,10 @@ func BigIntFromStd(b *big.Int) *BigInt {
 }
 
 // ZxBytes is alias of ethereum Bytes, encode/decode with 0x prefix.
-type ZxBytes = hexutil.Bytes
+type ZxBytes = hexutil.Bytes // nolint: recvcheck
 
 // Bytes is a helper to unmarshal hex encode string (without 0x prefix, ethereum common type require 0x).
-type Bytes []byte
+type Bytes []byte // nolint: recvcheck
 
 func (b Bytes) MarshalJSON() ([]byte, error) {
 	return strconv.AppendQuote(nil, hex.EncodeToString(b)), nil
@@ -99,7 +99,7 @@ func BytesFromRaw(b []byte) Bytes {
 }
 
 // Duration is a helper type to unmarshal json duration string.
-type Duration time.Duration
+type Duration time.Duration // nolint: recvcheck
 
 func (d Duration) MarshalJSON() ([]byte, error) {
 	return []byte(strconv.Quote(time.Duration(d).String())), nil

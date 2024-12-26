@@ -1,7 +1,7 @@
 package chains
 
 //go:generate enumer -type=ChainID -linecomment -json=true -sql=true -yaml
-type ChainID int64
+type ChainID int64 // nolint: recvcheck
 
 const (
 	Ethereum    ChainID = 1          // ethereum

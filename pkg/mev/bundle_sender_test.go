@@ -150,7 +150,7 @@ func Test_SimulateBundle(t *testing.T) {
 		mev.BundleSenderTypeFlashbot, false, false)
 	require.NoError(t, err)
 
-	simulationResponse, err := client.SimulateBundle(context.Background(), uint64(blockNumber), txs...)
+	simulationResponse, err := client.SimulateBundle(context.Background(), uint64(blockNumber), txs...) // nolint:gosec
 	require.NoError(t, err)
 
 	assert.Equal(t, "", simulationResponse.Error.Messange)

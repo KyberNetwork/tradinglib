@@ -90,7 +90,7 @@ func (e Extension) getOffsets() common.Hash {
 	for i, length := range lengthMap {
 		cumulativeSum += length
 		shiftVal := big.NewInt(int64(cumulativeSum))
-		shiftVal.Lsh(shiftVal, uint(offsetSlotSizeInBits*i)) // Shift left
+		shiftVal.Lsh(shiftVal, uint(offsetSlotSizeInBits*i)) // nolint:gosec // Shift left
 		bytesAccumulator.Add(bytesAccumulator, shiftVal)     // Add to accumulator
 	}
 
@@ -128,7 +128,7 @@ func DecodeExtension(encodedExtension string) (Extension, error) {
 	for i := 0; i < totalOffsetSlots; i++ {
 		length := int(new(big.Int).And(
 			new(big.Int).Rsh(
-				offset, uint(i*offsetSlotSizeInBits),
+				offset, uint(i*offsetSlotSizeInBits), // nolint:gosec
 			),
 			maxInt32,
 		).Int64())

@@ -59,7 +59,7 @@ func FloatToWei(amount float64, decimals int64) (*big.Int, error) {
 		return nil, ErrMaxExponent
 	}
 	d := decimal.NewFromFloat(amount)
-	expo := decimal.New(1, int32(decimals))
+	expo := decimal.New(1, int32(decimals)) // nolint:gosec
 	return d.Mul(expo).BigInt(), nil
 }
 
