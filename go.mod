@@ -9,7 +9,7 @@ replace (
 
 require (
 	github.com/KyberNetwork/kyber-trace-go v0.1.2
-	github.com/KyberNetwork/kyberswap-dex-lib v0.85.8
+	github.com/KyberNetwork/kyberswap-dex-lib v0.85.12
 	github.com/duoxehyon/mev-share-go v0.3.0
 	github.com/ethereum/go-ethereum v1.14.12
 	github.com/flashbots/mev-share-node v0.0.0-20240517155750-67003f8e8700
@@ -35,7 +35,7 @@ require (
 	github.com/KyberNetwork/kutils v0.3.8 // indirect
 	github.com/KyberNetwork/logger v0.2.1 // indirect
 	github.com/KyberNetwork/pancake-v3-sdk v0.2.2 // indirect
-	github.com/KyberNetwork/uniswapv3-sdk-uint256 v0.5.2 // indirect
+	github.com/KyberNetwork/uniswapv3-sdk-uint256 v0.5.3 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/VictoriaMetrics/fastcache v1.12.2 // indirect
 	github.com/VictoriaMetrics/metrics v1.35.1 // indirect
@@ -108,7 +108,6 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/otel v1.33.0 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.43.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.33.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v1.33.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.33.0 // indirect
