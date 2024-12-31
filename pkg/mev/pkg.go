@@ -47,7 +47,7 @@ const (
 	BloxrouteSimulationBundleMethod = "blxr_simulate_bundle"
 	// FlashbotGetBundleStatsMethod
 	// nolint: gosec
-	FlashbotGetBundleStatsMethod = "flashbots_getBundleStats"
+	FlashbotGetBundleStatsMethod = "flashbots_getBundleStatsV2"
 	ETHSendBundleMethod          = "eth_sendBundle"
 	EthCallBundleMethod          = "eth_callBundle"
 	ETHCancelBundleMethod        = "eth_cancelBundle"
