@@ -15,4 +15,5 @@ type ExecuteBundle struct {
 	BuilderName   string         `db:"builder_name"`
 	Sender        string         `db:"sender"`
 	ArbitrageType string         `db:"arb_type"`
+	Operation     string         `db:"operation"`
 }
