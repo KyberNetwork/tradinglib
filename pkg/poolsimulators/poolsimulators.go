@@ -398,18 +398,24 @@ func PoolSimulatorFromPool(pool ksent.Pool, chainID uint) (pkgpool.IPoolSimulato
 func newSwapLimit(dex string, limit map[string]*big.Int) pkgpool.SwapLimit {
 	switch dex {
 	case pooltypes.PoolTypes.Synthetix,
-		pooltypes.PoolTypes.LimitOrder,
 		pooltypes.PoolTypes.NativeV1,
 		pooltypes.PoolTypes.Dexalot,
 		pooltypes.PoolTypes.RingSwap,
 		pooltypes.PoolTypes.MxTrading,
-		pooltypes.PoolTypes.LO1inch:
+		pooltypes.PoolTypes.LO1inch,
+		pooltypes.PoolTypes.KyberPMM:
 		return swaplimit.NewInventory(dex, limit)
+
+	case pooltypes.PoolTypes.LimitOrder:
+		return swaplimit.NewInventoryWithAllowedSenders(
+			dex,
+			limit,
+			// here just for usecase of kyberswap only, there are some client have priority private limit orders.
+			"",
+		)
+
 	case pooltypes.PoolTypes.Bebop:
 		return swaplimit.NewSingleSwapLimit(dex)
-
-	case pooltypes.PoolTypes.KyberPMM:
-		return swaplimit.NewSwappedInventory(dex, limit)
 	}
 
 	return nil
