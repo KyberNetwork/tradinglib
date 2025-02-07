@@ -3,9 +3,9 @@ package fusionorder
 import (
 	"errors"
 	"math"
+	"slices"
 
 	"github.com/ethereum/go-ethereum/common"
-	"golang.org/x/exp/slices"
 )
 
 var (
