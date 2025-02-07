@@ -2,8 +2,6 @@ package syncmap
 
 import (
 	"sync"
-
-	"golang.org/x/exp/maps"
 )
 
 type SyncMap[K comparable, V any] struct {
@@ -83,5 +81,5 @@ func (m *SyncMap[K, V]) Clears() {
 	m.rw.Lock()
 	defer m.rw.Unlock()
 
-	maps.Clear(m.data)
+	clear(m.data)
 }

@@ -1,6 +1,9 @@
 package hashset
 
-import "golang.org/x/exp/maps"
+import (
+	"maps"
+	"slices"
+)
 
 type HashSet[K comparable] struct {
 	m map[K]struct{}
@@ -31,9 +34,9 @@ func (h *HashSet[K]) Size() int {
 }
 
 func (h *HashSet[K]) Clear() {
-	maps.Clear(h.m)
+	clear(h.m)
 }
 
 func (h *HashSet[K]) Keys() []K {
-	return maps.Keys(h.m)
+	return slices.Collect(maps.Keys(h.m))
 }
