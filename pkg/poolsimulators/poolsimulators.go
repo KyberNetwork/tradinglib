@@ -11,6 +11,8 @@ import (
 	balancerv2composablestable "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/balancer-v2/composable-stable"
 	balancerv2stable "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/balancer-v2/stable"
 	balancerv2weighted "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/balancer-v2/weighted"
+	balancerv3stable "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/balancer-v3/stable"
+	balancerv3weighted "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/balancer-v3/weighted"
 	bancorv21 "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/bancor-v21"
 	bancorv3 "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/bancor-v3"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/bebop"
@@ -388,6 +390,10 @@ func PoolSimulatorFromPool(pool ksent.Pool, chainID uint) (pkgpool.IPoolSimulato
 		pSim, err = lo1inch.NewPoolSimulator(pool)
 	case pooltypes.PoolTypes.VirtualFun:
 		pSim, err = virtualfun.NewPoolSimulator(pool)
+	case pooltypes.PoolTypes.BalancerV3Weighted:
+		pSim, err = balancerv3weighted.NewPoolSimulator(pool)
+	case pooltypes.PoolTypes.BalancerV3Stable:
+		pSim, err = balancerv3stable.NewPoolSimulator(pool)
 	default:
 		err = fmt.Errorf("%w: %s %s", ErrPoolTypeNotSupported, pool.Type, pool.Address)
 	}
