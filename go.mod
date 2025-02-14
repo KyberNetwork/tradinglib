@@ -8,7 +8,6 @@ replace (
 )
 
 require (
-	github.com/KyberNetwork/aggregator-encoding v0.37.6
 	github.com/KyberNetwork/cclog v1.1.2
 	github.com/KyberNetwork/kyber-trace-go v0.1.2
 	github.com/KyberNetwork/kyberswap-dex-lib v0.90.8

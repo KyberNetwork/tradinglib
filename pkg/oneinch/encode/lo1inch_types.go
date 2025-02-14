@@ -2,6 +2,8 @@ package encode
 
 import (
 	"math/big"
+
+	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/valueobject"
 )
 
 /*
@@ -25,4 +27,26 @@ type OneInchV6Order struct {
 	MakingAmount *big.Int
 	TakingAmount *big.Int
 	MakerTraits  *big.Int
+}
+
+type EncodingSwap struct {
+	Pool              string
+	TokenIn           string
+	TokenOut          string
+	SwapAmount        *big.Int
+	AmountOut         *big.Int
+	LimitReturnAmount *big.Int
+	Exchange          valueobject.Exchange
+	PoolLength        int
+	PoolType          string
+	PoolExtra         interface{}
+	Extra             interface{}
+
+	Flags []struct {
+		Value uint32
+	}
+
+	CollectAmount *big.Int
+
+	Recipient string
 }

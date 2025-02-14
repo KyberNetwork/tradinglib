@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/KyberNetwork/aggregator-encoding/pkg/types"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/lo1inch"
 	helper1inch "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/lo1inch/helper"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/util/bignumber"
@@ -14,7 +13,7 @@ import (
 )
 
 // https://github.com/KyberNetwork/aggregator-encoding/blob/v0.37.6/pkg/encode/l1encode/executor/swapdata/lo1inch.go#L19
-func PackLO1inch(_ valueobject.ChainID, encodingSwap types.EncodingSwap) ([][]byte, error) { //nolint:funlen,cyclop
+func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, error) { //nolint:funlen,cyclop
 	// get contract address for LO.
 	if encodingSwap.PoolExtra == nil {
 		return nil, fmt.Errorf("[PackLO1inch] PoolExtra is nil")

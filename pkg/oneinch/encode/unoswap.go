@@ -41,7 +41,7 @@ func init() {
 }
 
 func EncodeUnoswap(
-	poolTypes []string, pools []common.Address, tokens []common.Address, amountIn, amountOut *big.Int,
+	poolTypes []string, pools []common.Address, tokens []common.Address, amountIn, minReturn *big.Int,
 ) ([]byte, error) {
 	if len(pools) == 0 || len(pools) > 3 {
 		return nil, fmt.Errorf("%w: %d", ErrInvalidSwapLength, len(pools))
@@ -66,17 +66,17 @@ func EncodeUnoswap(
 	switch len(dexes) {
 	case 1: //nolint:gomnd
 		return EncodeUnoswap1(
-			tokens[0].Big(), amountIn, amountOut, dexes[0],
+			tokens[0].Big(), amountIn, minReturn, dexes[0],
 		)
 
 	case 2: //nolint:gomnd
 		return EncodeUnoswap2(
-			tokens[0].Big(), amountIn, amountOut, dexes[0], dexes[1],
+			tokens[0].Big(), amountIn, minReturn, dexes[0], dexes[1],
 		)
 
 	case 3: //nolint:gomnd
 		return EncodeUnoswap3(
-			tokens[0].Big(), amountIn, amountOut, dexes[0], dexes[1], dexes[2],
+			tokens[0].Big(), amountIn, minReturn, dexes[0], dexes[1], dexes[2],
 		)
 
 	default:
