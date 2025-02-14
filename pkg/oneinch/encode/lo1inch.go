@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/KyberNetwork/blockchain-toolkit/number"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/lo1inch"
 	helper1inch "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/lo1inch/helper"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/util/bignumber"
@@ -41,7 +42,13 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, er
 			break
 		}
 
-		takingAmount := filledOrder.TakingAmount.ToBig()
+		// calculate order's remaining taking amount
+		// orderRemainingTakingAmount = order.TakingAmount * orderRemainingMakingAmount / order.MakingAmount
+		orderRemainingTakingAmount := number.Set(filledOrder.TakingAmount)
+		orderRemainingTakingAmount.Mul(orderRemainingTakingAmount, filledOrder.RemainingMakerAmount)
+		orderRemainingTakingAmount.Div(orderRemainingTakingAmount, filledOrder.MakingAmount)
+
+		takingAmount := orderRemainingTakingAmount.ToBig()
 		switch amountIn.Cmp(takingAmount) {
 		case -1:
 			takingAmount.Set(amountIn)
