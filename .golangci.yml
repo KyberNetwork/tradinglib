@@ -1,5 +1,5 @@
 run:
-  deadline: 5m
+  timeout: 5m
 
 linters:
   enable-all: true
@@ -33,7 +33,7 @@ linters:
     - perfsprint
     - revive
     - gochecknoglobals
-    
+
 linters-settings:
   funlen:
     # Checks the number of lines in a function.
@@ -55,3 +55,15 @@ linters-settings:
     # Should ignore tests.
     # Default: false
     skip-tests: true
+
+issues:
+  exclude-rules:
+    - linters:
+        - funlen
+        - lll
+        - gocognit
+      path: _test\.go # disable for test file
+    - linters:
+        - lll
+        - funlen
+      source: "^// " # disable for comments
