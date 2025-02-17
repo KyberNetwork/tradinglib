@@ -55,6 +55,10 @@ linters-settings:
     # Should ignore tests.
     # Default: false
     skip-tests: true
+  gosec:
+    exclude-generated: false
+    excludes:
+      - G115
 
 issues:
   exclude-rules:
