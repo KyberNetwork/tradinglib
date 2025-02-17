@@ -95,7 +95,8 @@ func MustJsonify(data interface{}) string {
 }
 
 func NewBig10(s string) *big.Int {
-	b, _ := new(big.Int).SetString(s, 10)
+	const base = 10
+	b, _ := new(big.Int).SetString(s, base)
 
 	return b
 }
