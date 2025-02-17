@@ -49,6 +49,9 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, er
 		orderRemainingTakingAmount.Div(orderRemainingTakingAmount, filledOrder.MakingAmount)
 
 		takingAmount := orderRemainingTakingAmount.ToBig()
+		if takingAmount.Sign() == 0 {
+			continue
+		}
 		switch amountIn.Cmp(takingAmount) {
 		case -1:
 			takingAmount.Set(amountIn)
@@ -123,8 +126,12 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, er
 				)
 				external payable returns (uint256 makingAmount, uint256 takingAmount, bytes32 orderHash);
 			*/
+
+			var rArray, vsArray [32]byte
+			copy(rArray[:], r)
+			copy(vsArray[:], vs)
 			packed, err := OneInchAggregationRouterV6ABI.Pack("fillOrderArgs",
-				order, r, vs, takingAmount, takerTraitsEncoded.TakerTraits, takerTraitsEncoded.Args,
+				order, rArray, vsArray, takingAmount, takerTraitsEncoded.TakerTraits, takerTraitsEncoded.Args,
 			)
 			if err != nil {
 				return nil, fmt.Errorf("pack fillOrderArgs error: %w", err)
