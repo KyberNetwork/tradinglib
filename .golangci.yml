@@ -33,6 +33,8 @@ linters:
     - perfsprint
     - revive
     - gochecknoglobals
+    - gomnd
+    - godot
 
 linters-settings:
   funlen:

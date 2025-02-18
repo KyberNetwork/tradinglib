@@ -13,6 +13,12 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+const (
+	MethodIDLength              = 4
+	MethodFillOrderArgs         = "fillOrderArgs"
+	MethodFillContractOrderArgs = "fillContractOrderArgs"
+)
+
 // https://github.com/KyberNetwork/aggregator-encoding/blob/v0.37.6/pkg/encode/l1encode/executor/swapdata/lo1inch.go#L19
 func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, error) { //nolint:funlen,cyclop
 	// get contract address for LO.
@@ -141,4 +147,81 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, er
 	}
 
 	return encodeds, nil
+}
+
+func UnpackLO1inch(decoded []byte) (any, error) {
+	if len(decoded) < MethodIDLength {
+		return nil, fmt.Errorf("invalid data length: %d", len(decoded))
+	}
+
+	methodID := decoded[:MethodIDLength]
+	method, err := OneInchAggregationRouterV6ABI.MethodById(methodID)
+	if err != nil {
+		return nil, fmt.Errorf("get method: %d", err)
+	}
+
+	switch method.Name {
+	case MethodFillOrderArgs:
+		return UnpackFillOrderArgs(decoded)
+
+	case MethodFillContractOrderArgs:
+		return UnpackFillContractOrderArgs(decoded)
+
+	default:
+		return nil, fmt.Errorf("method not support: %s", method.Name)
+	}
+}
+
+func UnpackFillOrderArgs(decoded []byte) (FillOrderArgs, error) {
+	if len(decoded) < MethodIDLength {
+		return FillOrderArgs{}, fmt.Errorf("invalid data length: %d", len(decoded))
+	}
+
+	method, err := OneInchAggregationRouterV6ABI.MethodById(decoded[:MethodIDLength])
+	if err != nil {
+		return FillOrderArgs{}, fmt.Errorf("get method: %d", err)
+	}
+
+	if method.Name != MethodFillOrderArgs {
+		return FillOrderArgs{}, fmt.Errorf("invalid method: %s", method.Name)
+	}
+
+	unpacked, err := method.Inputs.Unpack(decoded[MethodIDLength:])
+	if err != nil {
+		return FillOrderArgs{}, fmt.Errorf("unpack fillOrderArgs: %w", err)
+	}
+
+	var args FillOrderArgs
+	if err := method.Inputs.Copy(&args, unpacked); err != nil {
+		return FillOrderArgs{}, fmt.Errorf("copy FillOrderArgs: %w", err)
+	}
+
+	return args, nil
+}
+
+func UnpackFillContractOrderArgs(decoded []byte) (FillContractOrderArgs, error) {
+	if len(decoded) < MethodIDLength {
+		return FillContractOrderArgs{}, fmt.Errorf("invalid data length: %d", len(decoded))
+	}
+
+	method, err := OneInchAggregationRouterV6ABI.MethodById(decoded[:MethodIDLength])
+	if err != nil {
+		return FillContractOrderArgs{}, fmt.Errorf("get method: %d", err)
+	}
+
+	if method.Name != MethodFillContractOrderArgs {
+		return FillContractOrderArgs{}, fmt.Errorf("invalid method: %s", method.Name)
+	}
+
+	unpacked, err := method.Inputs.Unpack(decoded[MethodIDLength:])
+	if err != nil {
+		return FillContractOrderArgs{}, fmt.Errorf("unpack fillContractOrderArgs: %w", err)
+	}
+
+	var args FillContractOrderArgs
+	if err := method.Inputs.Copy(&args, unpacked); err != nil {
+		return FillContractOrderArgs{}, fmt.Errorf("copy FillOrderArgs: %w", err)
+	}
+
+	return args, nil
 }
