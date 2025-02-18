@@ -20,24 +20,24 @@ const (
 )
 
 // https://github.com/KyberNetwork/aggregator-encoding/blob/v0.37.6/pkg/encode/l1encode/executor/swapdata/lo1inch.go#L19
-func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, error) { //nolint:funlen,cyclop
+func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *big.Int, error) { //nolint:funlen,cyclop
 	// get contract address for LO.
 	if encodingSwap.PoolExtra == nil {
-		return nil, fmt.Errorf("[PackLO1inch] PoolExtra is nil")
+		return nil, nil, fmt.Errorf("[PackLO1inch] PoolExtra is nil")
 	}
 
 	byteData, err := json.Marshal(encodingSwap.Extra)
 	if err != nil {
-		return nil, fmt.Errorf("[buildLO1inch] ErrMarshalFailed err :[%w]", err)
+		return nil, nil, fmt.Errorf("[buildLO1inch] ErrMarshalFailed err :[%w]", err)
 	}
 
 	var swapInfo lo1inch.SwapInfo
 	if err = json.Unmarshal(byteData, &swapInfo); err != nil {
-		return nil, fmt.Errorf("[buildLO1inch] ErrUnmarshalFailed err :[%w]", err)
+		return nil, nil, fmt.Errorf("[buildLO1inch] ErrUnmarshalFailed err :[%w]", err)
 	}
 
 	if len(swapInfo.FilledOrders) == 0 {
-		return nil, fmt.Errorf("[buildLO1inch] cause by filledOrders is empty")
+		return nil, nil, fmt.Errorf("[buildLO1inch] cause by filledOrders is empty")
 	}
 
 	encodeds := make([][]byte, 0, len(swapInfo.FilledOrders))
@@ -72,7 +72,7 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, er
 
 		extension, err := helper1inch.DecodeExtension(filledOrder.Extension)
 		if err != nil {
-			return nil, fmt.Errorf("decode extension: %w", err)
+			return nil, nil, fmt.Errorf("decode extension: %w", err)
 		}
 
 		receiver := helper1inch.NewAddress(encodingSwap.Recipient)
@@ -109,14 +109,14 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, er
 				order, signature, filledOrder, takingAmount, takerTraitsEncoded.TakerTraits, takerTraitsEncoded.Args,
 			)
 			if err != nil {
-				return nil, fmt.Errorf("pack fillContractOrderArgs error: %w", err)
+				return nil, nil, fmt.Errorf("pack fillContractOrderArgs error: %w", err)
 			}
 			encodeds = append(encodeds, packed)
 
 		case false:
 			bytesSignature, err := helper1inch.LO1inchParseSignature(filledOrder.Signature)
 			if err != nil {
-				return nil, fmt.Errorf("parse lo1inch sig: %w", err)
+				return nil, nil, fmt.Errorf("parse lo1inch sig: %w", err)
 			}
 			r := bytesSignature.R
 			vs := bytesSignature.GetCompactedSignatureBytes()[len(r):]
@@ -140,13 +140,13 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, er
 				order, rArray, vsArray, takingAmount, takerTraitsEncoded.TakerTraits, takerTraitsEncoded.Args,
 			)
 			if err != nil {
-				return nil, fmt.Errorf("pack fillOrderArgs error: %w", err)
+				return nil, nil, fmt.Errorf("pack fillOrderArgs error: %w", err)
 			}
 			encodeds = append(encodeds, packed)
 		}
 	}
 
-	return encodeds, nil
+	return encodeds, amountIn, nil
 }
 
 func UnpackLO1inch(decoded []byte) (any, error) {
@@ -157,7 +157,7 @@ func UnpackLO1inch(decoded []byte) (any, error) {
 	methodID := decoded[:MethodIDLength]
 	method, err := OneInchAggregationRouterV6ABI.MethodById(methodID)
 	if err != nil {
-		return nil, fmt.Errorf("get method: %d", err)
+		return nil, fmt.Errorf("get method: %w", err)
 	}
 
 	switch method.Name {
@@ -179,7 +179,7 @@ func UnpackFillOrderArgs(decoded []byte) (FillOrderArgs, error) {
 
 	method, err := OneInchAggregationRouterV6ABI.MethodById(decoded[:MethodIDLength])
 	if err != nil {
-		return FillOrderArgs{}, fmt.Errorf("get method: %d", err)
+		return FillOrderArgs{}, fmt.Errorf("get method: %w", err)
 	}
 
 	if method.Name != MethodFillOrderArgs {
@@ -206,7 +206,7 @@ func UnpackFillContractOrderArgs(decoded []byte) (FillContractOrderArgs, error) 
 
 	method, err := OneInchAggregationRouterV6ABI.MethodById(decoded[:MethodIDLength])
 	if err != nil {
-		return FillContractOrderArgs{}, fmt.Errorf("get method: %d", err)
+		return FillContractOrderArgs{}, fmt.Errorf("get method: %w", err)
 	}
 
 	if method.Name != MethodFillContractOrderArgs {
