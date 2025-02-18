@@ -57,8 +57,9 @@ func TestPackLO1inch(t *testing.T) {
 		Extra:             out.SwapInfo,
 		Recipient:         "0x807cf9a772d5a3f9cefbc1192e939d62f0d9bd38 ",
 	}
-	data, err := encode.PackLO1inch(valueobject.ChainID(chainID), encodingSwap)
+	data, remain, err := encode.PackLO1inch(valueobject.ChainID(chainID), encodingSwap)
 	require.NoError(t, err)
+	t.Log("remain", remain.String())
 
 	for _, b := range data {
 		t.Log(hexutil.Encode(b))
