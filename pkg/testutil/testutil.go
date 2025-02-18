@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"maps"
+	"math/big"
 	"math/rand"
 
 	"github.com/KyberNetwork/tradinglib/pkg/dbutil"
@@ -91,4 +92,11 @@ func MustJsonify(data interface{}) string {
 		panic(err)
 	}
 	return string(d)
+}
+
+func NewBig10(s string) *big.Int {
+	const base = 10
+	b, _ := new(big.Int).SetString(s, base)
+
+	return b
 }

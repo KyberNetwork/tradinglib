@@ -2,6 +2,7 @@ package poolsimulators
 
 import (
 	"errors"
+	"fmt"
 	"math/big"
 
 	ksent "github.com/KyberNetwork/kyberswap-dex-lib/pkg/entity"
@@ -17,7 +18,7 @@ var ErrPoolTypeNotSupported = errors.New("pool type is not supported")
 func PoolSimulatorFromPool(pool ksent.Pool, chainID uint) (pkgpool.IPoolSimulator, error) {
 	factoryFn := pkgpool.Factory(pool.Type)
 	if factoryFn == nil {
-		return nil, ErrPoolTypeNotSupported
+		return nil, fmt.Errorf("%w: %s", ErrPoolTypeNotSupported, pool.Type)
 	}
 
 	return factoryFn(pkgpool.FactoryParams{

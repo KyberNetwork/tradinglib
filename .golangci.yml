@@ -33,6 +33,8 @@ linters:
     - perfsprint
     - revive
     - gochecknoglobals
+    - gomnd
+    - godot
 
 linters-settings:
   funlen:
@@ -55,6 +57,10 @@ linters-settings:
     # Should ignore tests.
     # Default: false
     skip-tests: true
+  gosec:
+    exclude-generated: false
+    excludes:
+      - G115
 
 issues:
   exclude-rules:

@@ -13,25 +13,31 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+const (
+	MethodIDLength              = 4
+	MethodFillOrderArgs         = "fillOrderArgs"
+	MethodFillContractOrderArgs = "fillContractOrderArgs"
+)
+
 // https://github.com/KyberNetwork/aggregator-encoding/blob/v0.37.6/pkg/encode/l1encode/executor/swapdata/lo1inch.go#L19
-func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, error) { //nolint:funlen,cyclop
+func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *big.Int, error) { //nolint:funlen,cyclop
 	// get contract address for LO.
 	if encodingSwap.PoolExtra == nil {
-		return nil, fmt.Errorf("[PackLO1inch] PoolExtra is nil")
+		return nil, nil, fmt.Errorf("[PackLO1inch] PoolExtra is nil")
 	}
 
 	byteData, err := json.Marshal(encodingSwap.Extra)
 	if err != nil {
-		return nil, fmt.Errorf("[buildLO1inch] ErrMarshalFailed err :[%w]", err)
+		return nil, nil, fmt.Errorf("[buildLO1inch] ErrMarshalFailed err :[%w]", err)
 	}
 
 	var swapInfo lo1inch.SwapInfo
 	if err = json.Unmarshal(byteData, &swapInfo); err != nil {
-		return nil, fmt.Errorf("[buildLO1inch] ErrUnmarshalFailed err :[%w]", err)
+		return nil, nil, fmt.Errorf("[buildLO1inch] ErrUnmarshalFailed err :[%w]", err)
 	}
 
 	if len(swapInfo.FilledOrders) == 0 {
-		return nil, fmt.Errorf("[buildLO1inch] cause by filledOrders is empty")
+		return nil, nil, fmt.Errorf("[buildLO1inch] cause by filledOrders is empty")
 	}
 
 	encodeds := make([][]byte, 0, len(swapInfo.FilledOrders))
@@ -49,6 +55,9 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, er
 		orderRemainingTakingAmount.Div(orderRemainingTakingAmount, filledOrder.MakingAmount)
 
 		takingAmount := orderRemainingTakingAmount.ToBig()
+		if takingAmount.Sign() == 0 {
+			continue
+		}
 		switch amountIn.Cmp(takingAmount) {
 		case -1:
 			takingAmount.Set(amountIn)
@@ -63,7 +72,7 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, er
 
 		extension, err := helper1inch.DecodeExtension(filledOrder.Extension)
 		if err != nil {
-			return nil, fmt.Errorf("decode extension: %w", err)
+			return nil, nil, fmt.Errorf("decode extension: %w", err)
 		}
 
 		receiver := helper1inch.NewAddress(encodingSwap.Recipient)
@@ -100,14 +109,14 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, er
 				order, signature, filledOrder, takingAmount, takerTraitsEncoded.TakerTraits, takerTraitsEncoded.Args,
 			)
 			if err != nil {
-				return nil, fmt.Errorf("pack fillContractOrderArgs error: %w", err)
+				return nil, nil, fmt.Errorf("pack fillContractOrderArgs error: %w", err)
 			}
 			encodeds = append(encodeds, packed)
 
 		case false:
 			bytesSignature, err := helper1inch.LO1inchParseSignature(filledOrder.Signature)
 			if err != nil {
-				return nil, fmt.Errorf("parse lo1inch sig: %w", err)
+				return nil, nil, fmt.Errorf("parse lo1inch sig: %w", err)
 			}
 			r := bytesSignature.R
 			vs := bytesSignature.GetCompactedSignatureBytes()[len(r):]
@@ -123,15 +132,96 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, er
 				)
 				external payable returns (uint256 makingAmount, uint256 takingAmount, bytes32 orderHash);
 			*/
+
+			var rArray, vsArray [32]byte
+			copy(rArray[:], r)
+			copy(vsArray[:], vs)
 			packed, err := OneInchAggregationRouterV6ABI.Pack("fillOrderArgs",
-				order, r, vs, takingAmount, takerTraitsEncoded.TakerTraits, takerTraitsEncoded.Args,
+				order, rArray, vsArray, takingAmount, takerTraitsEncoded.TakerTraits, takerTraitsEncoded.Args,
 			)
 			if err != nil {
-				return nil, fmt.Errorf("pack fillOrderArgs error: %w", err)
+				return nil, nil, fmt.Errorf("pack fillOrderArgs error: %w", err)
 			}
 			encodeds = append(encodeds, packed)
 		}
 	}
 
-	return encodeds, nil
+	return encodeds, amountIn, nil
+}
+
+func UnpackLO1inch(decoded []byte) (any, error) {
+	if len(decoded) < MethodIDLength {
+		return nil, fmt.Errorf("invalid data length: %d", len(decoded))
+	}
+
+	methodID := decoded[:MethodIDLength]
+	method, err := OneInchAggregationRouterV6ABI.MethodById(methodID)
+	if err != nil {
+		return nil, fmt.Errorf("get method: %w", err)
+	}
+
+	switch method.Name {
+	case MethodFillOrderArgs:
+		return UnpackFillOrderArgs(decoded)
+
+	case MethodFillContractOrderArgs:
+		return UnpackFillContractOrderArgs(decoded)
+
+	default:
+		return nil, fmt.Errorf("method not support: %s", method.Name)
+	}
+}
+
+func UnpackFillOrderArgs(decoded []byte) (FillOrderArgs, error) {
+	if len(decoded) < MethodIDLength {
+		return FillOrderArgs{}, fmt.Errorf("invalid data length: %d", len(decoded))
+	}
+
+	method, err := OneInchAggregationRouterV6ABI.MethodById(decoded[:MethodIDLength])
+	if err != nil {
+		return FillOrderArgs{}, fmt.Errorf("get method: %w", err)
+	}
+
+	if method.Name != MethodFillOrderArgs {
+		return FillOrderArgs{}, fmt.Errorf("invalid method: %s", method.Name)
+	}
+
+	unpacked, err := method.Inputs.Unpack(decoded[MethodIDLength:])
+	if err != nil {
+		return FillOrderArgs{}, fmt.Errorf("unpack fillOrderArgs: %w", err)
+	}
+
+	var args FillOrderArgs
+	if err := method.Inputs.Copy(&args, unpacked); err != nil {
+		return FillOrderArgs{}, fmt.Errorf("copy FillOrderArgs: %w", err)
+	}
+
+	return args, nil
+}
+
+func UnpackFillContractOrderArgs(decoded []byte) (FillContractOrderArgs, error) {
+	if len(decoded) < MethodIDLength {
+		return FillContractOrderArgs{}, fmt.Errorf("invalid data length: %d", len(decoded))
+	}
+
+	method, err := OneInchAggregationRouterV6ABI.MethodById(decoded[:MethodIDLength])
+	if err != nil {
+		return FillContractOrderArgs{}, fmt.Errorf("get method: %w", err)
+	}
+
+	if method.Name != MethodFillContractOrderArgs {
+		return FillContractOrderArgs{}, fmt.Errorf("invalid method: %s", method.Name)
+	}
+
+	unpacked, err := method.Inputs.Unpack(decoded[MethodIDLength:])
+	if err != nil {
+		return FillContractOrderArgs{}, fmt.Errorf("unpack fillContractOrderArgs: %w", err)
+	}
+
+	var args FillContractOrderArgs
+	if err := method.Inputs.Copy(&args, unpacked); err != nil {
+		return FillContractOrderArgs{}, fmt.Errorf("copy FillOrderArgs: %w", err)
+	}
+
+	return args, nil
 }

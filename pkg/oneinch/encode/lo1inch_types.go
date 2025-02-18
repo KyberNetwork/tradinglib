@@ -50,3 +50,44 @@ type EncodingSwap struct {
 
 	Recipient string
 }
+
+/*
+function fillOrderArgs(
+
+	Order calldata order,
+	bytes32 r,
+	bytes32 vs,
+	uint256 amount,
+	uint256 takerTraits,
+	bytes calldata args
+
+)
+external payable returns (uint256 makingAmount, uint256 takingAmount, bytes32 orderHash);
+*/
+type FillOrderArgs struct {
+	Order       OneInchV6Order
+	R           [32]byte
+	Vs          [32]byte
+	Amount      *big.Int
+	TakerTraits *big.Int
+	Args        []byte
+}
+
+/*
+function fillContractOrderArgs(
+
+	Order calldata order,
+	bytes calldata signature,
+	uint256 amount,
+	TakerTraits takerTraits,
+	bytes calldata args
+
+) external returns(uint256 makingAmount, uint256 takingAmount, bytes32 orderHash);
+*/
+type FillContractOrderArgs struct {
+	Order       OneInchV6Order
+	Signature   []byte
+	Amount      *big.Int
+	TakerTraits *big.Int
+	Args        []byte
+}
