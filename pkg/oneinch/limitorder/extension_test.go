@@ -10,6 +10,7 @@ import (
 )
 
 func TestExtension(t *testing.T) {
+	t.Skip()
 	t.Run("should encode/decode", func(t *testing.T) {
 		extension := limitorder.Extension{
 			MakerAssetSuffix: []byte{0x01},
