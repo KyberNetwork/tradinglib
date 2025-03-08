@@ -34,7 +34,7 @@ func TestPackLO1inch(t *testing.T) {
 		pool.CalcAmountOutParams{
 			TokenAmountIn: pool.TokenAmount{
 				Token:  "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-				Amount: testutil.NewBig10("271133267321"),
+				Amount: testutil.NewBig10("101133267321"),
 			},
 			TokenOut: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
 		},
