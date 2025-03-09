@@ -78,3 +78,17 @@ func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteraction
 		CustomReceiver:     customReceiver,
 	}, nil
 }
+
+func (s SettlementPostInteractionData) IsExclusiveResolver(resolver common.Address) bool {
+	addressHalf := resolver.Hex()[len(resolver.Hex())-20:]
+
+	if len(s.Whitelist) == 1 {
+		return addressHalf == s.Whitelist[0].AddressHalf
+	}
+
+	if s.Whitelist[0].Delay.Cmp(s.Whitelist[1].Delay) == 0 {
+		return false
+	}
+
+	return addressHalf == s.Whitelist[0].AddressHalf
+}
