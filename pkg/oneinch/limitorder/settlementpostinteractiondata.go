@@ -79,6 +79,34 @@ func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteraction
 	}, nil
 }
 
+func (s SettlementPostInteractionData) CanExecuteAt(resolver common.Address, executionTime *big.Int) bool {
+	addressHalf := resolver.Hex()[len(resolver.Hex())-20:]
+	allowedFrom := new(big.Int).Set(s.ResolvingStartTime)
+	for _, item := range s.Whitelist {
+		allowedFrom.Add(allowedFrom, item.Delay)
+		if addressHalf == item.AddressHalf {
+			return executionTime.Cmp(allowedFrom) >= 0
+		}
+		if executionTime.Cmp(allowedFrom) < 0 {
+			return false
+		}
+	}
+
+	return false
+}
+
+func (s SettlementPostInteractionData) IsExclusivityPeriod(timeBig *big.Int) bool {
+	if len(s.Whitelist) == 1 {
+		return true
+	}
+
+	if s.Whitelist[0].Delay.Cmp(s.Whitelist[1].Delay) == 0 {
+		return false
+	}
+
+	return timeBig.Cmp(new(big.Int).Add(s.ResolvingStartTime, s.Whitelist[1].Delay)) <= 0
+}
+
 func (s SettlementPostInteractionData) IsExclusiveResolver(resolver common.Address) bool {
 	addressHalf := resolver.Hex()[len(resolver.Hex())-20:]
 
