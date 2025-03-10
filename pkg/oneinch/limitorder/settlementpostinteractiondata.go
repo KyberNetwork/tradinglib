@@ -3,6 +3,7 @@ package limitorder
 import (
 	"encoding/hex"
 	"math/big"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -62,7 +63,7 @@ func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteraction
 	var whitelist []WhitelistItem
 
 	for !iter.IsEmpty() {
-		addressHalf := hex.EncodeToString(iter.NextBytes(10))
+		addressHalf := strings.ToLower(hex.EncodeToString(iter.NextBytes(10)))
 		delay := iter.NextUint16()
 		whitelist = append(whitelist, WhitelistItem{
 			AddressHalf: addressHalf,
@@ -79,8 +80,8 @@ func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteraction
 	}, nil
 }
 
-func (s SettlementPostInteractionData) CanExecuteAt(resolver common.Address, executionTime *big.Int) bool {
-	addressHalf := resolver.Hex()[len(resolver.Hex())-20:]
+func (s SettlementPostInteractionData) CanExecuteAt(resolver string, executionTime *big.Int) bool {
+	addressHalf := resolver[len(resolver)-20:]
 	allowedFrom := new(big.Int).Set(s.ResolvingStartTime)
 	for _, item := range s.Whitelist {
 		allowedFrom.Add(allowedFrom, item.Delay)
@@ -107,8 +108,8 @@ func (s SettlementPostInteractionData) IsExclusivityPeriod(timeBig *big.Int) boo
 	return timeBig.Cmp(new(big.Int).Add(s.ResolvingStartTime, s.Whitelist[1].Delay)) <= 0
 }
 
-func (s SettlementPostInteractionData) IsExclusiveResolver(resolver common.Address) bool {
-	addressHalf := resolver.Hex()[len(resolver.Hex())-20:]
+func (s SettlementPostInteractionData) IsExclusiveResolver(resolver string) bool {
+	addressHalf := resolver[len(resolver)-20:]
 
 	if len(s.Whitelist) == 1 {
 		return addressHalf == s.Whitelist[0].AddressHalf
