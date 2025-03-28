@@ -11,7 +11,7 @@ require (
 	github.com/KyberNetwork/blockchain-toolkit v0.8.2-0.20241123202223-0b77d465adc4
 	github.com/KyberNetwork/cclog v1.1.2
 	github.com/KyberNetwork/kyber-trace-go v0.1.2
-	github.com/KyberNetwork/kyberswap-dex-lib v0.92.4
+	github.com/KyberNetwork/kyberswap-dex-lib v0.93.10
 	github.com/TheZeroSlave/zapsentry v1.23.0
 	github.com/duoxehyon/mev-share-go v0.3.0
 	github.com/ethereum/go-ethereum v1.15.5
@@ -33,10 +33,9 @@ require (
 require (
 	github.com/KyberNetwork/elastic-go-sdk/v2 v2.0.4 // indirect
 	github.com/KyberNetwork/ethrpc v0.7.3 // indirect
-	github.com/KyberNetwork/iZiSwap-SDK-go v1.1.1 // indirect
 	github.com/KyberNetwork/int256 v0.1.4 // indirect
 	github.com/KyberNetwork/kutils v0.3.8 // indirect
-	github.com/KyberNetwork/logger v1.0.0 // indirect
+	github.com/KyberNetwork/logger v1.0.1 // indirect
 	github.com/KyberNetwork/uniswapv3-sdk-uint256 v0.5.5 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/VictoriaMetrics/fastcache v1.12.2 // indirect
@@ -89,7 +88,6 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/orcaman/concurrent-map v1.0.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
-	github.com/philhofer/fwd v1.1.3-0.20240916144458-20a13a1f6b7c // indirect
 	github.com/pierrec/lz4/v3 v3.3.5 // indirect
 	github.com/pion/dtls/v2 v2.2.12 // indirect
 	github.com/pion/logging v0.2.3 // indirect
@@ -105,7 +103,6 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/supranational/blst v0.3.14 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
-	github.com/tinylib/msgp v1.2.5 // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.9.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
