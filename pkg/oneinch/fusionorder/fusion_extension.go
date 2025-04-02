@@ -11,7 +11,7 @@ import (
 type FusionExtension struct {
 	Address             common.Address
 	AuctionDetails      AuctionDetails
-	PostInteractionData limitorder.SettlementPostInteractionData
+	PostInteractionData SettlementPostInteractionData
 	MakerPermit         limitorder.Interaction
 }
 
@@ -34,7 +34,7 @@ func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExte
 		return FusionExtension{}, fmt.Errorf("decode auction details: %w", err)
 	}
 
-	postInteractionData, err := limitorder.DecodeSettlementPostInteractionData(
+	postInteractionData, err := DecodeSettlementPostInteractionData(
 		extension.PostInteraction[common.AddressLength:],
 	)
 	if err != nil {
