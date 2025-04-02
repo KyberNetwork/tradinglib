@@ -130,8 +130,13 @@ func DecodeAuctionDetails(data []byte) (AuctionDetails, error) {
 
 func decodeAuctionPoints(data []byte) ([]AuctionPoint, error) {
 	bi := decode.NewBytesIterator(data)
-	points := make([]AuctionPoint, 0)
-	for bi.HasMore() {
+	pointsLength, err := bi.NextUint8()
+	if err != nil {
+		return nil, fmt.Errorf("get points length: %w", err)
+	}
+
+	points := make([]AuctionPoint, 0, pointsLength)
+	for range pointsLength {
 		coefficient, err := bi.NextUint24()
 		if err != nil {
 			return nil, fmt.Errorf("next coefficient: %w", err)
@@ -157,6 +162,7 @@ func (a AuctionDetails) Encode() []byte {
 	buf.Write(encodeInt64ToBytes(a.StartTime, 4))
 	buf.Write(encodeInt64ToBytes(a.Duration, 3))
 	buf.Write(encodeInt64ToBytes(a.InitialRateBump, 3))
+	buf.WriteByte(byte(len(a.Points)))
 	for _, point := range a.Points {
 		buf.Write(encodeInt64ToBytes(point.Coefficient, 3))
 		buf.Write(encodeInt64ToBytes(point.Delay, 2))
