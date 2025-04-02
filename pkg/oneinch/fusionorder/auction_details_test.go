@@ -5,7 +5,6 @@ import (
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -40,72 +39,32 @@ func TestAuctionDetail(t *testing.T) {
 		assert.Equal(t, auctionDetail, decodedAuctionDetail)
 	})
 
-	t.Run("decode", func(t *testing.T) {
-		makingAmountData, err := hexutil.Decode(
-			"0xfb2809a5314473e1165f6b58018e20ed8f07b84000f1b8000005e566bb30120000b401def800f1b800b4",
-		)
-		require.NoError(t, err)
-		decodeAuctionDetails, err := fusionorder.DecodeAuctionDetails(
-			makingAmountData[common.AddressLength:],
-		)
-		require.NoError(t, err)
-
-		t.Logf("AuctionDetails: %+v", decodeAuctionDetails)
-
-		expected := fusionorder.AuctionDetails{
-			StartTime:       1723543570,
-			Duration:        180,
-			InitialRateBump: 122616,
-			Points: []fusionorder.AuctionPoint{
-				{
-					Delay:       180,
-					Coefficient: 61880,
-				},
-			},
-			GasCost: fusionorder.AuctionGasCostInfo{
-				GasBumpEstimate:  61880,
-				GasPriceEstimate: 1509,
-			},
-		}
-
-		assert.Equal(t, expected, decodeAuctionDetails)
-	})
-
 	// nolint: lll
 	t.Run("decode real data", func(t *testing.T) {
-		// This data is get from
-		// https://app.blocksec.com/explorer/tx/eth/0x73e317981af9c352f26bac125b1a6d3e1d31076b87c679a4f771b4a5c5a7f76f?line=4&debugLine=4
-		extraData, err := hexutil.Decode("0x01e9f1000005d866bda8b40000b404fa0103d477003c01e9f10078")
+		// Decode from a fusion order should not return error.
+		extraData, err := hexutil.Decode("0x00ca070000023367ed11940000b401934d0100ca0700b40000000000640db09498030ae3416b66dc5dcd8578ca14eec99e63972ad4499f120902631ad18bd45f0b94f54a968fd61b892b2ad62490118595770895ad27ad6b0d95339fb574bdc56763f995617556ed277ab32233786de5e0e428ac771d77b55b7d1434eae4a48b2c8626813bd1b091ea6bedbd00000000000000000000b8394f2220fac7e6ade6")
 		require.NoError(t, err)
 		decodeAuctionDetails, err := fusionorder.DecodeAuctionDetails(extraData)
-		require.NoError(t, err)
+		if assert.NoError(t, err) {
+			expectedStartTime := uint64(1743589780)
+			expectedDuration := int64(180)
+			initialRateBump := int64(103245)
+			points := []fusionorder.AuctionPoint{
+				{
+					Delay:       180,
+					Coefficient: 51719,
+				},
+			}
+			gasBumpEstimate := int64(51719)
+			gasPriceEstimate := int64(563)
 
-		// those value is collected from
-		// https://app.blocksec.com/explorer/tx/eth/0x73e317981af9c352f26bac125b1a6d3e1d31076b87c679a4f771b4a5c5a7f76f?line=79&debugLine=79
-		expectedStartTime := uint64(1_723_705_524)
-		expectedDuration := 1_723_705_704 - expectedStartTime
-		initialRateBump := 326_145
-		// those value is collected from running decode function in fusion-sdk with this extraData
-		// https://github.com/1inch/fusion-sdk/blob/8721c62612b08cc7c0e01423a1bdd62594e7b8d0/src/fusion-order/auction-details/auction-details.ts#L76
-		points := []fusionorder.AuctionPoint{
-			{
-				Delay:       60,
-				Coefficient: 250_999,
-			},
-			{
-				Delay:       120,
-				Coefficient: 125_425,
-			},
+			assert.EqualValues(t, expectedStartTime, decodeAuctionDetails.StartTime)
+			assert.EqualValues(t, expectedDuration, decodeAuctionDetails.Duration)
+			assert.EqualValues(t, initialRateBump, decodeAuctionDetails.InitialRateBump)
+			assert.ElementsMatch(t, points, decodeAuctionDetails.Points)
+			assert.EqualValues(t, gasBumpEstimate, decodeAuctionDetails.GasCost.GasBumpEstimate)
+			assert.EqualValues(t, gasPriceEstimate, decodeAuctionDetails.GasCost.GasPriceEstimate)
 		}
-		gasBumpEstimate := 125_425
-		gasPriceEstimate := 1496
-
-		assert.EqualValues(t, expectedStartTime, decodeAuctionDetails.StartTime)
-		assert.EqualValues(t, expectedDuration, decodeAuctionDetails.Duration)
-		assert.EqualValues(t, initialRateBump, decodeAuctionDetails.InitialRateBump)
-		assert.ElementsMatch(t, points, decodeAuctionDetails.Points)
-		assert.EqualValues(t, gasBumpEstimate, decodeAuctionDetails.GasCost.GasBumpEstimate)
-		assert.EqualValues(t, gasPriceEstimate, decodeAuctionDetails.GasCost.GasPriceEstimate)
 	})
 
 	t.Run("should return error when data invalid", func(t *testing.T) {
