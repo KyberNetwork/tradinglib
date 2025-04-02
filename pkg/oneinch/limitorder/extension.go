@@ -22,16 +22,15 @@ const (
 // nolint: lll
 // https://github.com/1inch/limit-order-sdk/blob/999852bc3eb92fb75332b7e3e0300e74a51943c1/src/limit-order/extension.ts#L6
 type Extension struct {
-	MakerAssetSuffix    []byte
-	TakerAssetSuffix    []byte
-	MakingAmountData    []byte
-	TakingAmountData    []byte
-	Predicate           []byte
-	MakerPermit         []byte
-	PreInteraction      []byte
-	PostInteraction     []byte
-	CustomData          []byte
-	PostInteractionData SettlementPostInteractionData
+	MakerAssetSuffix []byte
+	TakerAssetSuffix []byte
+	MakingAmountData []byte
+	TakingAmountData []byte
+	Predicate        []byte
+	MakerPermit      []byte
+	PreInteraction   []byte
+	PostInteraction  []byte
+	CustomData       []byte
 }
 
 func (e Extension) HasMakerPermit() bool {
@@ -148,23 +147,16 @@ func DecodeExtension(encodedExtension string) (Extension, error) {
 	}
 	customData := extensionData[prevLength:]
 
-	postInteraction := data[7]
-	postInteractionData, err := DecodeSettlementPostInteractionData(postInteraction[20:])
-	if err != nil {
-		return Extension{}, fmt.Errorf("decode post interaction data: %w", err)
-	}
-
 	e := Extension{
-		MakerAssetSuffix:    data[0],
-		TakerAssetSuffix:    data[1],
-		MakingAmountData:    data[2],
-		TakingAmountData:    data[3],
-		Predicate:           data[4],
-		MakerPermit:         data[5],
-		PreInteraction:      data[6],
-		PostInteraction:     postInteraction,
-		CustomData:          customData,
-		PostInteractionData: postInteractionData,
+		MakerAssetSuffix: data[0],
+		TakerAssetSuffix: data[1],
+		MakingAmountData: data[2],
+		TakingAmountData: data[3],
+		Predicate:        data[4],
+		MakerPermit:      data[5],
+		PreInteraction:   data[6],
+		PostInteraction:  data[7],
+		CustomData:       customData,
 	}
 
 	return e, nil

@@ -179,6 +179,10 @@ func TestSettlementPostInteractionData(t *testing.T) {
 		assert.False(t,
 			data.CanExecuteAt(common.BigToAddress(big.NewInt(2)), start+50),
 		)
+		assert.True(t, data.IsExclusivityPeriod(start+5))
+		assert.False(t, data.IsExclusivityPeriod(start+20))
+		assert.True(t, data.IsExclusiveResolver(common.BigToAddress(big.NewInt(0))))
+		assert.False(t, data.IsExclusiveResolver(common.BigToAddress(big.NewInt(1))))
 	})
 }
 

@@ -1,11 +1,9 @@
 package limitorder_test
 
 import (
-	"math/big"
 	"testing"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/limitorder"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -44,42 +42,6 @@ func TestExtension(t *testing.T) {
 				83, 128, 53, 237, 54, 0, 0, 56,
 			},
 			CustomData: []byte{},
-			PostInteractionData: limitorder.SettlementPostInteractionData{
-				Whitelist: []limitorder.WhitelistItem{
-					{
-						AddressHalf: "b09498030ae3416b66dc",
-						Delay:       big.NewInt(0),
-					},
-					{
-						AddressHalf: "6de5e0e428ac771d77b5",
-						Delay:       big.NewInt(0),
-					},
-					{
-						AddressHalf: "339fb574bdc56763f995",
-						Delay:       big.NewInt(0),
-					},
-					{
-						AddressHalf: "d18bd45f0b94f54a968f",
-						Delay:       big.NewInt(0),
-					},
-					{
-						AddressHalf: "d61b892b2ad624901185",
-						Delay:       big.NewInt(0),
-					},
-					{
-						AddressHalf: "bb2ef6bb1a30be7ee6be",
-						Delay:       big.NewInt(0),
-					},
-					{
-						AddressHalf: "ade19567bb538035ed36",
-						Delay:       big.NewInt(0),
-					},
-				},
-				IntegratorFee:      nil,
-				BankFee:            nil,
-				ResolvingStartTime: big.NewInt(1736454976),
-				CustomReceiver:     common.Address{},
-			},
 		}
 
 		encodedExtension := extension.Encode()
