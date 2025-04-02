@@ -141,3 +141,36 @@ func (s SettlementPostInteractionData) CanExecuteAt(executor common.Address, exe
 
 	return false
 }
+
+func (s SettlementPostInteractionData) IsExclusivityPeriod(ts int64) bool {
+	if len(s.Whitelist) == 0 {
+		return false
+	}
+
+	if len(s.Whitelist) == 1 {
+		return true
+	}
+
+	if s.Whitelist[0].Delay == s.Whitelist[1].Delay {
+		return false
+	}
+
+	return ts <= s.ResolvingStartTime+s.Whitelist[1].Delay
+}
+
+func (s SettlementPostInteractionData) IsExclusiveResolver(resolver common.Address) bool {
+	if len(s.Whitelist) == 0 {
+		return false
+	}
+
+	addressHalf := HalfAddressFromAddress(resolver)
+	if len(s.Whitelist) == 1 {
+		return addressHalf == s.Whitelist[0].AddressHalf
+	}
+
+	if s.Whitelist[0].Delay == s.Whitelist[1].Delay {
+		return false
+	}
+
+	return addressHalf == s.Whitelist[0].AddressHalf
+}
