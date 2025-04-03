@@ -17,3 +17,13 @@ func HalfAddressFromAddress(a common.Address) AddressHalf {
 func AddressFromFirstBytes(s []byte) common.Address {
 	return common.BytesToAddress(s[:common.AddressLength])
 }
+
+func BytesToAddressHalf(bs []byte) AddressHalf {
+	var addressHalf AddressHalf
+	copy(addressHalf[:], bs)
+	return addressHalf
+}
+
+func HexToAddressHalf(hex string) AddressHalf {
+	return BytesToAddressHalf(common.FromHex(hex))
+}

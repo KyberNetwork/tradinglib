@@ -87,31 +87,29 @@ type AuctionGasCostInfo struct {
 // Logic is copied from
 // https://etherscan.io/address/0xfb2809a5314473e1165f6b58018e20ed8f07b840#code#F23#L140
 // nolint: gomnd
-func DecodeAuctionDetails(data []byte) (AuctionDetails, error) {
-	bi := decode.NewBytesIterator(data)
-
-	gasBumpEstimate, err := bi.NextUint24()
+func DecodeAuctionDetails(iter *decode.BytesIterator) (AuctionDetails, error) {
+	gasBumpEstimate, err := iter.NextUint24()
 	if err != nil {
 		return AuctionDetails{}, fmt.Errorf("next gas bump estimate: %w", err)
 	}
-	gasPriceEstimate, err := bi.NextUint32()
+	gasPriceEstimate, err := iter.NextUint32()
 	if err != nil {
 		return AuctionDetails{}, fmt.Errorf("next gas price estimate: %w", err)
 	}
-	startTime, err := bi.NextUint32()
+	startTime, err := iter.NextUint32()
 	if err != nil {
 		return AuctionDetails{}, fmt.Errorf("next start time: %w", err)
 	}
-	duration, err := bi.NextUint24()
+	duration, err := iter.NextUint24()
 	if err != nil {
 		return AuctionDetails{}, fmt.Errorf("next duration: %w", err)
 	}
-	initialRateBump, err := bi.NextUint24()
+	initialRateBump, err := iter.NextUint24()
 	if err != nil {
 		return AuctionDetails{}, fmt.Errorf("next initial rate bump: %w", err)
 	}
 
-	points, err := decodeAuctionPoints(bi.RemainingData())
+	points, err := decodeAuctionPoints(iter)
 	if err != nil {
 		return AuctionDetails{}, fmt.Errorf("decode auction points: %w", err)
 	}
@@ -128,20 +126,19 @@ func DecodeAuctionDetails(data []byte) (AuctionDetails, error) {
 	)
 }
 
-func decodeAuctionPoints(data []byte) ([]AuctionPoint, error) {
-	bi := decode.NewBytesIterator(data)
-	pointsLength, err := bi.NextUint8()
+func decodeAuctionPoints(iter *decode.BytesIterator) ([]AuctionPoint, error) {
+	pointsLength, err := iter.NextUint8()
 	if err != nil {
 		return nil, fmt.Errorf("get points length: %w", err)
 	}
 
 	points := make([]AuctionPoint, 0, pointsLength)
 	for range pointsLength {
-		coefficient, err := bi.NextUint24()
+		coefficient, err := iter.NextUint24()
 		if err != nil {
 			return nil, fmt.Errorf("next coefficient: %w", err)
 		}
-		delay, err := bi.NextUint16()
+		delay, err := iter.NextUint16()
 		if err != nil {
 			return nil, fmt.Errorf("next delay: %w", err)
 		}
