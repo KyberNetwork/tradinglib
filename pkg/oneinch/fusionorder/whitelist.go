@@ -5,7 +5,6 @@ import (
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 type WhitelistItem struct {
@@ -35,7 +34,6 @@ func DecodeWhitelist(iter *decode.BytesIterator) (Whitelist, error) {
 		if err != nil {
 			return Whitelist{}, fmt.Errorf("get whitelist item address half: %w", err)
 		}
-		fmt.Println(hexutil.Encode(addressHalfBytes[:]))
 
 		delay, err := iter.NextUint16()
 		if err != nil {
