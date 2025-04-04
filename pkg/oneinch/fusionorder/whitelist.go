@@ -107,3 +107,14 @@ func (wl Whitelist) IsExclusiveResolver(resolver common.Address) bool {
 
 	return addressHalf == wl.Whitelist[0].AddressHalf
 }
+
+func (wl Whitelist) IsWhitelisted(taker common.Address) bool {
+	addressHalf := HalfAddressFromAddress(taker)
+	for _, item := range wl.Whitelist {
+		if addressHalf == item.AddressHalf {
+			return true
+		}
+	}
+
+	return false
+}

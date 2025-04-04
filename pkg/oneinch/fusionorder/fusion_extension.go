@@ -10,89 +10,12 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-var (
-	ErrInvalidExtension     = errors.New("invalid extension")
-	ErrInvalidIntegratorFee = errors.New("invalid integrator fee")
-	ErrInvalidResolverFee   = errors.New("invalid resolver fee")
-)
-
-type IntegratorFee struct {
-	Integrator common.Address
-	Protocol   common.Address
-	Fee        uint16 // in bps
-	Share      uint16 // in bps
-}
-
-func NewIntegratorFee(
-	integrator common.Address,
-	protocol common.Address,
-	fee uint16,
-	share uint16,
-) (IntegratorFee, error) {
-	if fee == 0 {
-		if share != 0 {
-			return IntegratorFee{}, fmt.Errorf(
-				"%w: share must be zero if fee is zero", ErrInvalidIntegratorFee)
-		}
-		if integrator != (common.Address{}) {
-			return IntegratorFee{}, fmt.Errorf(
-				"%w: integrator address must be zero if fee is zero", ErrInvalidIntegratorFee)
-		}
-		if protocol != (common.Address{}) {
-			return IntegratorFee{}, fmt.Errorf(
-				"%w: protocol address must be zero if fee is zero", ErrInvalidIntegratorFee)
-		}
-	}
-
-	if (integrator == (common.Address{}) || protocol == (common.Address{})) && fee != 0 {
-		return IntegratorFee{}, fmt.Errorf(
-			"%w: fee must be zero if integrator or protocol is zero address", ErrInvalidIntegratorFee)
-	}
-
-	return IntegratorFee{
-		Integrator: integrator,
-		Protocol:   protocol,
-		Fee:        fee,
-		Share:      share,
-	}, nil
-}
-
-type ResolverFee struct {
-	Receiver          common.Address
-	Fee               uint16 // in bps
-	WhitelistDiscount uint16 // in bps
-}
-
-func NewResolverFee(receiver common.Address, fee uint16, whitelistDiscount uint16) (ResolverFee, error) {
-	if receiver == (common.Address{}) && fee != 0 {
-		return ResolverFee{}, fmt.Errorf(
-			"%w: fee must be zero if receiver is zero address", ErrInvalidResolverFee)
-	}
-	if receiver != (common.Address{}) && fee == 0 {
-		return ResolverFee{}, fmt.Errorf(
-			"%w: receiver must be zero address if fee is zero", ErrInvalidResolverFee)
-	}
-	if fee == 0 && whitelistDiscount != 0 {
-		return ResolverFee{}, fmt.Errorf(
-			"%w: whitelist discount must be zero if fee is zero", ErrInvalidResolverFee)
-	}
-
-	return ResolverFee{
-		Receiver:          receiver,
-		Fee:               fee,
-		WhitelistDiscount: whitelistDiscount,
-	}, nil
-}
-
-type Fees struct {
-	ResolverFee   ResolverFee
-	IntegratorFee IntegratorFee
-}
+var ErrInvalidExtension = errors.New("invalid extension")
 
 type Extra struct {
 	MakerPermit    limitorder.Interaction
 	CustomReceiver common.Address
-	Fees           Fees
+	Fees           limitorder.Fees
 }
 
 type FusionExtension struct {
@@ -195,9 +118,9 @@ func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExte
 		return fusionExtension, nil
 	}
 
-	var integratorFee IntegratorFee
+	var integratorFee limitorder.IntegratorFee
 	if postInteractionData.InteractionData.IntegratorFee != 0 {
-		integratorFee, err = NewIntegratorFee(
+		integratorFee, err = limitorder.NewIntegratorFee(
 			postInteractionData.IntegratorFeeRecipient,
 			postInteractionData.ProtocolFeeRecipient,
 			postInteractionData.InteractionData.IntegratorFee,
@@ -208,9 +131,9 @@ func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExte
 		}
 	}
 
-	var resolverFee ResolverFee
+	var resolverFee limitorder.ResolverFee
 	if postInteractionData.InteractionData.ResolverFee != 0 {
-		resolverFee, err = NewResolverFee(
+		resolverFee, err = limitorder.NewResolverFee(
 			postInteractionData.ProtocolFeeRecipient,
 			postInteractionData.InteractionData.ResolverFee,
 			postInteractionData.InteractionData.WhitelistDiscount,
@@ -220,9 +143,9 @@ func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExte
 		}
 	}
 
-	fusionExtension.Extra.Fees = Fees{
-		IntegratorFee: integratorFee,
-		ResolverFee:   resolverFee,
+	fusionExtension.Extra.Fees = limitorder.Fees{
+		Integrator: integratorFee,
+		Resolver:   resolverFee,
 	}
 
 	return fusionExtension, nil

@@ -126,6 +126,7 @@ func (c Calculator) CalcAuctionMakingAmount(makingAmount *big.Int, rate int64) *
 
 func CalcAuctionTakingAmount(takingAmount *big.Int, rate int64) *big.Int {
 	auctionTakingAmount := new(big.Int).Mul(takingAmount, big.NewInt(rate+RateBumpDenominator))
+	auctionTakingAmount.Add(auctionTakingAmount, big.NewInt(RateBumpDenominator-1))
 	return auctionTakingAmount.Div(auctionTakingAmount, big.NewInt(RateBumpDenominator))
 }
 

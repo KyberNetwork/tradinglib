@@ -66,8 +66,6 @@ func TestExtension(t *testing.T) {
 		e, err := limitorder.DecodeExtension(encodedExtension)
 		require.NoError(t, err)
 
-		t.Logf("Extension: %+v", e)
-
 		assert.False(t, e.IsEmpty())
 		assert.NotEmpty(t, e.MakingAmountData)
 		assert.NotEmpty(t, e.TakingAmountData)
