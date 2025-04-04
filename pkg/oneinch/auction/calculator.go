@@ -19,7 +19,6 @@ type Calculator struct {
 	duration        *big.Int
 	initialRateBump *big.Int
 	points          []fusionorder.AuctionPoint
-	takerFeeRatio   *big.Int
 	gasCost         fusionorder.AuctionGasCostInfo
 }
 
@@ -28,7 +27,6 @@ func NewCalculator(
 	duration int64,
 	initialRateBump int64,
 	points []fusionorder.AuctionPoint,
-	takerFeeRatio int64,
 	gasCost fusionorder.AuctionGasCostInfo,
 ) Calculator {
 	return Calculator{
@@ -36,13 +34,11 @@ func NewCalculator(
 		duration:        big.NewInt(duration),
 		initialRateBump: big.NewInt(initialRateBump),
 		points:          points,
-		takerFeeRatio:   big.NewInt(takerFeeRatio),
 		gasCost:         gasCost,
 	}
 }
 
 func NewCalculatorFromAuctionData(
-	takerFeeRatio int64,
 	auctionDetails fusionorder.AuctionDetails,
 ) Calculator {
 	return NewCalculator(
@@ -50,7 +46,6 @@ func NewCalculatorFromAuctionData(
 		auctionDetails.Duration,
 		auctionDetails.InitialRateBump,
 		auctionDetails.Points,
-		takerFeeRatio,
 		auctionDetails.GasCost,
 	)
 }
@@ -72,26 +67,14 @@ func (c Calculator) CalcRateBump(time, blockBaseFee *big.Int) int64 {
 }
 
 func (c Calculator) getGasPriceBump(blockBaseFee *big.Int) *big.Int {
-	zeroBigInt := big.NewInt(0)
-	if zeroBigInt.Cmp(blockBaseFee) == 0 {
-		return zeroBigInt
-	}
-	if c.gasCost.GasPriceEstimate == 0 {
-		return zeroBigInt
-	}
-	if c.gasCost.GasBumpEstimate == 0 {
-		return zeroBigInt
+	if blockBaseFee.Sign() == 0 || c.gasCost.GasPriceEstimate == 0 || c.gasCost.GasBumpEstimate == 0 {
+		return big.NewInt(0)
 	}
 
-	return new(big.Int).Div(
-		new(big.Int).Div(
-			new(big.Int).Mul(
-				big.NewInt(c.gasCost.GasBumpEstimate), blockBaseFee,
-			),
-			big.NewInt(c.gasCost.GasPriceEstimate),
-		),
-		big.NewInt(GasPriceBase),
-	)
+	gasPriceBump := big.NewInt(c.gasCost.GasBumpEstimate)
+	gasPriceBump.Mul(gasPriceBump, blockBaseFee)
+	gasPriceBump.Div(gasPriceBump, big.NewInt(c.gasCost.GasPriceEstimate))
+	return gasPriceBump.Div(gasPriceBump, big.NewInt(GasPriceBase))
 }
 
 func (c Calculator) getAuctionBump(blockTime *big.Int) *big.Int {
@@ -116,65 +99,47 @@ func (c Calculator) getAuctionBump(blockTime *big.Int) *big.Int {
 			// This complicated formula below is copied from
 			// smart_contract: https://github.com/1inch/limit-order-settlement/blob/2eef6f86bf0142024f9a8bf054a0256b41d8362a/contracts/extensions/BaseExtension.sol#L180
 			// fusion_sdk: https://github.com/1inch/fusion-sdk/blob/8721c62612b08cc7c0e01423a1bdd62594e7b8d0/src/auction-calculator/auction-calculator.ts#L148
-			return new(big.Int).Div(
-				new(big.Int).Add(
-					new(big.Int).Mul(
-						new(big.Int).Sub(blockTime, currentPointTime),
-						nextRateBump,
-					),
-					new(big.Int).Mul(
-						new(big.Int).Sub(nextPointTime, blockTime),
-						currentRateBump,
-					),
-				),
-				new(big.Int).Sub(nextPointTime, currentPointTime),
-			)
+			diffToCurrent := new(big.Int).Sub(blockTime, currentPointTime)
+			diffToNext := new(big.Int).Sub(nextPointTime, blockTime)
+			totalDiff := new(big.Int).Sub(nextPointTime, currentPointTime)
+			auctionBump := diffToCurrent.Mul(diffToCurrent, nextRateBump)
+			auctionBump.Add(auctionBump, diffToNext.Mul(diffToNext, currentRateBump))
+			return auctionBump.Div(auctionBump, totalDiff)
 		}
 
 		currentPointTime = nextPointTime
 		currentRateBump = nextRateBump
 	}
 
-	return new(big.Int).Div(
-		new(big.Int).Mul(
-			new(big.Int).Sub(auctionFinishTime, blockTime),
-			currentRateBump,
-		),
-		new(big.Int).Sub(auctionFinishTime, currentPointTime),
-	)
+	auctionBump := new(big.Int).Sub(auctionFinishTime, blockTime)
+	auctionBump.Mul(auctionBump, currentRateBump)
+	return auctionBump.Div(auctionBump, new(big.Int).Sub(auctionFinishTime, currentPointTime))
 }
 
 func (c Calculator) CalcAuctionTakingAmount(takingAmount *big.Int, rate int64) *big.Int {
-	return CalcAuctionTakingAmount(takingAmount, rate, c.takerFeeRatio)
+	return CalcAuctionTakingAmount(takingAmount, rate)
 }
 
-func CalcAuctionTakingAmount(takingAmount *big.Int, rate int64, takerFeeRatio *big.Int) *big.Int {
-	rateBumpDenominator := big.NewInt(RateBumpDenominator)
-	auctionTakingAmount := new(big.Int).Div(
-		new(big.Int).Mul(
-			takingAmount,
-			new(big.Int).Add(big.NewInt(rate), rateBumpDenominator),
-		),
-		rateBumpDenominator,
-	)
+func (c Calculator) CalcAuctionMakingAmount(makingAmount *big.Int, rate int64) *big.Int {
+	return CalcAuctionMakingAmount(makingAmount, rate)
+}
 
-	if takerFeeRatio.Cmp(big.NewInt(0)) == 0 {
-		return auctionTakingAmount
-	}
+func CalcAuctionTakingAmount(takingAmount *big.Int, rate int64) *big.Int {
+	auctionTakingAmount := new(big.Int).Mul(takingAmount, big.NewInt(rate+RateBumpDenominator))
+	auctionTakingAmount.Add(auctionTakingAmount, big.NewInt(RateBumpDenominator-1))
+	return auctionTakingAmount.Div(auctionTakingAmount, big.NewInt(RateBumpDenominator))
+}
 
-	return fusionorder.AddRatioToAmount(auctionTakingAmount, takerFeeRatio)
+func CalcAuctionMakingAmount(makingAmount *big.Int, rate int64) *big.Int {
+	auctionMakingAmount := new(big.Int).Mul(makingAmount, big.NewInt(RateBumpDenominator))
+	return auctionMakingAmount.Mul(auctionMakingAmount, big.NewInt(rate+RateBumpDenominator))
 }
 
 func CalcInitialRateBump(startAmount *big.Int, endAmount *big.Int) int64 {
 	rateBumpDenominator := big.NewInt(RateBumpDenominator)
-	bump := new(big.Int).Mul(
-		new(big.Int).Div(
-			new(big.Int).Mul(rateBumpDenominator, startAmount),
-			endAmount,
-		),
-		rateBumpDenominator,
-	)
-
+	bump := new(big.Int).Mul(rateBumpDenominator, startAmount)
+	bump.Div(bump, endAmount)
+	bump.Sub(bump, rateBumpDenominator)
 	return bump.Int64()
 }
 
@@ -183,11 +148,7 @@ func BaseFeeToGasPriceEstimate(baseFee *big.Int) *big.Int {
 }
 
 func CalcGasBumpEstimate(endTakingAmount, gasCostInToToken *big.Int) *big.Int {
-	return new(big.Int).Div(
-		new(big.Int).Mul(
-			gasCostInToToken,
-			big.NewInt(RateBumpDenominator),
-		),
-		endTakingAmount,
-	)
+	gasBump := big.NewInt(RateBumpDenominator)
+	gasBump.Mul(gasBump, gasCostInToToken)
+	return gasBump.Div(gasBump, endTakingAmount)
 }
