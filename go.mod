@@ -11,7 +11,7 @@ require (
 	github.com/KyberNetwork/blockchain-toolkit v0.8.2-0.20241123202223-0b77d465adc4
 	github.com/KyberNetwork/cclog v1.1.2
 	github.com/KyberNetwork/kyber-trace-go v0.1.2
-	github.com/KyberNetwork/kyberswap-dex-lib v0.93.10
+	github.com/KyberNetwork/kyberswap-dex-lib v0.97.1
 	github.com/TheZeroSlave/zapsentry v1.23.0
 	github.com/duoxehyon/mev-share-go v0.3.0
 	github.com/ethereum/go-ethereum v1.15.5
@@ -32,10 +32,10 @@ require (
 
 require (
 	github.com/KyberNetwork/elastic-go-sdk/v2 v2.0.4 // indirect
-	github.com/KyberNetwork/ethrpc v0.7.3 // indirect
+	github.com/KyberNetwork/ethrpc v0.7.4 // indirect
 	github.com/KyberNetwork/int256 v0.1.4 // indirect
 	github.com/KyberNetwork/kutils v0.3.8 // indirect
-	github.com/KyberNetwork/logger v1.0.1 // indirect
+	github.com/KyberNetwork/logger v1.0.3 // indirect
 	github.com/KyberNetwork/uniswapv3-sdk-uint256 v0.5.5 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/VictoriaMetrics/fastcache v1.12.2 // indirect
