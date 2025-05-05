@@ -47,7 +47,13 @@ func RecoverSignerAddress(hexEncodedHash string, hexEncodedSignature string) (co
 }
 
 func GetFrom(tx *types.Transaction) (common.Address, error) {
-	from, err := types.Sender(types.LatestSignerForChainID(tx.ChainId()), tx)
+	var chainID *big.Int
+	// NOTE: handle case "Legacy Homestead Transaction", the tx chainID returns 0 instead of nil.
+	if tx.ChainId().Sign() != 0 {
+		chainID = tx.ChainId()
+	}
+	signer := types.LatestSignerForChainID(chainID)
+	from, err := types.Sender(signer, tx)
 	return from, err
 }
 
