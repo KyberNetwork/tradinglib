@@ -1,75 +1,75 @@
-run:
-  timeout: 5m
-
+version: "2"
 linters:
-  enable-all: true
+  default: all
   disable:
-    - maligned
-    - interfacer
-    - scopelint
-    - gomoddirectives
-    - nolintlint
-    - exhaustivestruct
-    - wrapcheck
-    - varnamelen
-    - golint
-    - paralleltest
-    - exhaustruct
-    - wsl
-    - nlreturn
-    - tagliatelle
-    - goerr113
-    - ireturn
-    - nonamedreturns
-    - depguard
-    - noctx
-    - structcheck # it shows elems in stack pkg is unused, but it is used :D
-    - exhaustive # using default is enough x.x
-    - gochecknoinits
-    - testifylint
-    - intrange
-    - mnd
     - canonicalheader
+    - depguard
+    - err113
+    - exhaustive
+    - exhaustruct
+    - funcorder # don't have effort to fix this
+    - gochecknoglobals
+    - gochecknoinits
+    - godot
+    - gomoddirectives
+    - intrange
+    - ireturn
+    - mnd
+    - nlreturn
+    - noctx
+    - nolintlint
+    - nonamedreturns
+    - paralleltest
     - perfsprint
     - revive
-    - gochecknoglobals
-    - gomnd
-    - godot
-
-linters-settings:
-  funlen:
-    # Checks the number of lines in a function.
-    # If lower than 0, disable the check.
-    # Default: 60
-    lines: 80
-    # Checks the number of statements in a function.
-    # If lower than 0, disable the check.
-    # Default: 40
-    statements: 50
-  cyclop:
-    # The maximal code complexity to report.
-    # Default: 10
-    max-complexity: 15
-    # The maximal average package complexity.
-    # If it's higher than 0.0 (float) the check is enabled
-    # Default: 0.0
-    package-average: 0.0
-    # Should ignore tests.
-    # Default: false
-    skip-tests: true
-  gosec:
-    exclude-generated: false
-    excludes:
-      - G115
-
-issues:
-  exclude-rules:
-    - linters:
-        - funlen
-        - lll
-        - gocognit
-      path: _test\.go # disable for test file
-    - linters:
-        - lll
-        - funlen
-      source: "^// " # disable for comments
+    - tagliatelle
+    - testifylint
+    - varnamelen
+    - wrapcheck
+    - wsl
+  settings:
+    cyclop:
+      max-complexity: 15
+      package-average: 0
+    funlen:
+      lines: 80
+      statements: 50
+    gosec:
+      excludes:
+        - G115
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - funlen
+          - gocognit
+          - lll
+        path: _test\.go
+      - linters:
+          - funlen
+          - lll
+        source: "^// "
+      - linters:
+          - cyclop
+        path: (.+)_test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
