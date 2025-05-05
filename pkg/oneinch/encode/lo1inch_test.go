@@ -8,10 +8,10 @@ import (
 	"testing"
 
 	ksent "github.com/KyberNetwork/kyberswap-dex-lib/pkg/entity"
+	_ "github.com/KyberNetwork/kyberswap-dex-lib/pkg/msgpack" // make sure that every init registerFactory function is ran
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/source/pool"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/valueobject"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/encode"
-	"github.com/KyberNetwork/tradinglib/pkg/poolsimulators"
 	"github.com/KyberNetwork/tradinglib/pkg/testutil"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/require"
@@ -27,7 +27,15 @@ func TestPackLO1inch(t *testing.T) {
 	)
 	require.NoError(t, json.Unmarshal([]byte(testLO1inchPoolData), &poolEnt))
 
-	pSim, err := poolsimulators.PoolSimulatorFromPool(poolEnt, uint(chainID))
+	factoryFn := pool.Factory(poolEnt.Type)
+	require.NotNil(t, factoryFn)
+
+	pSim, err := factoryFn(pool.FactoryParams{
+		EntityPool:  poolEnt,
+		ChainID:     valueobject.ChainID(chainID),
+		BasePoolMap: nil,
+		EthClient:   nil,
+	})
 	require.NoError(t, err)
 
 	out, err := pSim.CalcAmountOut(

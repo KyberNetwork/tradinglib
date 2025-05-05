@@ -99,9 +99,7 @@ func TestGetFrom(t *testing.T) {
 			// Get the signer address from the signed transaction
 			signerAddress, err := eth.GetFrom(signedTx)
 			if tt.shouldPass {
-				if err != nil {
-					t.Fatal(err)
-				}
+				require.NoError(t, err, tt)
 				assert.Equal(t, address, signerAddress, "The recovered address should match the original address")
 			} else {
 				assert.Error(t, err, "Expected an error")

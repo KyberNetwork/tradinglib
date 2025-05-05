@@ -1,3 +1,4 @@
+// DEPRECATED: pls refer to https://github.com/KyberNetwork/reserve-taker/blob/v4.0.4/internal/pool/parse_pool.go#L10-L23
 package poolsimulators
 
 import (
@@ -29,7 +30,12 @@ func PoolSimulatorFromPool(pool ksent.Pool, chainID uint) (pkgpool.IPoolSimulato
 	})
 }
 
-func newSwapLimit(dex string, limit map[string]*big.Int) pkgpool.SwapLimit {
+// https://github.com/KyberNetwork/router-service/blob/v1.98.4/internal/pkg/usecase/poolfactory/pool_factory.go#L189C1-L214C2
+func newSwapLimit(
+	dex string,
+	limit map[string]*big.Int,
+	// poolManagerExtraData usecasetypes.PoolManagerExtraData,
+) pkgpool.SwapLimit {
 	switch dex {
 	case pooltypes.PoolTypes.Synthetix,
 		pooltypes.PoolTypes.NativeV1,
