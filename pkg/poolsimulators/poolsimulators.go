@@ -1,3 +1,4 @@
+// DEPRECATED: pls refer to https://github.com/KyberNetwork/reserve-taker/blob/v4.0.4/internal/pool/parse_pool.go#L10-L23
 package poolsimulators
 
 import (
@@ -11,8 +12,6 @@ import (
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/swaplimit"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/valueobject"
 )
-
-// DEPRECATED: pls refer to https://github.com/KyberNetwork/reserve-taker/blob/v4.0.4/internal/pool/parse_pool.go#L10-L23
 
 var ErrPoolTypeNotSupported = errors.New("pool type is not supported")
 
