@@ -43,8 +43,8 @@ func AddBPS(amount *big.Int, bps int64) *big.Int {
 
 // WeiToFloat ..
 func WeiToFloat(amount *big.Int, decimals int64) float64 {
-	amountFloat := big.NewFloat(0).SetInt(amount)
-	amountFloat.Quo(amountFloat, big.NewFloat(0).SetInt(Exp10(decimals)))
+	amountFloat := new(big.Float).SetInt(amount)
+	amountFloat.Quo(amountFloat, new(big.Float).SetInt(Exp10(decimals)))
 	output, _ := amountFloat.Float64()
 	return output
 }
