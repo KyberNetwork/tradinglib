@@ -37,6 +37,7 @@ const (
 	BundleSenderTypeJetbldr
 	BundleSenderTypePenguin
 	BundleSenderTypeLoki
+	BundleSenderTypeQuasar
 )
 
 const (
