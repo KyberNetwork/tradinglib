@@ -26,4 +26,6 @@ const (
 	BuilderLokiID        string = "builder-loki"
 	BuilderMerkleID      string = "builder-merkle"
 	BuilderBlinkID       string = "builder-blink"
+	BuilderQuasarID      string = "builder-quasar"
+	BuilderNetID         string = "builder-buildernet"
 )
