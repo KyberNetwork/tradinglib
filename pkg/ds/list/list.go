@@ -31,3 +31,18 @@ func (l List[T]) Last() (T, bool) {
 func (l List[T]) Len() int {
 	return len(l)
 }
+
+func (l List[T]) ForEach(f func(e T)) {
+	for _, v := range l {
+		f(v)
+	}
+}
+
+func (l List[T]) FindFn(f func(e T) bool) bool {
+	for _, v := range l {
+		if f(v) {
+			return true
+		}
+	}
+	return false
+}
