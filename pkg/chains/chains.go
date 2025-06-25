@@ -16,6 +16,8 @@ const (
 	BTTC        ChainID = 199        // bttc
 	Fantom      ChainID = 250        // fantom
 	KCC         ChainID = 321        // kcc
+	Near        ChainID = 397        // near
+	IntentNear  ChainID = 398        // intentnear
 	Moonbeam    ChainID = 1284       // moonbeam
 	Kava        ChainID = 2222       // kava
 	Canto       ChainID = 7700       // canto
@@ -27,4 +29,5 @@ const (
 	Oasis       ChainID = 42262      // oasis
 	Avax        ChainID = 43114      // avax
 	Aurora      ChainID = 1313161554 // aurora
+
 )

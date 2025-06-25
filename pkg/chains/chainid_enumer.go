@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-const _ChainIDName = "ethereumoptimismcronosbscetctomognosisvelaspolygonbttcfantomkccmoonbeamkavacantoklaytnethwfusionarbitrumcelooasisavaxaurora"
-const _ChainIDLowerName = "ethereumoptimismcronosbscetctomognosisvelaspolygonbttcfantomkccmoonbeamkavacantoklaytnethwfusionarbitrumcelooasisavaxaurora"
+const _ChainIDName = "ethereumoptimismcronosbscetctomognosisvelaspolygonbttcfantomkccnearintentnearmoonbeamkavacantoklaytnethwfusionarbitrumcelooasisavaxaurora"
+const _ChainIDLowerName = "ethereumoptimismcronosbscetctomognosisvelaspolygonbttcfantomkccnearintentnearmoonbeamkavacantoklaytnethwfusionarbitrumcelooasisavaxaurora"
 
 var _ChainIDMap = map[ChainID]string{
 	1:          _ChainIDName[0:8],
@@ -25,17 +25,19 @@ var _ChainIDMap = map[ChainID]string{
 	199:        _ChainIDName[50:54],
 	250:        _ChainIDName[54:60],
 	321:        _ChainIDName[60:63],
-	1284:       _ChainIDName[63:71],
-	2222:       _ChainIDName[71:75],
-	7700:       _ChainIDName[75:80],
-	8217:       _ChainIDName[80:86],
-	10001:      _ChainIDName[86:90],
-	32659:      _ChainIDName[90:96],
-	42161:      _ChainIDName[96:104],
-	42220:      _ChainIDName[104:108],
-	42262:      _ChainIDName[108:113],
-	43114:      _ChainIDName[113:117],
-	1313161554: _ChainIDName[117:123],
+	397:        _ChainIDName[63:67],
+	398:        _ChainIDName[67:77],
+	1284:       _ChainIDName[77:85],
+	2222:       _ChainIDName[85:89],
+	7700:       _ChainIDName[89:94],
+	8217:       _ChainIDName[94:100],
+	10001:      _ChainIDName[100:104],
+	32659:      _ChainIDName[104:110],
+	42161:      _ChainIDName[110:118],
+	42220:      _ChainIDName[118:122],
+	42262:      _ChainIDName[122:127],
+	43114:      _ChainIDName[127:131],
+	1313161554: _ChainIDName[131:137],
 }
 
 func (i ChainID) String() string {
@@ -61,6 +63,8 @@ func _ChainIDNoOp() {
 	_ = x[BTTC-(199)]
 	_ = x[Fantom-(250)]
 	_ = x[KCC-(321)]
+	_ = x[Near-(397)]
+	_ = x[IntentNear-(398)]
 	_ = x[Moonbeam-(1284)]
 	_ = x[Kava-(2222)]
 	_ = x[Canto-(7700)]
@@ -74,7 +78,7 @@ func _ChainIDNoOp() {
 	_ = x[Aurora-(1313161554)]
 }
 
-var _ChainIDValues = []ChainID{Ethereum, Optimism, Cronos, BSC, ETC, Tomo, Gnosis, Velas, Polygon, BTTC, Fantom, KCC, Moonbeam, Kava, Canto, Klaytn, EthereumPow, Fusion, Arbitrum, Celo, Oasis, Avax, Aurora}
+var _ChainIDValues = []ChainID{Ethereum, Optimism, Cronos, BSC, ETC, Tomo, Gnosis, Velas, Polygon, BTTC, Fantom, KCC, Near, IntentNear, Moonbeam, Kava, Canto, Klaytn, EthereumPow, Fusion, Arbitrum, Celo, Oasis, Avax, Aurora}
 
 var _ChainIDNameToValueMap = map[string]ChainID{
 	_ChainIDName[0:8]:          Ethereum,
@@ -101,28 +105,32 @@ var _ChainIDNameToValueMap = map[string]ChainID{
 	_ChainIDLowerName[54:60]:   Fantom,
 	_ChainIDName[60:63]:        KCC,
 	_ChainIDLowerName[60:63]:   KCC,
-	_ChainIDName[63:71]:        Moonbeam,
-	_ChainIDLowerName[63:71]:   Moonbeam,
-	_ChainIDName[71:75]:        Kava,
-	_ChainIDLowerName[71:75]:   Kava,
-	_ChainIDName[75:80]:        Canto,
-	_ChainIDLowerName[75:80]:   Canto,
-	_ChainIDName[80:86]:        Klaytn,
-	_ChainIDLowerName[80:86]:   Klaytn,
-	_ChainIDName[86:90]:        EthereumPow,
-	_ChainIDLowerName[86:90]:   EthereumPow,
-	_ChainIDName[90:96]:        Fusion,
-	_ChainIDLowerName[90:96]:   Fusion,
-	_ChainIDName[96:104]:       Arbitrum,
-	_ChainIDLowerName[96:104]:  Arbitrum,
-	_ChainIDName[104:108]:      Celo,
-	_ChainIDLowerName[104:108]: Celo,
-	_ChainIDName[108:113]:      Oasis,
-	_ChainIDLowerName[108:113]: Oasis,
-	_ChainIDName[113:117]:      Avax,
-	_ChainIDLowerName[113:117]: Avax,
-	_ChainIDName[117:123]:      Aurora,
-	_ChainIDLowerName[117:123]: Aurora,
+	_ChainIDName[63:67]:        Near,
+	_ChainIDLowerName[63:67]:   Near,
+	_ChainIDName[67:77]:        IntentNear,
+	_ChainIDLowerName[67:77]:   IntentNear,
+	_ChainIDName[77:85]:        Moonbeam,
+	_ChainIDLowerName[77:85]:   Moonbeam,
+	_ChainIDName[85:89]:        Kava,
+	_ChainIDLowerName[85:89]:   Kava,
+	_ChainIDName[89:94]:        Canto,
+	_ChainIDLowerName[89:94]:   Canto,
+	_ChainIDName[94:100]:       Klaytn,
+	_ChainIDLowerName[94:100]:  Klaytn,
+	_ChainIDName[100:104]:      EthereumPow,
+	_ChainIDLowerName[100:104]: EthereumPow,
+	_ChainIDName[104:110]:      Fusion,
+	_ChainIDLowerName[104:110]: Fusion,
+	_ChainIDName[110:118]:      Arbitrum,
+	_ChainIDLowerName[110:118]: Arbitrum,
+	_ChainIDName[118:122]:      Celo,
+	_ChainIDLowerName[118:122]: Celo,
+	_ChainIDName[122:127]:      Oasis,
+	_ChainIDLowerName[122:127]: Oasis,
+	_ChainIDName[127:131]:      Avax,
+	_ChainIDLowerName[127:131]: Avax,
+	_ChainIDName[131:137]:      Aurora,
+	_ChainIDLowerName[131:137]: Aurora,
 }
 
 var _ChainIDNames = []string{
@@ -138,17 +146,19 @@ var _ChainIDNames = []string{
 	_ChainIDName[50:54],
 	_ChainIDName[54:60],
 	_ChainIDName[60:63],
-	_ChainIDName[63:71],
-	_ChainIDName[71:75],
-	_ChainIDName[75:80],
-	_ChainIDName[80:86],
-	_ChainIDName[86:90],
-	_ChainIDName[90:96],
-	_ChainIDName[96:104],
-	_ChainIDName[104:108],
-	_ChainIDName[108:113],
-	_ChainIDName[113:117],
-	_ChainIDName[117:123],
+	_ChainIDName[63:67],
+	_ChainIDName[67:77],
+	_ChainIDName[77:85],
+	_ChainIDName[85:89],
+	_ChainIDName[89:94],
+	_ChainIDName[94:100],
+	_ChainIDName[100:104],
+	_ChainIDName[104:110],
+	_ChainIDName[110:118],
+	_ChainIDName[118:122],
+	_ChainIDName[122:127],
+	_ChainIDName[127:131],
+	_ChainIDName[131:137],
 }
 
 // ChainIDString retrieves an enum value from the enum constants string name.
