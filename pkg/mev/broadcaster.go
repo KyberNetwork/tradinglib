@@ -12,6 +12,7 @@ const (
 	EndpointMerkle      = "https://mempool.merkle.io/relay"
 	EndpointQuasar      = "https://rpc.quasar.win"
 	EndpointBuilderNet  = "https://direct-us.buildernet.org"
+	EndpointBTCS        = "https://rpc.btcs.com"
 )
 
 const (
@@ -28,4 +29,5 @@ const (
 	BuilderBlinkID       string = "builder-blink"
 	BuilderQuasarID      string = "builder-quasar"
 	BuilderNetID         string = "builder-buildernet"
+	BuilderBTCS          string = "builder-btcs"
 )
