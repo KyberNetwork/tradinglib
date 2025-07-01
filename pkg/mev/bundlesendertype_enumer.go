@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-const _BundleSenderTypeName = "BundleSenderTypeFlashbotBundleSenderTypeBeaverBundleSenderTypeRsyncBundleSenderTypeTitanBundleSenderTypeBloxrouteBundleSenderTypeAllBundleSenderTypeMevShareBundleSenderTypeBackrunPublicBundleSenderTypeMevBlockerBundleSenderTypeBlinkBundleSenderTypeMerkleBundleSenderTypeJetbldrBundleSenderTypePenguinBundleSenderTypeLokiBundleSenderTypeQuasarBundleSenderBuilderNet"
+const _BundleSenderTypeName = "BundleSenderTypeFlashbotBundleSenderTypeBeaverBundleSenderTypeRsyncBundleSenderTypeTitanBundleSenderTypeBloxrouteBundleSenderTypeAllBundleSenderTypeMevShareBundleSenderTypeBackrunPublicBundleSenderTypeMevBlockerBundleSenderTypeBlinkBundleSenderTypeMerkleBundleSenderTypeJetbldrBundleSenderTypePenguinBundleSenderTypeLokiBundleSenderTypeQuasarBundleSenderTypeBuilderNetBundleSenderTypeBTCS"
 
-var _BundleSenderTypeIndex = [...]uint16{0, 24, 46, 67, 88, 113, 132, 156, 185, 211, 232, 254, 277, 300, 320, 342, 364}
+var _BundleSenderTypeIndex = [...]uint16{0, 24, 46, 67, 88, 113, 132, 156, 185, 211, 232, 254, 277, 300, 320, 342, 368, 388}
 
-const _BundleSenderTypeLowerName = "bundlesendertypeflashbotbundlesendertypebeaverbundlesendertypersyncbundlesendertypetitanbundlesendertypebloxroutebundlesendertypeallbundlesendertypemevsharebundlesendertypebackrunpublicbundlesendertypemevblockerbundlesendertypeblinkbundlesendertypemerklebundlesendertypejetbldrbundlesendertypepenguinbundlesendertypelokibundlesendertypequasarbundlesenderbuildernet"
+const _BundleSenderTypeLowerName = "bundlesendertypeflashbotbundlesendertypebeaverbundlesendertypersyncbundlesendertypetitanbundlesendertypebloxroutebundlesendertypeallbundlesendertypemevsharebundlesendertypebackrunpublicbundlesendertypemevblockerbundlesendertypeblinkbundlesendertypemerklebundlesendertypejetbldrbundlesendertypepenguinbundlesendertypelokibundlesendertypequasarbundlesendertypebuildernetbundlesendertypebtcs"
 
 func (i BundleSenderType) String() string {
 	i -= 1
@@ -40,10 +40,11 @@ func _BundleSenderTypeNoOp() {
 	_ = x[BundleSenderTypePenguin-(13)]
 	_ = x[BundleSenderTypeLoki-(14)]
 	_ = x[BundleSenderTypeQuasar-(15)]
-	_ = x[BundleSenderBuilderNet-(16)]
+	_ = x[BundleSenderTypeBuilderNet-(16)]
+	_ = x[BundleSenderTypeBTCS-(17)]
 }
 
-var _BundleSenderTypeValues = []BundleSenderType{BundleSenderTypeFlashbot, BundleSenderTypeBeaver, BundleSenderTypeRsync, BundleSenderTypeTitan, BundleSenderTypeBloxroute, BundleSenderTypeAll, BundleSenderTypeMevShare, BundleSenderTypeBackrunPublic, BundleSenderTypeMevBlocker, BundleSenderTypeBlink, BundleSenderTypeMerkle, BundleSenderTypeJetbldr, BundleSenderTypePenguin, BundleSenderTypeLoki, BundleSenderTypeQuasar, BundleSenderBuilderNet}
+var _BundleSenderTypeValues = []BundleSenderType{BundleSenderTypeFlashbot, BundleSenderTypeBeaver, BundleSenderTypeRsync, BundleSenderTypeTitan, BundleSenderTypeBloxroute, BundleSenderTypeAll, BundleSenderTypeMevShare, BundleSenderTypeBackrunPublic, BundleSenderTypeMevBlocker, BundleSenderTypeBlink, BundleSenderTypeMerkle, BundleSenderTypeJetbldr, BundleSenderTypePenguin, BundleSenderTypeLoki, BundleSenderTypeQuasar, BundleSenderTypeBuilderNet, BundleSenderTypeBTCS}
 
 var _BundleSenderTypeNameToValueMap = map[string]BundleSenderType{
 	_BundleSenderTypeName[0:24]:         BundleSenderTypeFlashbot,
@@ -76,8 +77,10 @@ var _BundleSenderTypeNameToValueMap = map[string]BundleSenderType{
 	_BundleSenderTypeLowerName[300:320]: BundleSenderTypeLoki,
 	_BundleSenderTypeName[320:342]:      BundleSenderTypeQuasar,
 	_BundleSenderTypeLowerName[320:342]: BundleSenderTypeQuasar,
-	_BundleSenderTypeName[342:364]:      BundleSenderBuilderNet,
-	_BundleSenderTypeLowerName[342:364]: BundleSenderBuilderNet,
+	_BundleSenderTypeName[342:368]:      BundleSenderTypeBuilderNet,
+	_BundleSenderTypeLowerName[342:368]: BundleSenderTypeBuilderNet,
+	_BundleSenderTypeName[368:388]:      BundleSenderTypeBTCS,
+	_BundleSenderTypeLowerName[368:388]: BundleSenderTypeBTCS,
 }
 
 var _BundleSenderTypeNames = []string{
@@ -96,7 +99,8 @@ var _BundleSenderTypeNames = []string{
 	_BundleSenderTypeName[277:300],
 	_BundleSenderTypeName[300:320],
 	_BundleSenderTypeName[320:342],
-	_BundleSenderTypeName[342:364],
+	_BundleSenderTypeName[342:368],
+	_BundleSenderTypeName[368:388],
 }
 
 // BundleSenderTypeString retrieves an enum value from the enum constants string name.

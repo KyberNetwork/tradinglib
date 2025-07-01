@@ -38,7 +38,8 @@ const (
 	BundleSenderTypePenguin
 	BundleSenderTypeLoki
 	BundleSenderTypeQuasar
-	BundleSenderBuilderNet
+	BundleSenderTypeBuilderNet
+	BundleSenderTypeBTCS
 )
 
 const (
