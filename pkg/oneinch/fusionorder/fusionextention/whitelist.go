@@ -2,7 +2,7 @@ package fusionextention
 
 import (
 	"fmt"
-	
+
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/util"
 	"github.com/ethereum/go-ethereum/common"
