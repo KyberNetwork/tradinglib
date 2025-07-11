@@ -1,14 +1,15 @@
-package fusionorder
+package fusionextention
 
 import (
 	"fmt"
-
+	
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/util"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 type WhitelistItem struct {
-	AddressHalf AddressHalf
+	AddressHalf util.AddressHalf
 	Delay       int64
 }
 
@@ -30,7 +31,7 @@ func DecodeWhitelist(iter *decode.BytesIterator) (Whitelist, error) {
 
 	whitelist := make([]WhitelistItem, 0, size)
 	for range size {
-		addressHalfBytes, err := iter.NextBytes(addressHalfLength)
+		addressHalfBytes, err := iter.NextBytes(util.AddressHalfLength)
 		if err != nil {
 			return Whitelist{}, fmt.Errorf("get whitelist item address half: %w", err)
 		}
@@ -41,7 +42,7 @@ func DecodeWhitelist(iter *decode.BytesIterator) (Whitelist, error) {
 		}
 
 		whitelist = append(whitelist, WhitelistItem{
-			AddressHalf: BytesToAddressHalf(addressHalfBytes),
+			AddressHalf: util.BytesToAddressHalf(addressHalfBytes),
 			Delay:       int64(delay),
 		})
 	}
@@ -57,7 +58,7 @@ func (wl Whitelist) Length() int {
 }
 
 func (wl Whitelist) CanExecuteAt(executor common.Address, executionTime int64) bool {
-	addressHalf := HalfAddressFromAddress(executor)
+	addressHalf := util.HalfAddressFromAddress(executor)
 	allowedFrom := wl.ResolvingStartTime
 
 	for _, item := range wl.Whitelist {
@@ -96,7 +97,7 @@ func (wl Whitelist) IsExclusiveResolver(resolver common.Address) bool {
 		return false
 	}
 
-	addressHalf := HalfAddressFromAddress(resolver)
+	addressHalf := util.HalfAddressFromAddress(resolver)
 	if size == 1 {
 		return addressHalf == wl.Whitelist[0].AddressHalf
 	}
@@ -109,7 +110,7 @@ func (wl Whitelist) IsExclusiveResolver(resolver common.Address) bool {
 }
 
 func (wl Whitelist) IsWhitelisted(taker common.Address) bool {
-	addressHalf := HalfAddressFromAddress(taker)
+	addressHalf := util.HalfAddressFromAddress(taker)
 	for _, item := range wl.Whitelist {
 		if addressHalf == item.AddressHalf {
 			return true

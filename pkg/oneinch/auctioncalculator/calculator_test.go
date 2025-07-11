@@ -1,4 +1,4 @@
-package auction_test
+package auctioncalculator
 
 import (
 	"math/big"
@@ -6,8 +6,7 @@ import (
 	"time"
 
 	"github.com/KyberNetwork/tradinglib/pkg/convert"
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/auction"
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder"
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder/auctiondetail"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -15,16 +14,16 @@ import (
 func TestAuctionCalculator(t *testing.T) {
 	t.Run("should be created successfully from suffix and salt", func(t *testing.T) {
 		auctionStartTime := int64(1708448252)
-		actionDetails, err := fusionorder.NewAuctionDetails(
+		actionDetails, err := auctiondetail.NewAuctionDetails(
 			auctionStartTime,
 			50_000,
 			120,
 			nil,
-			fusionorder.AuctionGasCostInfo{},
+			auctiondetail.AuctionGasCostInfo{},
 		)
 		require.NoError(t, err)
 
-		calculator := auction.NewCalculatorFromAuctionData(actionDetails)
+		calculator := NewCalculatorFromAuctionData(actionDetails)
 
 		takingAmount, ok := new(big.Int).SetString("1420000000", 10)
 		require.True(t, ok)
@@ -41,17 +40,17 @@ func TestCalculator_GasBump(t *testing.T) {
 	now := time.Now().Unix()
 	duration := int64(1800) // 30 minutes
 	takingAmount := parseEther(t, 1)
-	calculator := auction.NewCalculator(
+	calculator := NewCalculator(
 		now-60,
 		duration,
 		1000000,
-		[]fusionorder.AuctionPoint{
+		[]auctiondetail.AuctionPoint{
 			{
 				Delay:       60,
 				Coefficient: 500000,
 			},
 		},
-		fusionorder.AuctionGasCostInfo{
+		auctiondetail.AuctionGasCostInfo{
 			GasBumpEstimate:  10_000,
 			GasPriceEstimate: 1000,
 		},

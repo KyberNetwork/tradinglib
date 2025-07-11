@@ -1,9 +1,9 @@
-package auction
+package auctioncalculator
 
 import (
 	"math/big"
 
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder"
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder/auctiondetail"
 )
 
 const (
@@ -18,16 +18,16 @@ type Calculator struct {
 	startTime       *big.Int
 	duration        *big.Int
 	initialRateBump *big.Int
-	points          []fusionorder.AuctionPoint
-	gasCost         fusionorder.AuctionGasCostInfo
+	points          []auctiondetail.AuctionPoint
+	gasCost         auctiondetail.AuctionGasCostInfo
 }
 
 func NewCalculator(
 	startTime int64,
 	duration int64,
 	initialRateBump int64,
-	points []fusionorder.AuctionPoint,
-	gasCost fusionorder.AuctionGasCostInfo,
+	points []auctiondetail.AuctionPoint,
+	gasCost auctiondetail.AuctionGasCostInfo,
 ) Calculator {
 	return Calculator{
 		startTime:       big.NewInt(startTime),
@@ -39,7 +39,7 @@ func NewCalculator(
 }
 
 func NewCalculatorFromAuctionData(
-	auctionDetails fusionorder.AuctionDetails,
+	auctionDetails auctiondetail.AuctionDetails,
 ) Calculator {
 	return NewCalculator(
 		auctionDetails.StartTime,

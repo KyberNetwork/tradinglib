@@ -1,8 +1,7 @@
-package fusionorder
+package fusionextention
 
 import (
 	"errors"
-
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -17,4 +16,9 @@ type SettlementPostInteractionData struct {
 	CustomReceiver         common.Address
 	InteractionData        InteractionData
 	Whitelist              Whitelist
+	SurplusParam           SurplusParam
+}
+
+func (s SettlementPostInteractionData) HasFees() bool {
+	return s.IntegratorFeeRecipient != (common.Address{}) || s.ProtocolFeeRecipient != (common.Address{})
 }
