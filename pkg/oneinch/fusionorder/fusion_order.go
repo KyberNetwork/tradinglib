@@ -11,7 +11,7 @@ import (
 )
 
 type FusionOrder struct {
-	Order           limitorder.LimitOrderV4         `json:"order"`
+	LimitOrder      limitorder.LimitOrderV4         `json:"limitOrder"`
 	Extension       limitorder.Extension            `json:"extension"`
 	FusionExtension fusionextention.FusionExtension `json:"fusionExtension"`
 }
@@ -26,7 +26,7 @@ func (o FusionOrder) CalcTakingAmount(
 	blockTime,
 	baseFee *big.Int,
 ) *big.Int {
-	takingAmount := util.CalcTakingAmount(makingAmount, o.Order.MakingAmount, o.Order.TakingAmount)
+	takingAmount := util.CalcTakingAmount(makingAmount, o.LimitOrder.MakingAmount, o.LimitOrder.TakingAmount)
 	return o.GetCalculator().GetRequiredTakingAmount(taker, takingAmount, blockTime, baseFee)
 }
 
@@ -36,6 +36,6 @@ func (o FusionOrder) CalcMakingAmount(
 	blockTime,
 	baseFee *big.Int,
 ) *big.Int {
-	makingAmount := util.CalcMakingAmount(takingAmount, o.Order.MakingAmount, o.Order.TakingAmount)
+	makingAmount := util.CalcMakingAmount(takingAmount, o.LimitOrder.MakingAmount, o.LimitOrder.TakingAmount)
 	return o.GetCalculator().GetRequiredMakingAmount(taker, makingAmount, blockTime, baseFee)
 }

@@ -7,7 +7,7 @@ import (
 )
 
 /*
-	struct Order {
+	struct LimitOrder {
 		uint256 salt;
 		uint256 maker;
 		uint256 receiver;
@@ -54,7 +54,7 @@ type EncodingSwap struct {
 /*
 function fillOrderArgs(
 
-	Order calldata order,
+	LimitOrder calldata order,
 	bytes32 r,
 	bytes32 vs,
 	uint256 amount,
@@ -76,7 +76,7 @@ type FillOrderArgs struct {
 /*
 function fillContractOrderArgs(
 
-	Order calldata order,
+	LimitOrder calldata order,
 	bytes calldata signature,
 	uint256 amount,
 	TakerTraits takerTraits,
