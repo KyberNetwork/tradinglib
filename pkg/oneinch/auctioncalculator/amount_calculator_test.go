@@ -1,9 +1,10 @@
-package auctioncalculator
+package auctioncalculator_test
 
 import (
 	"math/big"
 	"testing"
 
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/auctioncalculator"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder/fusionextention"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/limitorder"
 	"github.com/ethereum/go-ethereum/common"
@@ -18,7 +19,7 @@ func TestAmountCalculator(t *testing.T) {
 	require.NoError(t, err)
 
 	takingAmount, _ := new(big.Int).SetString("140444897314051230680", 10)
-	amountCalculator := NewAmountCalculatorFromExtension(fusionExtension)
+	amountCalculator := auctioncalculator.NewAmountCalculatorFromExtension(fusionExtension)
 	requiredTakingAmount := amountCalculator.GetRequiredTakingAmount(
 		common.HexToAddress("0xad3b67bca8935cb510c8d18bd45f0b94f54a968f"),
 		takingAmount,

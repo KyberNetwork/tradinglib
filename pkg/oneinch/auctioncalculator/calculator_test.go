@@ -1,4 +1,4 @@
-package auctioncalculator
+package auctioncalculator_test
 
 import (
 	"math/big"
@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/KyberNetwork/tradinglib/pkg/convert"
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/auctioncalculator"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder/auctiondetail"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -23,7 +24,7 @@ func TestAuctionCalculator(t *testing.T) {
 		)
 		require.NoError(t, err)
 
-		calculator := NewCalculatorFromAuctionData(actionDetails)
+		calculator := auctioncalculator.NewCalculatorFromAuctionData(actionDetails)
 
 		takingAmount, ok := new(big.Int).SetString("1420000000", 10)
 		require.True(t, ok)
@@ -40,7 +41,7 @@ func TestCalculator_GasBump(t *testing.T) {
 	now := time.Now().Unix()
 	duration := int64(1800) // 30 minutes
 	takingAmount := parseEther(t, 1)
-	calculator := NewCalculator(
+	calculator := auctioncalculator.NewCalculator(
 		now-60,
 		duration,
 		1000000,

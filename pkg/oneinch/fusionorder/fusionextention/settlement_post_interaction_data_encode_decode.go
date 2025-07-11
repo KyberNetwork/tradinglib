@@ -68,6 +68,6 @@ func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteraction
 		CustomReceiver:         customReceiver,
 		InteractionData:        interactionData,
 		Whitelist:              whitelist,
-		//SurplusParam:           surplusParam,
+		// SurplusParam:           surplusParam,
 	}, nil
 }
