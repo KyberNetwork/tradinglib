@@ -1,4 +1,4 @@
-package fusionorder
+package auctiondetail
 
 import (
 	"bytes"
@@ -7,6 +7,8 @@ import (
 	"math"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/encode"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 const (
@@ -71,7 +73,7 @@ type AuctionGasCostInfo struct {
 	GasPriceEstimate int64
 }
 
-// DecodeAuctionDetails decodes auction details from hex string
+// DecodeAuctionDetails decodes auctioncalculator details from hex string
 // ```
 //
 //	struct AuctionDetails {
@@ -88,6 +90,10 @@ type AuctionGasCostInfo struct {
 // https://etherscan.io/address/0xfb2809a5314473e1165f6b58018e20ed8f07b840#code#F23#L140
 // nolint: gomnd
 func DecodeAuctionDetails(iter *decode.BytesIterator) (AuctionDetails, error) {
+	_, err := iter.NextUint160() // Skip the address of the extension
+	if err != nil {
+		return AuctionDetails{}, fmt.Errorf("skip address of extension: %w", err)
+	}
 	gasBumpEstimate, err := iter.NextUint24()
 	if err != nil {
 		return AuctionDetails{}, fmt.Errorf("next gas bump estimate: %w", err)
@@ -111,7 +117,7 @@ func DecodeAuctionDetails(iter *decode.BytesIterator) (AuctionDetails, error) {
 
 	points, err := decodeAuctionPoints(iter)
 	if err != nil {
-		return AuctionDetails{}, fmt.Errorf("decode auction points: %w", err)
+		return AuctionDetails{}, fmt.Errorf("decode auctioncalculator points: %w", err)
 	}
 
 	return NewAuctionDetails(
@@ -154,15 +160,16 @@ func decodeAuctionPoints(iter *decode.BytesIterator) ([]AuctionPoint, error) {
 // nolint: gomnd
 func (a AuctionDetails) Encode() []byte {
 	buf := new(bytes.Buffer)
-	buf.Write(encodeInt64ToBytes(a.GasCost.GasBumpEstimate, 3))
-	buf.Write(encodeInt64ToBytes(a.GasCost.GasPriceEstimate, 4))
-	buf.Write(encodeInt64ToBytes(a.StartTime, 4))
-	buf.Write(encodeInt64ToBytes(a.Duration, 3))
-	buf.Write(encodeInt64ToBytes(a.InitialRateBump, 3))
+	buf.Write(common.HexToAddress("0x").Bytes())
+	buf.Write(encode.EncodeInt64ToBytes(a.GasCost.GasBumpEstimate, 3))
+	buf.Write(encode.EncodeInt64ToBytes(a.GasCost.GasPriceEstimate, 4))
+	buf.Write(encode.EncodeInt64ToBytes(a.StartTime, 4))
+	buf.Write(encode.EncodeInt64ToBytes(a.Duration, 3))
+	buf.Write(encode.EncodeInt64ToBytes(a.InitialRateBump, 3))
 	buf.WriteByte(byte(len(a.Points)))
 	for _, point := range a.Points {
-		buf.Write(encodeInt64ToBytes(point.Coefficient, 3))
-		buf.Write(encodeInt64ToBytes(point.Delay, 2))
+		buf.Write(encode.EncodeInt64ToBytes(point.Coefficient, 3))
+		buf.Write(encode.EncodeInt64ToBytes(point.Delay, 2))
 	}
 
 	return buf.Bytes()

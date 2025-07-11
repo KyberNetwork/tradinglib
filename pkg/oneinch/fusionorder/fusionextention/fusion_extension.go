@@ -1,4 +1,4 @@
-package fusionorder
+package fusionextention
 
 import (
 	"bytes"
@@ -6,7 +6,9 @@ import (
 	"fmt"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder/auctiondetail"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/limitorder"
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/util"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -20,20 +22,23 @@ type Extra struct {
 
 type FusionExtension struct {
 	Address        common.Address
-	AuctionDetails AuctionDetails
+	AuctionDetails auctiondetail.AuctionDetails
 	Whitelist      Whitelist
 	Extra          Extra
+	SurplusParam   SurplusParam
 }
 
+// public static fromExtension(extension: Extension): FusionExtension
+//
 //nolint:funlen,cyclop
 func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExtension, error) {
-	settlementContract := AddressFromFirstBytes(extension.MakingAmountData)
+	settlementContract := util.AddressFromFirstBytes(extension.MakingAmountData)
 
-	if AddressFromFirstBytes(extension.TakingAmountData) != settlementContract {
+	if util.AddressFromFirstBytes(extension.TakingAmountData) != settlementContract {
 		return FusionExtension{},
 			fmt.Errorf("%w: taking amount data settlement contract mismatch", ErrInvalidExtension)
 	}
-	if AddressFromFirstBytes(extension.PostInteraction) != settlementContract {
+	if util.AddressFromFirstBytes(extension.PostInteraction) != settlementContract {
 		return FusionExtension{},
 			fmt.Errorf("%w: post interaction settlement contract mismatch", ErrInvalidExtension)
 	}
@@ -42,17 +47,15 @@ func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExte
 			fmt.Errorf("%w: takingAmountData and makingAmountData not match", ErrInvalidExtension)
 	}
 
-	postInteractionData, err := DecodeSettlementPostInteractionData(
-		extension.PostInteraction[common.AddressLength:],
-	)
+	postInteractionData, err := DecodeSettlementPostInteractionData(extension.PostInteraction)
 	if err != nil {
 		return FusionExtension{}, fmt.Errorf("decode post interaction data: %w", err)
 	}
 
-	amountIter := decode.NewBytesIterator(extension.MakingAmountData[common.AddressLength:])
-	auctionDetails, err := DecodeAuctionDetails(amountIter)
+	amountIter := decode.NewBytesIterator(extension.MakingAmountData)
+	auctionDetails, err := auctiondetail.DecodeAuctionDetails(amountIter)
 	if err != nil {
-		return FusionExtension{}, fmt.Errorf("decode auction details: %w", err)
+		return FusionExtension{}, fmt.Errorf("decode auctioncalculator details: %w", err)
 	}
 
 	amountData, err := ParseAmountData(amountIter)
@@ -68,14 +71,14 @@ func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExte
 		return FusionExtension{}, fmt.Errorf("%w: whitelist length not match", ErrInvalidExtension)
 	}
 
-	whitelistAddressesFromAmount := make([]AddressHalf, 0, whitelistLength)
+	whitelistAddressesFromAmount := make([]util.AddressHalf, 0, whitelistLength)
 	for range whitelistLength {
-		addressHalfBytes, err := amountIter.NextBytes(addressHalfLength)
+		addressHalfBytes, err := amountIter.NextBytes(util.AddressHalfLength)
 		if err != nil {
 			return FusionExtension{}, fmt.Errorf("decode whitelist address from amount: %w", err)
 		}
 		whitelistAddressesFromAmount = append(
-			whitelistAddressesFromAmount, BytesToAddressHalf(addressHalfBytes))
+			whitelistAddressesFromAmount, util.BytesToAddressHalf(addressHalfBytes))
 	}
 
 	var makerPermit limitorder.Interaction
@@ -112,9 +115,9 @@ func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExte
 			MakerPermit:    makerPermit,
 			CustomReceiver: postInteractionData.CustomReceiver,
 		},
+		SurplusParam: postInteractionData.SurplusParam,
 	}
-	if postInteractionData.IntegratorFeeRecipient == (common.Address{}) &&
-		postInteractionData.ProtocolFeeRecipient == (common.Address{}) {
+	if !postInteractionData.HasFees() {
 		return fusionExtension, nil
 	}
 

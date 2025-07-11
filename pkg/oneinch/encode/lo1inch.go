@@ -98,7 +98,7 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 
 			/*
 				function fillContractOrderArgs(
-					Order calldata order,
+					LimitOrder calldata order,
 					bytes calldata signature,
 					uint256 amount,
 					TakerTraits takerTraits,
@@ -123,7 +123,7 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 
 			/*
 				function fillOrderArgs(
-					Order calldata order,
+					LimitOrder calldata order,
 					bytes32 r,
 					bytes32 vs,
 					uint256 amount,

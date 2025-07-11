@@ -1,16 +1,16 @@
-package fusionorder
+package util
 
 import "github.com/ethereum/go-ethereum/common"
 
 const (
-	addressHalfLength = common.AddressLength / 2
+	AddressHalfLength = common.AddressLength / 2
 )
 
-type AddressHalf [addressHalfLength]byte
+type AddressHalf [AddressHalfLength]byte
 
 func HalfAddressFromAddress(a common.Address) AddressHalf {
 	var addressHalf AddressHalf
-	copy(addressHalf[:], a.Bytes()[common.AddressLength-addressHalfLength:]) // take the last 10 bytes
+	copy(addressHalf[:], a.Bytes()[common.AddressLength-AddressHalfLength:]) // take the last 10 bytes
 	return addressHalf
 }
 

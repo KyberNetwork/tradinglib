@@ -1,4 +1,4 @@
-package fusionorder
+package encode
 
 import (
 	"math/big"
@@ -6,6 +6,6 @@ import (
 	"github.com/ethereum/go-ethereum/common/math"
 )
 
-func encodeInt64ToBytes(n int64, size int) []byte {
+func EncodeInt64ToBytes(n int64, size int) []byte {
 	return math.PaddedBigBytes(big.NewInt(n), size)
 }

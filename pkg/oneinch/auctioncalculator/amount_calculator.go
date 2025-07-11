@@ -1,9 +1,9 @@
-package auction
+package auctioncalculator
 
 import (
 	"math/big"
 
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder"
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder/fusionextention"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/limitorder"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -23,7 +23,7 @@ func NewAmountCalculator(
 	}
 }
 
-func NewAmountCalculatorFromExtension(extension fusionorder.FusionExtension) AmountCalculator {
+func NewAmountCalculatorFromExtension(extension fusionextention.FusionExtension) AmountCalculator {
 	auctionCalculator := NewCalculatorFromAuctionData(extension.AuctionDetails)
 	feeCalculator := limitorder.NewFeeCalculator(extension.Extra.Fees, extension.Whitelist)
 	return NewAmountCalculator(auctionCalculator, feeCalculator)
