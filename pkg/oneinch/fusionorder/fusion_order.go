@@ -1,9 +1,9 @@
 package fusionorder
 
 import (
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/auctioncalculator"
 	"math/big"
 
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/auctioncalculator"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder/fusionextention"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/limitorder"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/util"

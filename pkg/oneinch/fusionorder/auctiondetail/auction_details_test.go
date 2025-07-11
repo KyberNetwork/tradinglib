@@ -1,9 +1,10 @@
-package auctiondetail
+package auctiondetail_test
 
 import (
 	"testing"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder/auctiondetail"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -12,11 +13,11 @@ import (
 // nolint: lll,funlen
 func TestAuctionDetail(t *testing.T) {
 	t.Run("should encode/decode", func(t *testing.T) {
-		auctionDetail, err := NewAuctionDetails(
+		auctionDetail, err := auctiondetail.NewAuctionDetails(
 			1_673_548_149,
 			50_000,
 			180,
-			[]AuctionPoint{
+			[]auctiondetail.AuctionPoint{
 				{
 					Delay:       10,
 					Coefficient: 10_000,
@@ -26,12 +27,12 @@ func TestAuctionDetail(t *testing.T) {
 					Coefficient: 5_000,
 				},
 			},
-			AuctionGasCostInfo{},
+			auctiondetail.AuctionGasCostInfo{},
 		)
 		require.NoError(t, err)
 
 		encodedAuctionDetail := auctionDetail.Encode()
-		decodedAuctionDetail, err := DecodeAuctionDetails(decode.NewBytesIterator(encodedAuctionDetail))
+		decodedAuctionDetail, err := auctiondetail.DecodeAuctionDetails(decode.NewBytesIterator(encodedAuctionDetail))
 		require.NoError(t, err)
 
 		assert.Equal(t, auctionDetail, decodedAuctionDetail)
@@ -42,12 +43,12 @@ func TestAuctionDetail(t *testing.T) {
 		// Decode from a fusion order should not return error.
 		extraData, err := hexutil.Decode("0x000000000000000000000000000000000000000000ca070000023367ed11940000b401934d0100ca0700b40000000000640db09498030ae3416b66dc5dcd8578ca14eec99e63972ad4499f120902631ad18bd45f0b94f54a968fd61b892b2ad62490118595770895ad27ad6b0d95339fb574bdc56763f995617556ed277ab32233786de5e0e428ac771d77b55b7d1434eae4a48b2c8626813bd1b091ea6bedbd00000000000000000000b8394f2220fac7e6ade6")
 		require.NoError(t, err)
-		decodeAuctionDetails, err := DecodeAuctionDetails(decode.NewBytesIterator(extraData))
+		decodeAuctionDetails, err := auctiondetail.DecodeAuctionDetails(decode.NewBytesIterator(extraData))
 		if assert.NoError(t, err) {
 			expectedStartTime := uint64(1743589780)
 			expectedDuration := int64(180)
 			initialRateBump := int64(103245)
-			points := []AuctionPoint{
+			points := []auctiondetail.AuctionPoint{
 				{
 					Delay:       180,
 					Coefficient: 51719,
@@ -69,7 +70,7 @@ func TestAuctionDetail(t *testing.T) {
 		extraData, err := hexutil.Decode("0x01e9f1000005d866bda8b40000b404fa0103d4")
 		require.NoError(t, err)
 
-		_, err = DecodeAuctionDetails(decode.NewBytesIterator(extraData))
+		_, err = auctiondetail.DecodeAuctionDetails(decode.NewBytesIterator(extraData))
 
 		require.ErrorIs(t, err, decode.ErrOutOfData)
 	})

@@ -1,8 +1,9 @@
 package fusionextention
 
 import (
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 	"math/big"
+
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 )
 
 type SurplusParam struct {

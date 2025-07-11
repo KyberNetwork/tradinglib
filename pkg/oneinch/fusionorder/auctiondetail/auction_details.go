@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
 	"math"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/encode"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 const (

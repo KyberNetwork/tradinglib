@@ -1,9 +1,9 @@
 package fusionextention_test
 
 import (
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder/fusionextention"
 	"testing"
 
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/fusionorder/fusionextention"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/require"
 )
