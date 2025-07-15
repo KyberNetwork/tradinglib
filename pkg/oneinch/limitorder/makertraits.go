@@ -42,25 +42,25 @@ func BuildMakerTraits(values MakerTraitsOption) *big.Int {
 	{
 		var lb uint8
 		if values.NoPartialFills {
-			lb = lb | (0xff & 1 << noPartialFillsMask)
+			lb |= 0xff & 1 << noPartialFillsMask
 		}
 		if values.MultipleFills {
-			lb = lb | (1 << multipleFillsMask)
+			lb |= 1 << multipleFillsMask
 		}
 		if values.PreInteractionCall {
-			lb = lb | (0xff & 1 << preInteractionMask)
+			lb |= 0xff & 1 << preInteractionMask
 		}
 		if values.PostInteractionCall {
-			lb = lb | (0xff & 1 << postInteractionMask)
+			lb |= 0xff & 1 << postInteractionMask
 		}
 		if values.CheckEpochManager {
-			lb = lb | (0xff & 1 << checkEpochMask)
+			lb |= 0xff & 1 << checkEpochMask
 		}
 		if values.HasExtension {
-			lb = lb | (0xff & 1 << hasExtensionMask)
+			lb |= 0xff & 1 << hasExtensionMask
 		}
 		if values.UsePermit2 {
-			lb = lb | (0xff & 1 << usePermit2Mask)
+			lb |= 0xff & 1 << usePermit2Mask
 		}
 		buff.WriteByte(lb)
 	}
