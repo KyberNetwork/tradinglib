@@ -51,6 +51,5 @@ func TestDecodeTraits(t *testing.T) {
 		if got.Expiration != tt.ExpectedMakerTraits.Expiration {
 			t.Errorf("DecodeTraits() = %v, want %v", got.Expiration, tt.ExpectedMakerTraits.Expiration)
 		}
-
 	}
 }
