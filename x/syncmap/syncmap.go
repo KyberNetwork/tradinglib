@@ -15,6 +15,12 @@ func New[K comparable, V any]() SyncMap[K, V] {
 	}
 }
 
+func NewWithSize[K comparable, V any](size int) SyncMap[K, V] {
+	return SyncMap[K, V]{
+		data: make(map[K]V, size),
+	}
+}
+
 func (m *SyncMap[K, V]) Store(k K, v V) {
 	m.rw.Lock()
 	defer m.rw.Unlock()
