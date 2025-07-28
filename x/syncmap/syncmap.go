@@ -83,3 +83,18 @@ func (m *SyncMap[K, V]) Clears() {
 
 	clear(m.data)
 }
+
+func (m *SyncMap[K, V]) Len() int {
+	m.rw.RLock()
+	defer m.rw.RUnlock()
+	return len(m.data)
+}
+
+func (m *SyncMap[K, V]) ForEach(fn func(k K, v V)) {
+	m.rw.RLock()
+	defer m.rw.RUnlock()
+
+	for k, v := range m.data {
+		fn(k, v)
+	}
+}
