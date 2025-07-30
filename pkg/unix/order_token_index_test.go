@@ -1,4 +1,5 @@
-package blockchain
+//nolint:testpackage
+package unix
 
 import (
 	"math/big"

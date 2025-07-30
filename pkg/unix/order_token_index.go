@@ -1,4 +1,4 @@
-package blockchain
+package unix
 
 import (
 	"fmt"
@@ -15,11 +15,9 @@ const (
 )
 
 var (
-	maskMaxOrder            = big.NewInt(0xF)
-	maskMaxToken            = big.NewInt(0x7)
-	maskMaxInteraction      = big.NewInt(0xFF)
-	maskMaxOrderInteraction = big.NewInt(0xFFF)
-	maskMaxOrderToken       = big.NewInt(0x7F)
+	maskMaxOrder      = big.NewInt(0xF)
+	maskMaxToken      = big.NewInt(0x7)
+	maskMaxOrderToken = big.NewInt(0x7F)
 )
 
 type OrderTokenIndex struct {
@@ -73,9 +71,7 @@ func unpackTokenOutputIndex(input *big.Int) ([]OrderTokenIndex, error) {
 	// Get the first 8 bits as the number of orders
 	orders := int(new(big.Int).Rsh(input, 248).Uint64())
 
-	var (
-		result []OrderTokenIndex
-	)
+	var result []OrderTokenIndex
 	for order := 0; order < orders; order++ {
 		// Process totalToken token indices
 		orderTokenIndex := getOrderTokenIndex(input, order)
@@ -83,7 +79,6 @@ func unpackTokenOutputIndex(input *big.Int) ([]OrderTokenIndex, error) {
 			return nil, err
 		}
 		result = append(result, orderTokenIndex)
-
 	}
 	return result, nil
 }
