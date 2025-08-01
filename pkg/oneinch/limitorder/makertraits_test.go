@@ -205,3 +205,14 @@ func TestMakerTraits_All(t *testing.T) {
 	expected := "5f800000000000ffffffffffffffffffffffffffffffffffffffffffffffffff"
 	assert.Equal(t, expected, traits.Build().Text(16))
 }
+
+func TestIsAllowedSender(t *testing.T) {
+	traits := DefaultMakerTraits()
+	addr1 := common.HexToAddress("0x1")
+	addr2 := common.HexToAddress("0x2")
+
+	assert.True(t, traits.IsAllowedSender(addr1))
+	traits.WithAllowedSender(addr2)
+	assert.False(t, traits.IsAllowedSender(addr1))
+	assert.True(t, traits.IsAllowedSender(addr2))
+}

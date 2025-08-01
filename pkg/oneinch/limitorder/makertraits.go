@@ -1,6 +1,7 @@
 package limitorder
 
 import (
+	"bytes"
 	"errors"
 	"math/big"
 
@@ -123,6 +124,14 @@ func (mt *MakerTraits) AllowedSender() []byte {
 	result := make([]byte, 10)
 	val.FillBytes(result) // Fill only last 10 bytes
 	return result
+}
+
+func (mt *MakerTraits) IsAllowedSender(sender common.Address) bool {
+	allowedSender := mt.AllowedSender()
+	if bytes.Equal(allowedSender, make([]byte, 10)) {
+		return true // If no specific sender is set, allow any sender
+	}
+	return bytes.Equal(sender.Bytes()[10:], allowedSender)
 }
 
 // IsPrivate returns true if the order has a specific allowed sender
