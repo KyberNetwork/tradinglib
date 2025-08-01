@@ -28,3 +28,10 @@ func setMask(n *big.Int, mask *big.Int, value *big.Int) {
 	// Set the bits in range.
 	n.Or(n, value)
 }
+
+func getMask(n *big.Int, start, end uint) *big.Int {
+	mask := new(big.Int).Lsh(big.NewInt(1), end)
+	mask.Sub(mask, new(big.Int).Lsh(big.NewInt(1), start))
+	result := new(big.Int).And(n, mask)
+	return result.Rsh(result, start)
+}

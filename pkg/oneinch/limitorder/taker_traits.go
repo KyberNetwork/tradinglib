@@ -9,8 +9,18 @@ import (
 type AmountMode uint
 
 const (
-	makerAmountFlag = 255
-	argsHasReceiver = 251
+	makerAmountFlag     = 255
+	unwrapWethFlag      = 254
+	skipOrderPermitFlag = 253
+	usePermit2Flag      = 252
+	argsHasReceiver     = 251
+
+	amountThresholdStart    = 0
+	amountThresholdEnd      = 185
+	argsInteractionLenStart = 200
+	argsInteractionLenEnd   = 224
+	argsExtensionLenStart   = 224
+	argsExtensionLenEnd     = 248
 
 	AmountModeTaker AmountMode = 0
 	AmountModeMaker AmountMode = 1
@@ -33,6 +43,21 @@ type TakerTraits struct {
 	interaction *Interaction
 }
 
+type TakerTraitsOptions struct {
+	IsMakingAmount  bool     `json:"is_making_amount"`
+	UnwrapWeth      bool     `json:"unwrap_weth"`
+	SkipOrderPermit bool     `json:"skip_order_permit"`
+	UsePermit2      bool     `json:"use_permit2"`
+	Threshold       *big.Int `json:"threshold"`
+}
+
+func boolToBit(b bool) uint {
+	if b {
+		return 1
+	}
+	return 0
+}
+
 func NewTakerTraits(
 	flags *big.Int, receiver *common.Address, extension *Extension, interaction *Interaction,
 ) *TakerTraits {
@@ -50,18 +75,62 @@ func NewDefaultTakerTraits() *TakerTraits {
 	}
 }
 
+func (t *TakerTraits) Decode() TakerTraitsOptions {
+	return TakerTraitsOptions{
+		IsMakingAmount:  t.IsMakingAmount(),
+		UnwrapWeth:      t.UnwrapWeth(),
+		SkipOrderPermit: t.SkipOrderPermit(),
+		UsePermit2:      t.UsePermit2(),
+		Threshold:       t.AmountThreshold(),
+	}
+}
+
 func (t *TakerTraits) SetAmountMode(mode AmountMode) *TakerTraits {
 	t.flags.SetBit(t.flags, makerAmountFlag, uint(mode))
 	return t
 }
 
+func (t *TakerTraits) IsMakingAmount() bool {
+	return t.flags.Bit(makerAmountFlag) != 0
+}
+
+func (t *TakerTraits) SetUnwrapWeth(unwrap bool) *TakerTraits {
+	t.flags.SetBit(t.flags, unwrapWethFlag, boolToBit(unwrap))
+	return t
+}
+
+func (t *TakerTraits) UnwrapWeth() bool {
+	return t.flags.Bit(unwrapWethFlag) != 0
+}
+
+func (t *TakerTraits) SetSkipOrderPermit(skip bool) *TakerTraits {
+	t.flags.SetBit(t.flags, skipOrderPermitFlag, boolToBit(skip))
+	return t
+}
+
+func (t *TakerTraits) SkipOrderPermit() bool {
+	return t.flags.Bit(skipOrderPermitFlag) != 0
+}
+
+func (t *TakerTraits) SetUsePermit2(use bool) *TakerTraits {
+	t.flags.SetBit(t.flags, usePermit2Flag, boolToBit(use))
+	return t
+}
+
+func (t *TakerTraits) UsePermit2() bool {
+	return t.flags.Bit(usePermit2Flag) != 0
+}
+
 // SetAmountThreshold sets threshold amount.
-//
 // In taker amount mode: the minimum amount a taker agrees to receive in exchange for a taking amount.
 // In maker amount mode: the maximum amount a taker agrees to give in exchange for a making amount.
 func (t *TakerTraits) SetAmountThreshold(threshold *big.Int) *TakerTraits {
 	setMask(t.flags, amountThresholdMask, threshold)
 	return t
+}
+
+func (t *TakerTraits) AmountThreshold() *big.Int {
+	return getMask(t.flags, amountThresholdStart, amountThresholdEnd)
 }
 
 // SetExtension sets extension, it is required to provide same extension as in order creation (if any).
