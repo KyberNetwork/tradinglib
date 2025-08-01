@@ -7,9 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-var (
-	ErrEpochManagerNotAllowed = errors.New("epoch manager allowed only when partialFills and multipleFills enabled")
-)
+var ErrEpochManagerNotAllowed = errors.New("epoch manager allowed only when partialFills and multipleFills enabled")
 
 // source: https://github.com/1inch/limit-order-protocol/blob/master/contracts/libraries/MakerTraitsLib.sol
 
