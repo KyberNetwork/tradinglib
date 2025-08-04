@@ -56,7 +56,16 @@ func (s *Client) SendBundle(
 	blockNumber uint64,
 	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
-	return s.sendBundle(ctx, ETHSendBundleMethod, uuid, blockNumber, txs...)
+	return s.sendBundle(ctx, ETHSendBundleMethod, uuid, blockNumber, txs, nil)
+}
+
+func (s *Client) SendBundleHex(
+	ctx context.Context,
+	uuid *string,
+	blockNumber uint64,
+	hexEncodedTxs ...string,
+) (SendBundleResponse, error) {
+	return s.sendBundle(ctx, ETHSendBundleMethod, uuid, blockNumber, nil, hexEncodedTxs)
 }
 
 // getGetBundleStatsMethod
@@ -74,7 +83,7 @@ func (s *Client) CancelBundle(
 	ctx context.Context, bundleUUID string,
 ) error {
 	if s.cancelBySendBundle {
-		if _, err := s.sendBundle(ctx, ETHSendBundleMethod, &bundleUUID, 0); err != nil {
+		if _, err := s.sendBundle(ctx, ETHSendBundleMethod, &bundleUUID, 0, nil, nil); err != nil {
 			return fmt.Errorf("cancel by send bundle error: %w", err)
 		}
 		return nil
@@ -143,7 +152,7 @@ func (s *Client) CancelBundle(
 func (s *Client) SimulateBundle(
 	ctx context.Context, blockNumber uint64, txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
-	return s.sendBundle(ctx, EthCallBundleMethod, nil, blockNumber, txs...)
+	return s.sendBundle(ctx, EthCallBundleMethod, nil, blockNumber, txs, nil)
 }
 
 func (s *Client) GetBundleStats(
@@ -189,17 +198,25 @@ func (s *Client) sendBundle(
 	method string,
 	uuid *string,
 	blockNumber uint64,
-	txs ...*types.Transaction,
+	txs []*types.Transaction,
+	hexEncodedTxs []string,
 ) (SendBundleResponse, error) {
 	req := SendRequest{
 		ID:      SendBundleID,
 		JSONRPC: JSONRPC2,
 		Method:  method,
 	}
-	p := new(SendBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...)
+	p := new(SendBundleParams).
+		SetBlockNumber(blockNumber).
+		SetTransactions(txs...).
+		SetTransactionsHex(hexEncodedTxs...)
 	if s.senderType == BundleSenderTypeFlashbot {
 		p = p.SetStateBlockNumber("latest")
 	}
+	if err := p.Err(); err != nil {
+		return SendBundleResponse{}, err
+	}
+
 	if uuid != nil {
 		p.SetUUID(*uuid, s.senderType)
 	}
@@ -409,6 +426,16 @@ func (p *SendBundleParams) SetTransactions(txs ...*types.Transaction) *SendBundl
 	}
 
 	p.Txs = transactions
+
+	return p
+}
+
+func (p *SendBundleParams) SetTransactionsHex(txs ...string) *SendBundleParams {
+	if len(txs) == 0 {
+		return p
+	}
+
+	p.Txs = append(p.Txs, txs...)
 
 	return p
 }

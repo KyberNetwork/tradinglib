@@ -79,6 +79,13 @@ func TestSendBundle(t *testing.T) {
 	require.NoError(t, err) // sepolia: code: [-32000], message: [internal server error]
 	t.Log("send bundle response", resp)
 
+	signedTxBin, err := signedTx.MarshalBinary()
+	require.NoError(t, err)
+
+	resp, err = sender.SendBundleHex(ctx, &uuid, blockNumber+12, hexutil.Encode(signedTxBin))
+	require.NoError(t, err) // sepolia: code: [-32000], message: [internal server error]
+	t.Log("send bundle response hex", resp)
+
 	require.NoError(t, sender.CancelBundle(ctx, uuid))
 }
 
