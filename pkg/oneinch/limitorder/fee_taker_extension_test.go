@@ -1,11 +1,13 @@
+//nolint:testpackage
 package limitorder
 
 import (
+	"math/big"
+	"testing"
+
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/util"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
-	"math/big"
-	"testing"
 )
 
 func TestCalculateTakingAmount(t *testing.T) {

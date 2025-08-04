@@ -2,11 +2,11 @@ package limitorder
 
 import (
 	"fmt"
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/util"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/bps"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/constants"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/util"
 )
 
 type Fee struct {

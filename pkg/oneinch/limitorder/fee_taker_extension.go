@@ -21,6 +21,8 @@ type FeeTakerExtension struct {
 }
 
 // https://github.com/1inch/limit-order-sdk/blob/1793d32bd36c6cfea909caafbc15e8023a033249/src/limit-order/extensions/fee-taker/fee-taker.extension.ts#L84
+//
+//nolint:funlen,cyclop
 func NewFeeTakerFromExtension(extension Extension) (FeeTakerExtension, error) {
 	extensionAddress := util.AddressFromFirstBytes(extension.MakingAmountData)
 
@@ -107,13 +109,6 @@ func NewFeeTakerFromExtension(extension Extension) (FeeTakerExtension, error) {
 		whitelist: feeTakerExtension.Whitelist,
 	}
 	return feeTakerExtension, nil
-}
-
-func (f *FeeTakerExtension) getFeeCalculator() FeeCalculator {
-	return FeeCalculator{
-		fees:      f.Fees,
-		whitelist: f.Whitelist,
-	}
 }
 
 // GetTakingAmount return taking amount with fee applied

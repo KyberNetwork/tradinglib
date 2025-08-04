@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// nolint:godox
 type AmountCalculator struct {
 	auctionCalculator Calculator
 	// TODO: need to use an other FeeCalculator for FusionOrder

@@ -1,9 +1,10 @@
 package limitorder
 
 import (
+	"math/big"
+
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/util"
 	"github.com/ethereum/go-ethereum/common"
-	"math/big"
 )
 
 type LimitOrderWithFee struct {

@@ -3,10 +3,10 @@ package limitorder
 import (
 	"errors"
 	"fmt"
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/bps"
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/constants"
 	"math/big"
 
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/bps"
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/constants"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/util"
 	"github.com/ethereum/go-ethereum/common"
 )
