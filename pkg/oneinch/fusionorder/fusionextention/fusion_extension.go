@@ -58,7 +58,7 @@ func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExte
 		return FusionExtension{}, fmt.Errorf("decode auctioncalculator details: %w", err)
 	}
 
-	amountData, err := ParseAmountData(amountIter)
+	fee, err := limitorder.ParseFee(amountIter)
 	if err != nil {
 		return FusionExtension{}, fmt.Errorf("decode amount data: %w", err)
 	}
@@ -89,16 +89,16 @@ func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExte
 		}
 	}
 
-	if amountData.IntegratorFee != postInteractionData.InteractionData.IntegratorFee {
+	if fee.IntegratorFee != postInteractionData.Fee.IntegratorFee {
 		return FusionExtension{}, fmt.Errorf("%w: integrator fee not match", ErrInvalidExtension)
 	}
-	if amountData.ResolverFee != postInteractionData.InteractionData.ResolverFee {
+	if fee.ResolverFee != postInteractionData.Fee.ResolverFee {
 		return FusionExtension{}, fmt.Errorf("%w: resolver fee", ErrInvalidExtension)
 	}
-	if amountData.WhitelistDiscount != postInteractionData.InteractionData.WhitelistDiscount {
+	if fee.WhitelistDiscount != postInteractionData.Fee.WhitelistDiscount {
 		return FusionExtension{}, fmt.Errorf("%w: whitelist discount not match", ErrInvalidExtension)
 	}
-	if amountData.IntegratorShare != postInteractionData.InteractionData.IntegratorShare {
+	if fee.IntegratorShare != postInteractionData.Fee.IntegratorShare {
 		return FusionExtension{}, fmt.Errorf("%w: integrator share not match", ErrInvalidExtension)
 	}
 	for i, item := range postInteractionData.Whitelist.Whitelist {
@@ -122,12 +122,12 @@ func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExte
 	}
 
 	var integratorFee limitorder.IntegratorFee
-	if postInteractionData.InteractionData.IntegratorFee != 0 {
+	if postInteractionData.Fee.IntegratorFee != 0 {
 		integratorFee, err = limitorder.NewIntegratorFee(
 			postInteractionData.IntegratorFeeRecipient,
 			postInteractionData.ProtocolFeeRecipient,
-			postInteractionData.InteractionData.IntegratorFee,
-			postInteractionData.InteractionData.IntegratorShare,
+			postInteractionData.Fee.IntegratorFee,
+			postInteractionData.Fee.IntegratorShare,
 		)
 		if err != nil {
 			return FusionExtension{}, err
@@ -135,11 +135,11 @@ func NewFusionExtensionFromExtension(extension limitorder.Extension) (FusionExte
 	}
 
 	var resolverFee limitorder.ResolverFee
-	if postInteractionData.InteractionData.ResolverFee != 0 {
+	if postInteractionData.Fee.ResolverFee != 0 {
 		resolverFee, err = limitorder.NewResolverFee(
 			postInteractionData.ProtocolFeeRecipient,
-			postInteractionData.InteractionData.ResolverFee,
-			postInteractionData.InteractionData.WhitelistDiscount,
+			postInteractionData.Fee.ResolverFee,
+			postInteractionData.Fee.WhitelistDiscount,
 		)
 		if err != nil {
 			return FusionExtension{}, err

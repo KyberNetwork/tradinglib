@@ -1,17 +1,15 @@
-package fusionextention
+package limitorder
 
 import (
-	"github.com/KyberNetwork/tradinglib/pkg/oneinch/limitorder"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 type SettlementPostInteractionData struct {
 	IntegratorFeeRecipient common.Address
 	ProtocolFeeRecipient   common.Address
-	CustomReceiver         common.Address
-	Fee                    limitorder.Fee
-	Whitelist              Whitelist
-	SurplusParam           SurplusParam
+	CustomReceiver         *common.Address
+	InteractionData        AmountData
+	ExtraInteraction       *Interaction
 }
 
 func (s SettlementPostInteractionData) HasFees() bool {
