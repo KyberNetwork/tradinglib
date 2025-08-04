@@ -5,12 +5,14 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient/gethclient"
 )
@@ -80,6 +82,9 @@ func (s *BloxrouteClient) SendBundle(
 	p := new(BLXRSubmitBundleParams).SetBlockNumber(blockNumber).SetTransactions(txs...)
 	if uuid != nil {
 		p.SetUUID(*uuid)
+	}
+	if err := p.Err(); err != nil {
+		return SendBundleResponse{}, err
 	}
 
 	mevBuilders := make(map[BlxrBuilder]string)
@@ -155,6 +160,8 @@ type BLXRSubmitBundleParams struct {
 	RevertingHashes *[]string              `json:"reverting_hashes,omitempty"`
 	UUID            string                 `json:"uuid,omitempty"`
 	MEVBuilders     map[BlxrBuilder]string `json:"mev_builders,omitempty"`
+
+	Errors []error `json:"-"`
 }
 
 func (p *BLXRSubmitBundleParams) SetTransactions(txs ...*types.Transaction) *BLXRSubmitBundleParams {
@@ -164,7 +171,12 @@ func (p *BLXRSubmitBundleParams) SetTransactions(txs ...*types.Transaction) *BLX
 
 	transactions := make([]string, 0, len(txs))
 	for _, tx := range txs {
-		transactions = append(transactions, "0x"+txToRlp(tx))
+		txBin, err := tx.MarshalBinary()
+		if err != nil {
+			p.Errors = append(p.Errors, err)
+		} else {
+			transactions = append(transactions, hexutil.Encode(txBin))
+		}
 	}
 
 	p.Transaction = transactions
@@ -186,6 +198,14 @@ func (p *BLXRSubmitBundleParams) SetUUID(uuid string) *BLXRSubmitBundleParams {
 	p.UUID = uuid
 
 	return p
+}
+
+func (p *BLXRSubmitBundleParams) Err() error {
+	if len(p.Errors) == 0 {
+		return nil
+	}
+
+	return errors.Join(p.Errors...)
 }
 
 type BLXRSubmitBundleResponse struct {

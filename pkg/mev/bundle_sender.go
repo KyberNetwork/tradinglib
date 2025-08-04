@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -202,6 +203,7 @@ func (s *Client) sendBundle(
 	if uuid != nil {
 		p.SetUUID(*uuid, s.senderType)
 	}
+
 	req.Params = append(req.Params, p)
 
 	reqBody, err := json.Marshal(req)
@@ -258,11 +260,16 @@ func (s *Client) SendPrivateRawTransaction(
 		return SendPrivateRawTransactionResponse{}, nil
 	}
 
+	txBin, err := tx.MarshalBinary()
+	if err != nil {
+		return SendPrivateRawTransactionResponse{}, fmt.Errorf("marshal tx binary: %w", err)
+	}
+
 	req := SendRequest{
 		ID:      SendBundleID,
 		JSONRPC: JSONRPC2,
 		Method:  ETHSendPrivateRawTransaction,
-		Params:  []any{"0x" + txToRlp(tx)},
+		Params:  []any{hexutil.Encode(txBin)},
 	}
 
 	reqBody, err := json.Marshal(req)
@@ -352,6 +359,8 @@ type SendBundleParams struct {
 	// (Optional) String, UUID that can be used to cancel/replace this bundle (For beaverbuild)
 	UUID             string `json:"uuid,omitempty"`
 	StateBlockNumber string `json:"stateBlockNumber,omitempty"`
+
+	Errors []error `json:"-"` // check when building bundle
 }
 
 func (p *SendBundleParams) SetStateBlockNumber(stateBlockNumber string) *SendBundleParams {
@@ -383,6 +392,7 @@ func (p *SendBundleParams) SetPendingTxHashes(txHashes ...common.Hash) *SendBund
 	return p
 }
 
+// tested at: https://team-kyber.slack.com/archives/C03P04E6UAW/p1754280128232029?thread_ts=1754063210.955249&cid=C03P04E6UAW
 func (p *SendBundleParams) SetTransactions(txs ...*types.Transaction) *SendBundleParams {
 	if len(txs) == 0 {
 		return p
@@ -390,7 +400,12 @@ func (p *SendBundleParams) SetTransactions(txs ...*types.Transaction) *SendBundl
 
 	transactions := make([]string, 0, len(txs))
 	for _, tx := range txs {
-		transactions = append(transactions, "0x"+txToRlp(tx))
+		txBin, err := tx.MarshalBinary()
+		if err != nil {
+			p.Errors = append(p.Errors, fmt.Errorf("marshal tx: %w", err))
+		} else {
+			transactions = append(transactions, hexutil.Encode(txBin))
+		}
 	}
 
 	p.Txs = transactions
@@ -418,6 +433,14 @@ func (p *SendBundleParams) SetUUID(uuid string, senderType BundleSenderType) *Se
 	p.ReplacementUUID = uuid
 
 	return p
+}
+
+func (p *SendBundleParams) Err() error {
+	if len(p.Errors) == 0 {
+		return nil
+	}
+
+	return errors.Join(p.Errors...)
 }
 
 type CancelBundleParams struct {
