@@ -84,6 +84,12 @@ type IBundleSender interface {
 		blockNumber uint64,
 		tx ...*types.Transaction,
 	) (SendBundleResponse, error)
+	SendBundleHex(
+		ctx context.Context,
+		uuid *string,
+		blockNumber uint64,
+		hexEncodedTxs ...string,
+	) (SendBundleResponse, error)
 	CancelBundle(
 		ctx context.Context, bundleUUID string,
 	) error
