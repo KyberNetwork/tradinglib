@@ -2,6 +2,7 @@
 package limitorder
 
 import (
+	"fmt"
 	"math/big"
 	"testing"
 
@@ -35,4 +36,5 @@ func TestEncodeTakerTraits(t *testing.T) {
 	encodedTakerTraits, args := takerTraits.Encode()
 	assert.Equal(t, "0x8000002900085800000000000000000000000000000000000000000000000001", hexutil.Encode(encodedTakerTraits.Bytes()))
 	assert.Equal(t, hexutil.Encode(append(extension.Encode(), interaction.Encode()...)), hexutil.Encode(args))
+	fmt.Println(*takerTraits)
 }

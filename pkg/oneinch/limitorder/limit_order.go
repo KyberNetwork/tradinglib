@@ -14,6 +14,6 @@ type LimitOrderV4 struct {
 	MakerAsset   common.Address `json:"makerAsset"`
 	TakerAsset   common.Address `json:"takerAsset"`
 	MakingAmount *big.Int       `json:"makingAmount"`
-	TakingAmount *big.Int       `json:"takingAmount"`
+	TakingAmount *big.Int       `json:"protocolFee"`
 	MakerTraits  *MakerTraits   `json:"makerTraits"`
 }

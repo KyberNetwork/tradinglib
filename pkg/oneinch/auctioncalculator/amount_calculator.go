@@ -10,7 +10,8 @@ import (
 
 type AmountCalculator struct {
 	auctionCalculator Calculator
-	feeCalculator     limitorder.FeeCalculator
+	// TODO: need to use an other FeeCalculator for FusionOrder
+	feeCalculator limitorder.FeeCalculator
 }
 
 func NewAmountCalculator(
@@ -23,7 +24,7 @@ func NewAmountCalculator(
 	}
 }
 
-func NewAmountCalculatorFromExtension(extension fusionextention.FusionExtension) AmountCalculator {
+func NewAmountCalculatorFromFusionExtension(extension fusionextention.FusionExtension) AmountCalculator {
 	auctionCalculator := NewCalculatorFromAuctionData(extension.AuctionDetails)
 	feeCalculator := limitorder.NewFeeCalculator(extension.Extra.Fees, extension.Whitelist)
 	return NewAmountCalculator(auctionCalculator, feeCalculator)

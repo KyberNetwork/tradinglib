@@ -19,7 +19,7 @@ func TestAmountCalculator(t *testing.T) {
 	require.NoError(t, err)
 
 	takingAmount, _ := new(big.Int).SetString("140444897314051230680", 10)
-	amountCalculator := auctioncalculator.NewAmountCalculatorFromExtension(fusionExtension)
+	amountCalculator := auctioncalculator.NewAmountCalculatorFromFusionExtension(fusionExtension)
 	requiredTakingAmount := amountCalculator.GetRequiredTakingAmount(
 		common.HexToAddress("0xad3b67bca8935cb510c8d18bd45f0b94f54a968f"),
 		takingAmount,

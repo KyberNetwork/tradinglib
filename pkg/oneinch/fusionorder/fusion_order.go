@@ -11,13 +11,20 @@ import (
 )
 
 type FusionOrder struct {
-	LimitOrder      limitorder.LimitOrderV4         `json:"limitOrder"`
-	Extension       limitorder.Extension            `json:"extension"`
-	FusionExtension fusionextention.FusionExtension `json:"fusionExtension"`
+	LimitOrder       limitorder.LimitOrderV4         `json:"limit_order"`
+	FusionExtension  fusionextention.FusionExtension `json:"fusion_extension"`
+	amountCalculator auctioncalculator.AmountCalculator
 }
 
-func (o FusionOrder) GetCalculator() auctioncalculator.AmountCalculator {
-	return auctioncalculator.NewAmountCalculatorFromExtension(o.FusionExtension)
+func NewFusionOrder(
+	limitOrder limitorder.LimitOrderV4,
+	fusionExtension fusionextention.FusionExtension,
+) FusionOrder {
+	return FusionOrder{
+		LimitOrder:       limitOrder,
+		FusionExtension:  fusionExtension,
+		amountCalculator: auctioncalculator.NewAmountCalculatorFromFusionExtension(fusionExtension),
+	}
 }
 
 func (o FusionOrder) CalcTakingAmount(
@@ -27,7 +34,7 @@ func (o FusionOrder) CalcTakingAmount(
 	baseFee *big.Int,
 ) *big.Int {
 	takingAmount := util.CalcTakingAmount(makingAmount, o.LimitOrder.MakingAmount, o.LimitOrder.TakingAmount)
-	return o.GetCalculator().GetRequiredTakingAmount(taker, takingAmount, blockTime, baseFee)
+	return o.amountCalculator.GetRequiredTakingAmount(taker, takingAmount, blockTime, baseFee)
 }
 
 func (o FusionOrder) CalcMakingAmount(
@@ -37,5 +44,5 @@ func (o FusionOrder) CalcMakingAmount(
 	baseFee *big.Int,
 ) *big.Int {
 	makingAmount := util.CalcMakingAmount(takingAmount, o.LimitOrder.MakingAmount, o.LimitOrder.TakingAmount)
-	return o.GetCalculator().GetRequiredMakingAmount(taker, makingAmount, blockTime, baseFee)
+	return o.amountCalculator.GetRequiredMakingAmount(taker, makingAmount, blockTime, baseFee)
 }
