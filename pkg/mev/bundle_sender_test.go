@@ -34,15 +34,15 @@ func TestSendBundle(t *testing.T) {
 		return
 	}
 	var (
-		endpoint       = "https://relay-sepolia.flashbots.net"
+		endpoint       = "https://rpc.titanbuilder.xyz"
 		ctx            = context.Background()
 		client         = http.DefaultClient
-		sepoliaChainID = 11155111
+		sepoliaChainID = 1
 	)
 	require.NoError(t, err)
 	address := crypto.PubkeyToAddress(privateKey.PublicKey)
 
-	ethClient, err := ethclient.Dial("https://ethereum-sepolia.blockpi.network/v1/rpc/public")
+	ethClient, err := ethclient.Dial("wss://ethereum.kyberengineering.io")
 	require.NoError(t, err)
 
 	blockNumber, err := ethClient.BlockNumber(ctx)

@@ -1,9 +1,7 @@
 package mev
 
 import (
-	"bytes"
 	"context"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -122,23 +120,23 @@ var defaultHeaders = [][2]string{ // nolint: gochecknoglobals
 	{"Accept", "application/json"},
 }
 
-func txToRlp(tx *types.Transaction) string {
-	var buff bytes.Buffer
-	_ = tx.EncodeRLP(&buff)
+// func txToRlp(tx *types.Transaction) string {
+// 	var buff bytes.Buffer
+// 	_ = tx.EncodeRLP(&buff)
 
-	rlp := hex.EncodeToString(buff.Bytes())
+// 	rlp := hex.EncodeToString(buff.Bytes())
 
-	switch rlp[:2] {
-	case "b9":
-		rlp = rlp[6:]
-	case "b8":
-	}
-	if rlp[:2] == "b9" {
-		rlp = rlp[4:]
-	}
+// 	switch rlp[:2] {
+// 	case "b9":
+// 		rlp = rlp[6:]
+// 	case "b8":
+// 	}
+// 	if rlp[:2] == "b9" {
+// 		rlp = rlp[4:]
+// 	}
 
-	return rlp
-}
+// 	return rlp
+// }
 
 func doRequest[T any](c *http.Client, req *http.Request, headers ...[2]string) (T, error) {
 	var t T

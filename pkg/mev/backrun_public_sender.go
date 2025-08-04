@@ -57,6 +57,10 @@ func (b BackrunPublicClient) SendBackrunBundle(
 	if uuid != nil {
 		p.SetUUID(*uuid, b.senderType)
 	}
+	if err := p.Err(); err != nil {
+		return SendBundleResponse{}, err
+	}
+
 	req.Params = append(req.Params, p)
 
 	reqBody, err := json.Marshal(req)
