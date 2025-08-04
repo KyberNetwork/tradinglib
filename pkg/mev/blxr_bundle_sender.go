@@ -87,6 +87,30 @@ func (s *BloxrouteClient) SendBundle(
 		return SendBundleResponse{}, err
 	}
 
+	return s.sendBundle(ctx, p)
+}
+
+func (s *BloxrouteClient) SendBundleHex(
+	ctx context.Context,
+	uuid *string,
+	blockNumber uint64,
+	hexEncodedTxs ...string,
+) (SendBundleResponse, error) {
+	p := new(BLXRSubmitBundleParams).SetBlockNumber(blockNumber).SetTransactionsHex(hexEncodedTxs...)
+	if uuid != nil {
+		p.SetUUID(*uuid)
+	}
+	if err := p.Err(); err != nil {
+		return SendBundleResponse{}, err
+	}
+
+	return s.sendBundle(ctx, p)
+}
+
+func (s *BloxrouteClient) sendBundle(
+	ctx context.Context,
+	p *BLXRSubmitBundleParams,
+) (SendBundleResponse, error) {
 	mevBuilders := make(map[BlxrBuilder]string)
 	for _, b := range s.enabledBuilders {
 		if b == BuilderFlashbot && s.flashbotKey != nil {
@@ -180,6 +204,16 @@ func (p *BLXRSubmitBundleParams) SetTransactions(txs ...*types.Transaction) *BLX
 	}
 
 	p.Transaction = transactions
+
+	return p
+}
+
+func (p *BLXRSubmitBundleParams) SetTransactionsHex(txs ...string) *BLXRSubmitBundleParams {
+	if len(txs) == 0 {
+		return p
+	}
+
+	p.Transaction = append(p.Transaction, txs...)
 
 	return p
 }
