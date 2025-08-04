@@ -45,7 +45,8 @@ func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteraction
 		if err != nil {
 			return SettlementPostInteractionData{}, fmt.Errorf("get custom receiver: %w", err)
 		}
-		*customReceiver = common.BytesToAddress(customReceiverBytes)
+		receiver := common.BytesToAddress(customReceiverBytes)
+		customReceiver = &receiver
 	}
 
 	interactionData, err := ParseAmountData(iter)
