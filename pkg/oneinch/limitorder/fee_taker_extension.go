@@ -25,7 +25,6 @@ type FeeTakerExtension struct {
 //nolint:funlen,cyclop
 func NewFeeTakerFromExtension(extension Extension) (FeeTakerExtension, error) {
 	extensionAddress := util.AddressFromFirstBytes(extension.MakingAmountData)
-
 	if util.AddressFromFirstBytes(extension.TakingAmountData) != extensionAddress {
 		return FeeTakerExtension{},
 			fmt.Errorf("%w: taking amount data settlement contract mismatch", ErrInvalidExtension)
