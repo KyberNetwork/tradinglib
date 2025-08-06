@@ -36,6 +36,16 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 		return nil, nil, fmt.Errorf("[buildLO1inch] ErrUnmarshalFailed err :[%w]", err)
 	}
 
+	poolExtraBytes, err := json.Marshal(encodingSwap.PoolExtra)
+	if err != nil {
+		return nil, nil, fmt.Errorf("[buildLO1inch] ErrMarshalFailed err :[%w]", err)
+	}
+
+	var poolMeta lo1inch.MetaInfo
+	if err = json.Unmarshal(poolExtraBytes, &poolMeta); err != nil {
+		return nil, nil, fmt.Errorf("[buildLO1inch] ErrUnmarshalFailed err :[%w]", err)
+	}
+
 	if len(swapInfo.FilledOrders) == 0 {
 		return nil, nil, fmt.Errorf("[buildLO1inch] cause by filledOrders is empty")
 	}
@@ -75,11 +85,15 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 			return nil, nil, fmt.Errorf("decode extension: %w", err)
 		}
 
-		receiver := helper1inch.NewAddress(encodingSwap.Recipient)
+		receiver := common.HexToAddress(encodingSwap.Recipient)
 
-		// In the orders response of 1inch limit order API, there is no interaction
-		// so we only encode receiver + extension into takerTraits
-		takerTraitsEncoded := helper1inch.NewTakerTraits(&receiver, extension, nil).Encode()
+		// init interaction to check min amount out returned.
+		interaction := helper1inch.Interaction{
+			Target: common.HexToAddress(poolMeta.TakerTargetInteraction),
+			Data:   filledOrder.MakingAmount.Bytes(),
+		}
+
+		takerTraitsEncoded, args := helper1inch.NewTakerTraits(big.NewInt(0), &receiver, &extension, &interaction).Encode()
 
 		order := OneInchV6Order{
 			Salt:         bignumber.NewBig(filledOrder.Salt),
@@ -106,7 +120,7 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 				) external returns(uint256 makingAmount, uint256 takingAmount, bytes32 orderHash);
 			*/
 			packed, err := OneInchAggregationRouterV6ABI.Pack("fillContractOrderArgs",
-				order, signature, filledOrder, takingAmount, takerTraitsEncoded.TakerTraits, takerTraitsEncoded.Args,
+				order, signature, filledOrder, takingAmount, takerTraitsEncoded, args,
 			)
 			if err != nil {
 				return nil, nil, fmt.Errorf("pack fillContractOrderArgs error: %w", err)
@@ -137,7 +151,7 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 			copy(rArray[:], r)
 			copy(vsArray[:], vs)
 			packed, err := OneInchAggregationRouterV6ABI.Pack("fillOrderArgs",
-				order, rArray, vsArray, takingAmount, takerTraitsEncoded.TakerTraits, takerTraitsEncoded.Args,
+				order, rArray, vsArray, takingAmount, takerTraitsEncoded, args,
 			)
 			if err != nil {
 				return nil, nil, fmt.Errorf("pack fillOrderArgs error: %w", err)
