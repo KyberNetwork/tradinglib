@@ -93,7 +93,9 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 			Data:   filledOrder.MakingAmount.Bytes(),
 		}
 
-		takerTraitsEncoded, args := helper1inch.NewTakerTraits(big.NewInt(0), &receiver, &extension, &interaction).Encode()
+		takerTraitsEncoded, args := helper1inch.NewTakerTraits(big.NewInt(0), &receiver, &extension, &interaction).
+			SetAmountThreshold(filledOrder.MakingAmount.ToBig()).
+			Encode()
 
 		order := OneInchV6Order{
 			Salt:         bignumber.NewBig(filledOrder.Salt),
