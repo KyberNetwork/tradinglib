@@ -38,6 +38,7 @@ func (f *Finder) generateNextLayer(
 	edges map[string]map[string][]dexlibPool.IPoolSimulator,
 ) map[string][]*entity.Path {
 	var (
+		wg         sync.WaitGroup
 		newPaths   sync.Map
 		interation int
 	)
@@ -64,17 +65,28 @@ func (f *Finder) generateNextLayer(
 					continue
 				}
 
-				hop := f.findHops(
-					tokenInInfo.Address,
-					tokenInPrice,
-					tokenInInfo.Decimals,
-					tokenOut,
-					path.AmountOut,
-					tokenInEdges[tokenOut],
-					f.NumHopSplits,
-				)
-				nextPath := f.generateNextPath(params, path, hop)
-				newPaths.Store(interation, nextPath)
+				go func(
+					iteration int,
+					path *entity.Path,
+					pool []dexlibPool.IPoolSimulator,
+					fromToken string,
+					toToken string,
+				) {
+					defer wg.Done()
+					hop := f.findHops(
+						tokenInInfo.Address,
+						tokenInPrice,
+						tokenInInfo.Decimals,
+						tokenOut,
+						path.AmountOut,
+						tokenInEdges[tokenOut],
+						f.NumHopSplits,
+					)
+
+					nextPath := f.generateNextPath(params, path, hop)
+					newPaths.Store(interation, nextPath)
+				}(interation, path, tokenInEdges[tokenOut], tokenIn, tokenOut)
+
 				interation++
 			}
 		}
