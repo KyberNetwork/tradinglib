@@ -1,7 +1,6 @@
 package finderengine
 
 import (
-	"fmt"
 	"math/big"
 	"testing"
 
@@ -51,7 +50,6 @@ func (mp *mockPool) GetTokens() []string     { return []string{mp.tokenIn, mp.to
 func (mp *mockPool) GetReserves() []*big.Int { return nil }
 func (mp *mockPool) GetAddress() string      { return mp.address }
 func (mp *mockPool) GetExchange() string {
-	fmt.Println(mp.rate.String())
 	return ""
 }
 func (mp *mockPool) GetType() string                                  { return "" }
@@ -69,12 +67,6 @@ func Test_FindHops(t *testing.T) {
 	amountIn := big.NewInt(1000000)
 	numSplits := uint64(6)
 	hop := FindHops("A", 1, 18, "B", amountIn, pools, numSplits)
-
-	fmt.Println("Split result:")
-	for _, split := range hop.Splits {
-		fmt.Printf("Pool: %s, AmountIn: %s, AmountOut: %s\n", split.ID, split.AmountIn.String(), split.AmountOut.String())
-	}
-
 	// Assert each pool got used
 	assert.Len(t, hop.Splits, 2)
 }

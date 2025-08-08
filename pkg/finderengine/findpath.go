@@ -14,7 +14,6 @@ func (f *Finder) findBestPathsOptimized(
 	minHops map[string]uint64,
 	edges map[string]map[string][]dexlibPool.IPoolSimulator,
 ) []*entity.Path {
-
 	startNode := entity.NewPath(params.AmountIn)
 	layer := map[string][]*entity.Path{
 		params.TokenIn: {startNode},
@@ -65,7 +64,15 @@ func (f *Finder) generateNextLayer(
 					continue
 				}
 
-				hop := f.findHops(tokenInInfo.Address, tokenInPrice, tokenInInfo.Decimals, tokenOut, path.AmountOut, tokenInEdges[tokenOut], f.NumHopSplits)
+				hop := f.findHops(
+					tokenInInfo.Address,
+					tokenInPrice,
+					tokenInInfo.Decimals,
+					tokenOut,
+					path.AmountOut,
+					tokenInEdges[tokenOut],
+					f.NumHopSplits,
+				)
 				nextPath := f.generateNextPath(params, path, hop)
 				newPaths.Store(interation, nextPath)
 				interation++

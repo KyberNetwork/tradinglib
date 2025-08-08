@@ -19,11 +19,9 @@ type Route struct {
 }
 
 func NewConstructRoute(tokenIn, tokenOut string) *Route {
-
 	return &Route{
-		TokenIn:  tokenIn,
-		TokenOut: tokenOut,
-
+		TokenIn:   tokenIn,
+		TokenOut:  tokenOut,
 		AmountIn:  big.NewInt(0),
 		AmountOut: big.NewInt(0),
 		Paths:     []*Path{},

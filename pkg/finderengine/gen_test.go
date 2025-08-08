@@ -10,7 +10,6 @@ import (
 )
 
 func GenTest() (map[string]entity.SimplifiedToken, map[string]struct{}, map[string]map[string][]dexlibPool.IPoolSimulator) {
-
 	tokens := make(map[string]entity.SimplifiedToken)
 	for i := 0; i < 1000; i++ {
 		addr := fmt.Sprintf("token%d", i)
@@ -35,7 +34,6 @@ func GenTest() (map[string]entity.SimplifiedToken, map[string]struct{}, map[stri
 }
 
 func BenchmarkFindBestPathsOptimized(b *testing.B) {
-	// setup above: tokens, edges, params...
 	tokens, whitelist, edges := GenTest()
 	params := &entity.FinderParams{
 		TokenIn:            "token0",
