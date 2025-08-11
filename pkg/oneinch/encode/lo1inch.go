@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/KyberNetwork/blockchain-toolkit/number"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/lo1inch"
 	helper1inch "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/lo1inch/helper"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/util/bignumber"
@@ -58,16 +57,12 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 			break
 		}
 
-		// calculate order's remaining taking amount
-		// orderRemainingTakingAmount = order.TakingAmount * orderRemainingMakingAmount / order.MakingAmount
-		orderRemainingTakingAmount := number.Set(filledOrder.TakingAmount)
-		orderRemainingTakingAmount.Mul(orderRemainingTakingAmount, filledOrder.RemainingMakerAmount)
-		orderRemainingTakingAmount.Div(orderRemainingTakingAmount, filledOrder.MakingAmount)
-
+		orderRemainingTakingAmount := filledOrder.FilledTakingAmount
 		takingAmount := orderRemainingTakingAmount.ToBig()
 		if takingAmount.Sign() == 0 {
 			continue
 		}
+
 		switch amountIn.Cmp(takingAmount) {
 		case -1:
 			takingAmount.Set(amountIn)
@@ -90,11 +85,12 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 		// init interaction to check min amount out returned.
 		interaction := helper1inch.Interaction{
 			Target: common.HexToAddress(poolMeta.TakerTargetInteraction),
-			Data:   filledOrder.MakingAmount.Bytes(),
+			Data:   filledOrder.FilledMakingAmount.Bytes(),
 		}
 
 		takerTraitsEncoded, args := helper1inch.NewTakerTraits(big.NewInt(0), &receiver, &extension, &interaction).
-			SetAmountThreshold(filledOrder.MakingAmount.ToBig()).
+			// as we are taker side, we need check makingAmount >= threshold
+			SetAmountThreshold(filledOrder.FilledMakingAmount.ToBig()).
 			Encode()
 
 		order := OneInchV6Order{
