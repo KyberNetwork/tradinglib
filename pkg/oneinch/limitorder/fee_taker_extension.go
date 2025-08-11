@@ -38,27 +38,28 @@ func NewFeeTakerFromExtension(extension Extension) (FeeTakerExtension, error) {
 			fmt.Errorf("%w: takingAmountData and makingAmountData not match", ErrInvalidExtension)
 	}
 
-	postInteractionData, err := DecodeSettlementPostInteractionData(extension.PostInteraction)
-	if err != nil {
-		return FeeTakerExtension{}, fmt.Errorf("decode post interaction data: %w", err)
-	}
+	var (
+		err                 error
+		amountData          AmountData
+		postInteractionData SettlementPostInteractionData
+	)
 
-	amountIter := decode.NewBytesIterator(extension.MakingAmountData)
-	if _, err := amountIter.NextUint160(); err != nil {
-		return FeeTakerExtension{}, fmt.Errorf("skip address of extension: %w", err)
-	}
-	amountData, err := ParseAmountData(amountIter)
-	if err != nil {
-		return FeeTakerExtension{}, fmt.Errorf("decode amount data: %w", err)
-	}
-
-	var permit *Interaction
-	if extension.HasMakerPermit() {
-		permitInteraction, err := DecodeInteraction(extension.MakerPermit)
-		if err != nil {
-			return FeeTakerExtension{}, fmt.Errorf("decode maker permit: %w", err)
+	if len(extension.MakingAmountData) != 0 {
+		amountIter := decode.NewBytesIterator(extension.MakingAmountData)
+		if _, err := amountIter.NextUint160(); err != nil {
+			return FeeTakerExtension{}, fmt.Errorf("skip address of extension: %w", err)
 		}
-		permit = &permitInteraction
+		amountData, err = ParseAmountData(amountIter)
+		if err != nil {
+			return FeeTakerExtension{}, fmt.Errorf("decode amount data: %w", err)
+		}
+	}
+
+	if len(extension.PostInteraction) != 0 {
+		postInteractionData, err = DecodeSettlementPostInteractionData(extension.PostInteraction)
+		if err != nil {
+			return FeeTakerExtension{}, fmt.Errorf("decode post interaction data: %w", err)
+		}
 	}
 
 	if amountData.Fee.IntegratorFee != postInteractionData.InteractionData.Fee.IntegratorFee {
@@ -73,11 +74,22 @@ func NewFeeTakerFromExtension(extension Extension) (FeeTakerExtension, error) {
 	if amountData.Fee.IntegratorShare != postInteractionData.InteractionData.Fee.IntegratorShare {
 		return FeeTakerExtension{}, fmt.Errorf("%w: integrator share not match", ErrInvalidExtension)
 	}
+
 	for i, item := range postInteractionData.InteractionData.WhiteListDiscount.Addresses {
 		if item != amountData.WhiteListDiscount.Addresses[i] {
 			return FeeTakerExtension{}, fmt.Errorf("%w: whitelist address not match", ErrInvalidExtension)
 		}
 	}
+
+	var permit *Interaction
+	if extension.HasMakerPermit() {
+		permitInteraction, err := DecodeInteraction(extension.MakerPermit)
+		if err != nil {
+			return FeeTakerExtension{}, fmt.Errorf("decode maker permit: %w", err)
+		}
+		permit = &permitInteraction
+	}
+
 	feeTakerExtension := FeeTakerExtension{
 		Address: extensionAddress,
 		Whitelist: Whitelist{
@@ -138,4 +150,8 @@ func (f *FeeTakerExtension) GetProtocolShareOfIntegratorFee(taker common.Address
 // GetProtocolFee which protocol gets as share from resolver fee
 func (f *FeeTakerExtension) GetProtocolFee(taker common.Address, takingAmount *big.Int) *big.Int {
 	return f.feeCalculator.GetProtocolFee(taker, takingAmount)
+}
+
+func (f *FeeTakerExtension) GetFeeForTaker(taker common.Address) *big.Int {
+	return f.feeCalculator.getFee(taker)
 }

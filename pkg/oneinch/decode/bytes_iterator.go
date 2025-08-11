@@ -4,6 +4,8 @@ import (
 	"encoding/binary"
 	"errors"
 	"math/big"
+
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/util"
 )
 
 var ErrOutOfData = errors.New("out of data")
@@ -13,7 +15,7 @@ type BytesIterator struct {
 }
 
 func NewBytesIterator(data []byte) *BytesIterator {
-	return &BytesIterator{data: data}
+	return &BytesIterator{data: util.CopyBytes(data)}
 }
 
 func (bi *BytesIterator) RemainingData() []byte {

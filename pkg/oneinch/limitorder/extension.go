@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/big"
 
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/util"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
@@ -141,7 +142,7 @@ func DecodeExtension(encodedExtension string) (Extension, error) {
 				fmt.Errorf("extension data length (%d) is less than expected (%d)", len(extensionData), end)
 		}
 
-		data[i] = extensionData[start:end]
+		data[i] = util.CopyBytes(extensionData[start:end])
 
 		prevLength = length
 	}
