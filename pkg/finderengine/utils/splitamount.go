@@ -1,4 +1,4 @@
-package finderengine
+package utils
 
 import (
 	"math"
@@ -11,7 +11,7 @@ func AlmostEqual(a, b float64) bool {
 	return math.Abs(a-b) <= float64EqualityThreshold
 }
 
-func splitAmount(amount *big.Int, splitNums uint64) []*big.Int {
+func SplitAmount(amount *big.Int, splitNums uint64) []*big.Int {
 	splitNumsBI := new(big.Int).SetUint64(splitNums)
 	base := new(big.Int).Div(amount, splitNumsBI)
 	remainder := new(big.Int).Sub(amount, new(big.Int).Mul(splitNumsBI, base))

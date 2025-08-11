@@ -29,10 +29,9 @@ func NewConstructRoute(tokenIn, tokenOut string) *Route {
 }
 
 type BestRouteResult struct {
-	BestRoutes   []*Route
 	AMMBestRoute *Route
 }
 
 func (res *BestRouteResult) IsRouteNotFound() bool {
-	return res == nil || len(res.BestRoutes) == 0
+	return res == nil || res.AMMBestRoute == nil
 }

@@ -13,7 +13,6 @@ require (
 	github.com/KyberNetwork/kyber-trace-go v0.1.2
 	github.com/KyberNetwork/kyberswap-dex-lib v0.101.7
 	github.com/TheZeroSlave/zapsentry v1.23.0
-	github.com/deckarep/golang-set/v2 v2.8.0
 	github.com/duoxehyon/mev-share-go v0.3.0
 	github.com/ethereum/go-ethereum v1.15.10
 	github.com/flashbots/mev-share-node v0.0.0-20240517155750-67003f8e8700
@@ -58,6 +57,7 @@ require (
 	github.com/daoleno/uniswap-sdk-core v0.1.7 // indirect
 	github.com/daoleno/uniswapv3-sdk v0.4.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/deckarep/golang-set/v2 v2.8.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/ethereum/c-kzg-4844 v1.0.3 // indirect

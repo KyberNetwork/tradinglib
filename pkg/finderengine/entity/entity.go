@@ -30,7 +30,7 @@ type FinderParams struct {
 	// TokenIn is the token to be swapped
 	TokenIn string
 	// TokenOut is the token to be received
-	TokenOut string
+	TargetToken string
 	// AmountIn is the amount of TokenIn to be swapped
 	AmountIn *big.Int
 
@@ -78,18 +78,7 @@ type FinderParams struct {
 	// L1GasFeePricePerPool estimated L1 gas fee for each pool in Price value (USD/Native).
 	L1GasFeePricePerPool float64
 
-	// ClientId is the client ID used to identify the request.
-	ClientId string
-
-	// OnlySinglePath if enabled, the pathfinder will return route with only one path.
-	OnlySinglePath bool
-
-	// SkipMergeSwap if enabled, the pathfinder will skip the merge swap process.
-	SkipMergeSwap bool
-
-	// ReturnAMMBestPath if enabled, the pathfinder will return an extra route that contains only AMM swaps.
-	ReturnAMMBestPath bool
-
-	// EnableHillClimbForAlphaFee if enabled, we will run hill climbing for amm best route
-	EnableHillClimbForAlphaFee bool
+	MaxHop        uint64
+	NumPathSplits uint64
+	NumHopSpits   uint64
 }

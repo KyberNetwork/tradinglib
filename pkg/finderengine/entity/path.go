@@ -80,3 +80,24 @@ func (p *Path) Clone() *Path {
 		TokenOrders:    append([]string{}, p.TokenOrders...),
 	}
 }
+
+func (p *Path) Cmp(y *Path, gasIncluded bool) int {
+	priceAvailable := p.AmountOutPrice != 0 || y.AmountOutPrice != 0
+
+	if gasIncluded && priceAvailable {
+		xValue := p.AmountOutPrice - p.GasFeePrice - p.L1GasFeePrice
+		yValue := y.AmountOutPrice - y.GasFeePrice - y.L1GasFeePrice
+
+		if utils.AlmostEqual(xValue, yValue) {
+			return p.AmountOut.Cmp(y.AmountOut)
+		}
+
+		if xValue < yValue {
+			return -1
+		} else {
+			return 1
+		}
+	}
+
+	return p.AmountOut.Cmp(y.AmountOut)
+}

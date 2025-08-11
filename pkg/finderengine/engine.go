@@ -1,16 +1,18 @@
 package finderengine
 
 import (
+	"math/big"
+
 	dexlibPool "github.com/KyberNetwork/kyberswap-dex-lib/pkg/source/pool"
 	"github.com/KyberNetwork/tradinglib/pkg/finderengine/entity"
+	"github.com/KyberNetwork/tradinglib/pkg/finderengine/utils"
 )
 
 type Finder struct {
-	MaxHop              uint64
 	DistributionPercent uint64
 	NumPathSplits       uint64
 	NumHopSplits        uint64
-	findHops            FindHopFunc
+	FindHops            FindHopFunc
 }
 
 func (f *Finder) Find(params entity.FinderParams) (*entity.BestRouteResult, error) {
@@ -38,18 +40,38 @@ func (f *Finder) Find(params entity.FinderParams) (*entity.BestRouteResult, erro
 		}
 	}
 
-	minHops := f.minHopsToTokenOut(params.TokenIn, params.TokenOut, edges, params.WhitelistHopTokens)
-	_ = f.findBestPathsOptimized(&params, minHops, edges)
-	// Optimize Route: TODO
+	bestRoute := entity.Route{
+		TokenIn:       params.TokenIn,
+		TokenOut:      params.TargetToken,
+		AmountIn:      new(big.Int).Set(params.AmountIn),
+		AmountOut:     big.NewInt(0),
+		GasUsed:       0,
+		GasFeePrice:   0,
+		L1GasFeePrice: 0,
+		Paths:         nil,
+	}
 
-	return nil, nil
+	minHops := f.minHopsToTokenOut(params.TokenIn, params.TargetToken, edges, params.WhitelistHopTokens, params.MaxHop)
+	splits := utils.SplitAmount(params.AmountIn, f.NumPathSplits)
+
+	for _, split := range splits {
+		params.AmountIn = split
+		bestPath := f.findBestPathsOptimized(&params, minHops, edges, f.NumHopSplits)
+		bestRoute.AmountOut.Add(bestPath.AmountOut, bestPath.AmountOut)
+		bestRoute.Paths = append(bestRoute.Paths, bestPath)
+		updatePoolState(bestPath, params.Pools)
+	}
+
+	return &entity.BestRouteResult{
+		AMMBestRoute: &bestRoute,
+	}, nil
 }
 
 func (f *Finder) validateParameters(params entity.FinderParams) error {
 	if _, exist := params.Tokens[params.TokenIn]; !exist {
 		return ErrTokenInNotFound
 	}
-	if _, exist := params.Tokens[params.TokenOut]; !exist {
+	if _, exist := params.Tokens[params.TargetToken]; !exist {
 		return ErrTokenOutNotFound
 	}
 

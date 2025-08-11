@@ -36,17 +36,17 @@ func GenTest() (map[string]entity.SimplifiedToken, map[string]struct{}, map[stri
 func BenchmarkFindBestPathsOptimized(b *testing.B) {
 	tokens, whitelist, edges := GenTest()
 	params := &entity.FinderParams{
+		MaxHop:             5,
 		TokenIn:            "token0",
-		TokenOut:           "token999",
+		TargetToken:        "token999",
 		AmountIn:           big.NewInt(1_000_000_000_000_000_000),
 		WhitelistHopTokens: whitelist,
 		Tokens:             tokens,
 		GasIncluded:        false,
 	}
 	finder := &Finder{
-		MaxHop:       5,
 		NumHopSplits: 2, // or more
-		findHops: func(tokenIn string, tokenInPrice float64, tokenInDecimals uint8, tokenOut string, amountIn *big.Int, pools []dexlibPool.IPoolSimulator, numSplits uint64) *entity.Hop {
+		FindHops: func(tokenIn string, tokenInPrice float64, tokenInDecimals uint8, tokenOut string, amountIn *big.Int, pools []dexlibPool.IPoolSimulator, numSplits uint64) *entity.Hop {
 			return &entity.Hop{
 				TokenIn:   tokenIn,
 				TokenOut:  tokenOut,
@@ -67,6 +67,6 @@ func BenchmarkFindBestPathsOptimized(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = finder.findBestPathsOptimized(params, minHops, edges)
+		_ = finder.findBestPathsOptimized(params, minHops, edges, 4)
 	}
 }

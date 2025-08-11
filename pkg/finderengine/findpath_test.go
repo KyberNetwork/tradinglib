@@ -12,9 +12,8 @@ import (
 
 func TestFindBestPaths_ComplexGraph(t *testing.T) {
 	f := &Finder{
-		MaxHop:       4,
 		NumHopSplits: 1,
-		findHops: func(tokenIn string, tokenInPrice float64, tokenInDecimals uint8, tokenOut string, amountIn *big.Int, pools []dexlibPool.IPoolSimulator, numSplits uint64) *entity.Hop {
+		FindHops: func(tokenIn string, tokenInPrice float64, tokenInDecimals uint8, tokenOut string, amountIn *big.Int, pools []dexlibPool.IPoolSimulator, numSplits uint64) *entity.Hop {
 			return &entity.Hop{
 				TokenIn:   tokenIn,
 				TokenOut:  tokenOut,
@@ -47,9 +46,9 @@ func TestFindBestPaths_ComplexGraph(t *testing.T) {
 		"F": 0,
 	}
 	params := &entity.FinderParams{
-		TokenIn:  "A",
-		TokenOut: "F",
-		AmountIn: big.NewInt(100),
+		TokenIn:     "A",
+		TargetToken: "F",
+		AmountIn:    big.NewInt(100),
 		Tokens: map[string]entity.SimplifiedToken{
 			"A": {}, "B": {}, "C": {}, "D": {}, "E": {}, "F": {}, "G": {},
 		},
@@ -58,7 +57,7 @@ func TestFindBestPaths_ComplexGraph(t *testing.T) {
 		},
 	}
 
-	results := f.findBestPathsOptimized(params, minHops, edges)
+	results := f.findBestPathsOptimized(params, minHops, edges, f.NumHopSplits)
 
 	require.NotEmpty(t, results)
 }
