@@ -80,5 +80,5 @@ type FinderParams struct {
 
 	MaxHop        uint64
 	NumPathSplits uint64
-	NumHopSpits   uint64
+	NumHopSplits  uint64
 }

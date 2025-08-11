@@ -37,6 +37,8 @@ func BenchmarkFindBestPathsOptimized(b *testing.B) {
 	tokens, whitelist, edges := GenTest()
 	params := &entity.FinderParams{
 		MaxHop:             5,
+		NumHopSplits:       2,
+		NumPathSplits:      2,
 		TokenIn:            "token0",
 		TargetToken:        "token999",
 		AmountIn:           big.NewInt(1_000_000_000_000_000_000),
@@ -45,7 +47,7 @@ func BenchmarkFindBestPathsOptimized(b *testing.B) {
 		GasIncluded:        false,
 	}
 	finder := &Finder{
-		NumHopSplits: 2, // or more
+
 		FindHops: func(tokenIn string, tokenInPrice float64, tokenInDecimals uint8, tokenOut string, amountIn *big.Int, pools []dexlibPool.IPoolSimulator, numSplits uint64) *entity.Hop {
 			return &entity.Hop{
 				TokenIn:   tokenIn,
@@ -67,6 +69,6 @@ func BenchmarkFindBestPathsOptimized(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = finder.findBestPathsOptimized(params, minHops, edges, 4)
+		_ = finder.findBestPathsOptimized(params, minHops, edges)
 	}
 }

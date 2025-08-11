@@ -9,10 +9,7 @@ import (
 )
 
 type Finder struct {
-	DistributionPercent uint64
-	NumPathSplits       uint64
-	NumHopSplits        uint64
-	FindHops            FindHopFunc
+	FindHops FindHopFunc
 }
 
 func (f *Finder) Find(params entity.FinderParams) (*entity.BestRouteResult, error) {
@@ -52,11 +49,11 @@ func (f *Finder) Find(params entity.FinderParams) (*entity.BestRouteResult, erro
 	}
 
 	minHops := f.minHopsToTokenOut(params.TokenIn, params.TargetToken, edges, params.WhitelistHopTokens, params.MaxHop)
-	splits := utils.SplitAmount(params.AmountIn, f.NumPathSplits)
+	splits := utils.SplitAmount(params.AmountIn, params.NumPathSplits)
 
 	for _, split := range splits {
 		params.AmountIn = split
-		bestPath := f.findBestPathsOptimized(&params, minHops, edges, f.NumHopSplits)
+		bestPath := f.findBestPathsOptimized(&params, minHops, edges)
 		bestRoute.AmountOut.Add(bestPath.AmountOut, bestPath.AmountOut)
 		bestRoute.Paths = append(bestRoute.Paths, bestPath)
 		updatePoolState(bestPath, params.Pools)

@@ -146,8 +146,7 @@ func FindHops(
 	for i := uint64(0); i < numSplits && h.Len() > 0; i++ {
 		chunk := splits[i]
 		isLast := i == numSplits-1
-
-		best, _ := heap.Pop(&h).(*poolItem)
+		best, _ := heap.Pop(&h).(poolItem)
 		p := localPools[best.id]
 
 		var res *dexlibPool.CalcAmountOutResult
