@@ -106,7 +106,7 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 				) external returns(uint256 makingAmount, uint256 takingAmount, bytes32 orderHash);
 			*/
 			packed, err := OneInchAggregationRouterV6ABI.Pack("fillContractOrderArgs",
-				order, signature, filledOrder, takingAmount, takerTraitsEncoded.TakerTraits, takerTraitsEncoded.Args,
+				order, signature, takingAmount, takerTraitsEncoded.TakerTraits, takerTraitsEncoded.Args,
 			)
 			if err != nil {
 				return nil, nil, fmt.Errorf("pack fillContractOrderArgs error: %w", err)
