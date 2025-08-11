@@ -46,3 +46,7 @@ func (o FusionOrder) CalcMakingAmount(
 	makingAmount := util.CalcMakingAmount(takingAmount, o.LimitOrder.MakingAmount, o.LimitOrder.TakingAmount)
 	return o.amountCalculator.GetRequiredMakingAmount(taker, makingAmount, blockTime, baseFee)
 }
+
+func (o FusionOrder) GetFee(taker common.Address) (int64, int64) {
+	return o.amountCalculator.GetFee(taker)
+}

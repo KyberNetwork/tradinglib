@@ -15,7 +15,8 @@ func HalfAddressFromAddress(a common.Address) AddressHalf {
 }
 
 func AddressFromFirstBytes(s []byte) common.Address {
-	return common.BytesToAddress(s[:common.AddressLength])
+	addressLength := min(len(s), common.AddressLength)
+	return common.BytesToAddress(s[:addressLength])
 }
 
 func BytesToAddressHalf(bs []byte) AddressHalf {

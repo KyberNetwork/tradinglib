@@ -78,3 +78,7 @@ func (c AmountCalculator) getAuctionBumpedAmount(takingAmount *big.Int, ts *big.
 	rateBump := c.auctionCalculator.CalcRateBump(ts, blockBaseFee)
 	return CalcAuctionTakingAmount(takingAmount, rateBump)
 }
+
+func (c AmountCalculator) GetFee(taker common.Address) (int64, int64) {
+	return c.feeCalculator.GetFeesForTaker(taker)
+}

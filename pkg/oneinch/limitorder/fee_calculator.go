@@ -108,7 +108,7 @@ func NewFeeCalculator(fees Fees, whitelist IWhitelist) FeeCalculator {
 }
 
 func (c FeeCalculator) getFee(taker common.Address) *big.Int {
-	resolverFee, integratorFee := c.getFeesForTaker(taker)
+	resolverFee, integratorFee := c.GetFeesForTaker(taker)
 	return new(big.Int).SetInt64(Base10000 + resolverFee + integratorFee)
 }
 
@@ -123,7 +123,7 @@ func (c FeeCalculator) GetMakingAmount(taker common.Address, orderMakingAmount *
 }
 
 // https://github.com/1inch/limit-order-sdk/blob/1793d32bd36c6cfea909caafbc15e8023a033249/src/limit-order/extensions/fee-taker/fee-calculator.ts#L121
-func (c FeeCalculator) getFeesForTaker(taker common.Address) (int64, int64) {
+func (c FeeCalculator) GetFeesForTaker(taker common.Address) (int64, int64) {
 	discountNumerator := uint16(Base10000)
 	if c.whitelist.IsWhitelisted(taker) {
 		discountNumerator = Base10000 - c.fees.Resolver.WhitelistDiscount
@@ -137,14 +137,14 @@ func (c FeeCalculator) getFeesForTaker(taker common.Address) (int64, int64) {
 // GetResolverFee which resolver pays to resolver fee receiver
 func (c FeeCalculator) GetResolverFee(taker common.Address, orderTakingAmount *big.Int) *big.Int {
 	takingAmount := c.GetTakingAmount(taker, orderTakingAmount)
-	resolverFee, _ := c.getFeesForTaker(taker)
+	resolverFee, _ := c.GetFeesForTaker(taker)
 	return util.MulDiv(takingAmount, new(big.Int).SetInt64(resolverFee), c.getFee(taker), util.Floor)
 }
 
 // GetIntegratorFee which integrator gets to integrator wallet
 func (c FeeCalculator) GetIntegratorFee(taker common.Address, orderTakingAmount *big.Int) *big.Int {
 	takingAmount := c.GetTakingAmount(taker, orderTakingAmount)
-	_, integratorFee := c.getFeesForTaker(taker)
+	_, integratorFee := c.GetFeesForTaker(taker)
 	total := util.MulDiv(takingAmount, new(big.Int).SetInt64(integratorFee), c.getFee(taker), util.Floor)
 	share := bps.ToFraction(int(c.fees.Integrator.Share), constants.FeeBase1e2)
 	return util.MulDiv(total, share, constants.FeeBase1e2, util.Floor)
@@ -152,7 +152,7 @@ func (c FeeCalculator) GetIntegratorFee(taker common.Address, orderTakingAmount 
 
 func (c FeeCalculator) GetProtocolShareOfIntegratorFee(taker common.Address, orderTakingAmount *big.Int) *big.Int {
 	takingAmount := c.GetTakingAmount(taker, orderTakingAmount)
-	_, integratorFee := c.getFeesForTaker(taker)
+	_, integratorFee := c.GetFeesForTaker(taker)
 	total := util.MulDiv(takingAmount, new(big.Int).SetInt64(integratorFee), c.getFee(taker), util.Floor)
 	return total.Sub(total, c.GetIntegratorFee(taker, orderTakingAmount))
 }
