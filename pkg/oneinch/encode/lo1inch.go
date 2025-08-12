@@ -9,6 +9,7 @@ import (
 	helper1inch "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/lo1inch/helper"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/util/bignumber"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/valueobject"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -17,6 +18,20 @@ const (
 	MethodFillOrderArgs         = "fillOrderArgs"
 	MethodFillContractOrderArgs = "fillContractOrderArgs"
 )
+
+//nolint:gochecknoglobals
+var reserveFundCallbackArguments = abi.Arguments{
+	{Name: "minMakingAmount", Type: Uint256},
+}
+
+type Interaction struct {
+	Target   common.Address `json:"target"`
+	CallData []byte         `json:"call_data"`
+}
+
+func EncodeReserveFundCallback(minMakingAmount *big.Int) ([]byte, error) {
+	return reserveFundCallbackArguments.Pack(minMakingAmount)
+}
 
 // https://github.com/KyberNetwork/aggregator-encoding/blob/v0.37.6/pkg/encode/l1encode/executor/swapdata/lo1inch.go#L19
 func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *big.Int, error) { //nolint:funlen,cyclop
@@ -82,10 +97,15 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 
 		receiver := common.HexToAddress(encodingSwap.Recipient)
 
+		encodedReserveFundCallback, err := EncodeReserveFundCallback(filledOrder.FilledMakingAmount.ToBig())
+		if err != nil {
+			return nil, nil, fmt.Errorf("encode reserve fund callback: %w", err)
+		}
+
 		// init interaction to check min amount out returned.
 		interaction := helper1inch.Interaction{
 			Target: common.HexToAddress(poolMeta.TakerTargetInteraction),
-			Data:   filledOrder.FilledMakingAmount.Bytes(),
+			Data:   encodedReserveFundCallback,
 		}
 
 		takerTraitsEncoded, args := helper1inch.NewTakerTraits(big.NewInt(0), &receiver, &extension, &interaction).
