@@ -97,7 +97,15 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 
 		receiver := common.HexToAddress(encodingSwap.Recipient)
 
-		encodedReserveFundCallback, err := EncodeReserveFundCallback(filledOrder.FilledMakingAmount.ToBig())
+		// minAmountOutWei = max(0, filledOrder.FilledMakingAmount - 1)
+		// we sub 1 wei for rounding issue prevent
+		minAmountOutWei := new(big.Int).Set(filledOrder.FilledMakingAmount.ToBig())
+		minAmountOutWei.Sub(minAmountOutWei, bignumber.One)
+		if minAmountOutWei.Sign() < 0 {
+			minAmountOutWei = bignumber.ZeroBI
+		}
+
+		encodedReserveFundCallback, err := EncodeReserveFundCallback(minAmountOutWei)
 		if err != nil {
 			return nil, nil, fmt.Errorf("encode reserve fund callback: %w", err)
 		}
@@ -110,7 +118,7 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 
 		takerTraitsEncoded, args := helper1inch.NewTakerTraits(big.NewInt(0), &receiver, &extension, &interaction).
 			// as we are taker side, we need check makingAmount >= threshold
-			SetAmountThreshold(filledOrder.FilledMakingAmount.ToBig()).
+			SetAmountThreshold(minAmountOutWei).
 			Encode()
 
 		order := OneInchV6Order{
