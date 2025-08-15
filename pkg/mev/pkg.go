@@ -55,7 +55,11 @@ const (
 	ETHEstimateGasBundleMethod   = "eth_estimateGasBundle"
 	ETHSendPrivateRawTransaction = "eth_sendPrivateRawTransaction"
 	MevSendBundleMethod          = "mev_sendBundle"
-	MaxBlockFromTarget           = 3
+	FlashbotGetUserStats         = "flashbots_getUserStats"
+	FlashbotGetUserStatsV2       = "flashbots_getUserStatsV2"
+	TitanGetUserStats            = "titan_getUserStats"
+
+	MaxBlockFromTarget = 3
 )
 
 type IBackrunSender interface {
