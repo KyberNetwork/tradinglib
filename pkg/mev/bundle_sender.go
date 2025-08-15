@@ -330,12 +330,16 @@ func (s *Client) GetUserStats(
 		return nil, fmt.Errorf("not supported, nil key")
 	}
 
-	method := FlashbotGetUserStats
-	if useV2 {
-		method = FlashbotGetUserStatsV2
-	}
-	if s.senderType == BundleSenderTypeTitan {
+	var method string
+	switch s.senderType {
+	case BundleSenderTypeTitan:
 		method = TitanGetUserStats
+
+	default:
+		method = FlashbotGetUserStats
+		if useV2 {
+			method = FlashbotGetUserStatsV2
+		}
 	}
 
 	params := GetUserStatsParams{}
