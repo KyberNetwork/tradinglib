@@ -1,18 +1,19 @@
 package mev
 
 const (
-	EndpointFlashbot    = "https://relay.flashbots.net"
-	EndpointBloxroute   = "https://mev.api.blxrbdn.com"
-	EndpointBeaverbuild = "https://rpc.beaverbuild.org"
-	EndpointRsync       = "https://rsync-builder.xyz"
-	EndpointTitan       = "http://ap.rpc.titanbuilder.xyz"
-	EndpointMevBlocker  = "https://rpc.mevblocker.io"
-	EndpointJetbldr     = "https://rpc.jetbldr.xyz"
-	EndpointLoki        = "https://rpc.lokibuilder.xyz"
-	EndpointMerkle      = "https://mempool.merkle.io/relay"
-	EndpointQuasar      = "https://rpc.quasar.win"
-	EndpointBuilderNet  = "https://direct-us.buildernet.org"
-	EndpointBTCS        = "https://rpc.btcs.com"
+	EndpointFlashbot     = "https://relay.flashbots.net"
+	EndpointBloxroute    = "https://mev.api.blxrbdn.com"
+	EndpointBeaverbuild  = "https://rpc.beaverbuild.org"
+	EndpointRsync        = "https://rsync-builder.xyz"
+	EndpointTitan        = "http://ap.rpc.titanbuilder.xyz"
+	EndpointMevBlocker   = "https://rpc.mevblocker.io"
+	EndpointJetbldr      = "https://rpc.jetbldr.xyz"
+	EndpointLoki         = "https://rpc.lokibuilder.xyz"
+	EndpointMerkle       = "https://mempool.merkle.io/relay"
+	EndpointQuasar       = "https://rpc.quasar.win"
+	EndpointQuasarCustom = "https://haipham.quasar.win"
+	EndpointBuilderNet   = "https://direct-us.buildernet.org"
+	EndpointBTCS         = "https://rpc.btcs.com"
 )
 
 const (
