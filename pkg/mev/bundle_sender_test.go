@@ -336,7 +336,7 @@ func TestGetUserStats(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	resp, err := bundleSender.GetUserStats(ctx, true, blockNumber)
+	resp, err := bundleSender.GetUserStats(ctx, false, blockNumber)
 	require.NoError(t, err)
 
 	t.Log(resp)

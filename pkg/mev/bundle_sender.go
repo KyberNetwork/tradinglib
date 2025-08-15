@@ -334,6 +334,9 @@ func (s *Client) GetUserStats(
 	if useV2 {
 		method = FlashbotGetUserStatsV2
 	}
+	if s.senderType == BundleSenderTypeTitan {
+		method = TitanGetUserStats
+	}
 
 	params := GetUserStatsParams{}
 	params.SetBlockNumber(blockNumber)

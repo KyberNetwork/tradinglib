@@ -57,7 +57,9 @@ const (
 	MevSendBundleMethod          = "mev_sendBundle"
 	FlashbotGetUserStats         = "flashbots_getUserStats"
 	FlashbotGetUserStatsV2       = "flashbots_getUserStatsV2"
-	MaxBlockFromTarget           = 3
+	TitanGetUserStats            = "titan_getUserStats"
+
+	MaxBlockFromTarget = 3
 )
 
 type IBackrunSender interface {
