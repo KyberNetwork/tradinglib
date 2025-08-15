@@ -280,3 +280,11 @@ func bloxrouteSignFlashbot(key *ecdsa.PrivateKey, p *BLXRSubmitBundleParams) (st
 func (s *BloxrouteClient) GetBundleStats(_ context.Context, _ uint64, _ common.Hash) (GetBundleStatsResponse, error) {
 	return GetBundleStatsResponse{}, fmt.Errorf("method not support")
 }
+
+func (s *BloxrouteClient) GetUserStats(
+	ctx context.Context,
+	useV2 bool,
+	blockNumber uint64,
+) (map[string]any, error) {
+	return nil, fmt.Errorf("method not support")
+}
