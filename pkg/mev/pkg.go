@@ -106,6 +106,11 @@ type IBundleSender interface {
 	GetBundleStats(
 		ctx context.Context, blockNumber uint64, bundleHash common.Hash,
 	) (GetBundleStatsResponse, error)
+	GetUserStats(
+		ctx context.Context,
+		useV2 bool,
+		blockNumber uint64,
+	) (map[string]any, error)
 }
 
 type IGasBundleEstimator interface {
