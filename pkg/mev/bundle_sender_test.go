@@ -305,3 +305,39 @@ func TestClient_GetBundleStats(t *testing.T) {
 
 	t.Log(stats)
 }
+
+func TestGetUserStats(t *testing.T) {
+	t.Skip()
+	// Generate a new private key
+	privateKey, err := ecdsa.GenerateKey(crypto.S256(), rand.Reader)
+	if err != nil {
+		t.Error("Failed to generate private key:", err)
+		return
+	}
+	var (
+		endpoint = "https://rpc.titanbuilder.xyz"
+		ctx      = context.Background()
+	)
+
+	ethClient, err := ethclient.Dial("wss://ethereum.kyberengineering.io")
+	require.NoError(t, err)
+
+	blockNumber, err := ethClient.BlockNumber(ctx)
+	require.NoError(t, err)
+	t.Log("blockNumber", blockNumber)
+
+	bundleSender, err := mev.NewClient(
+		http.DefaultClient,
+		endpoint,
+		privateKey,
+		mev.BundleSenderTypeTitan,
+		false,
+		false,
+	)
+	require.NoError(t, err)
+
+	resp, err := bundleSender.GetUserStats(ctx, true, blockNumber)
+	require.NoError(t, err)
+
+	t.Log(resp)
+}

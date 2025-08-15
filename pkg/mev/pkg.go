@@ -55,6 +55,8 @@ const (
 	ETHEstimateGasBundleMethod   = "eth_estimateGasBundle"
 	ETHSendPrivateRawTransaction = "eth_sendPrivateRawTransaction"
 	MevSendBundleMethod          = "mev_sendBundle"
+	FlashbotGetUserStats         = "flashbots_getUserStats"
+	FlashbotGetUserStatsV2       = "flashbots_getUserStatsV2"
 	MaxBlockFromTarget           = 3
 )
 

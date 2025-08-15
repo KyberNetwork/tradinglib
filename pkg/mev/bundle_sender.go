@@ -321,6 +321,57 @@ func (s *Client) SendPrivateRawTransaction(
 	return resp, nil
 }
 
+func (s *Client) GetUserStats(
+	ctx context.Context,
+	useV2 bool,
+	blockNumber uint64,
+) (map[string]any, error) {
+	if s.flashbotKey == nil {
+		return nil, fmt.Errorf("not supported, nil key")
+	}
+
+	method := FlashbotGetUserStats
+	if useV2 {
+		method = FlashbotGetUserStatsV2
+	}
+
+	params := GetUserStatsParams{}
+	params.SetBlockNumber(blockNumber)
+
+	req := SendRequest{
+		ID:      1,
+		JSONRPC: JSONRPC2,
+		Method:  method,
+		Params:  []any{},
+	}
+
+	reqBody, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("marshal json error: %w", err)
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, s.endpoint, bytes.NewBuffer(reqBody))
+	if err != nil {
+		return nil, fmt.Errorf("new http request error: %w", err)
+	}
+
+	var headers [][2]string
+	if s.flashbotKey != nil {
+		signature, err := requestSignature(s.flashbotKey, reqBody)
+		if err != nil {
+			return nil, fmt.Errorf("sign flashbot request error: %w", err)
+		}
+		headers = append(headers, [2]string{"X-Flashbots-Signature", signature})
+	}
+
+	resp, err := doRequest[map[string]any](s.c, httpReq, headers...)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
 func requestSignature(key *ecdsa.PrivateKey, body []byte) (string, error) {
 	hashed := crypto.Keccak256Hash(body).Hex()
 	signature, err := crypto.Sign(accounts.TextHash([]byte(hashed)), key)
@@ -472,4 +523,18 @@ func (p *SendBundleParams) Err() error {
 
 type CancelBundleParams struct {
 	ReplacementUUID string `json:"replacementUuid"`
+}
+
+type GetUserStatsParams struct {
+	BlockNumber string `json:"blockNumber"`
+}
+
+func (p *GetUserStatsParams) SetBlockNumber(block uint64) *GetUserStatsParams {
+	if block == 0 {
+		return p
+	}
+
+	p.BlockNumber = hexutil.EncodeUint64(block)
+
+	return p
 }
