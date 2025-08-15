@@ -8,10 +8,9 @@ replace (
 )
 
 require (
-	github.com/KyberNetwork/blockchain-toolkit v0.8.2-0.20241123202223-0b77d465adc4
 	github.com/KyberNetwork/cclog v1.1.2
 	github.com/KyberNetwork/kyber-trace-go v0.1.2
-	github.com/KyberNetwork/kyberswap-dex-lib v0.101.7
+	github.com/KyberNetwork/kyberswap-dex-lib v0.114.4-0.20250807111823-d454fefaba18
 	github.com/TheZeroSlave/zapsentry v1.23.0
 	github.com/duoxehyon/mev-share-go v0.3.0
 	github.com/ethereum/go-ethereum v1.15.10
@@ -31,6 +30,7 @@ require (
 )
 
 require (
+	github.com/KyberNetwork/blockchain-toolkit v0.8.2-0.20241123202223-0b77d465adc4 // indirect
 	github.com/KyberNetwork/elastic-go-sdk/v2 v2.0.4 // indirect
 	github.com/KyberNetwork/ethrpc v0.7.4 // indirect
 	github.com/KyberNetwork/int256 v0.1.4 // indirect
