@@ -2,11 +2,13 @@ package isolatedpools
 
 import (
 	"math/big"
+	"sync"
 
 	dexlibPool "github.com/KyberNetwork/kyberswap-dex-lib/pkg/source/pool"
 )
 
 type IsolatedPool struct {
+	mu     sync.Mutex
 	base   dexlibPool.IPoolSimulator
 	local  dexlibPool.IPoolSimulator
 	cloned bool
@@ -29,31 +31,42 @@ func (p *IsolatedPool) UpdateBalance(params dexlibPool.UpdateBalanceParams) {
 	p.local.UpdateBalance(params)
 }
 
-func (p *IsolatedPool) CloneState() *IsolatedPool {
-	return nil
+func (p *IsolatedPool) CloneState() dexlibPool.IPoolSimulator {
+	src := p.local
+	return &IsolatedPool{base: src, local: src.CloneState(), cloned: true}
+}
+
+func (p *IsolatedPool) Reset() {
+	p.mu.Lock()
+	p.local = p.base
+	p.cloned = false
+	p.mu.Unlock()
 }
 
 func (p *IsolatedPool) CanSwapFrom(address string) []string {
 	return p.local.CanSwapFrom(address)
 }
-func (p *IsolatedPool) GetTokens() []string     { return p.local.GetTokens() }
-func (p *IsolatedPool) GetReserves() []*big.Int { return p.local.GetReserves() }
-func (p *IsolatedPool) GetAddress() string      { return p.local.GetAddress() }
-func (p *IsolatedPool) GetExchange() string     { return p.local.GetExchange() }
-func (p *IsolatedPool) GetType() string         { return p.local.GetType() }
-func (p *IsolatedPool) GetMetaInfo(tokenIn, tokenOut string) any {
-	return p.local.GetMetaInfo(tokenIn, tokenOut)
-}
+func (p *IsolatedPool) GetTokens() []string                 { return p.local.GetTokens() }
+func (p *IsolatedPool) GetReserves() []*big.Int             { return p.local.GetReserves() }
+func (p *IsolatedPool) GetAddress() string                  { return p.local.GetAddress() }
+func (p *IsolatedPool) GetExchange() string                 { return p.local.GetExchange() }
+func (p *IsolatedPool) GetType() string                     { return p.local.GetType() }
 func (p *IsolatedPool) GetTokenIndex(address string) int    { return p.local.GetTokenIndex(address) }
 func (p *IsolatedPool) CalculateLimit() map[string]*big.Int { return p.local.CalculateLimit() }
 func (p *IsolatedPool) CanSwapTo(address string) []string   { return p.local.CanSwapTo(address) }
+func (p *IsolatedPool) GetMetaInfo(tokenIn, tokenOut string) any {
+	return p.local.GetMetaInfo(tokenIn, tokenOut)
+}
 
 func (p *IsolatedPool) ensureClone() {
 	if p.cloned {
 		return
 	}
-
-	p.clone()
+	p.mu.Lock()
+	if !p.cloned {
+		p.clone()
+	}
+	p.mu.Unlock()
 }
 
 func (p *IsolatedPool) clone() {
