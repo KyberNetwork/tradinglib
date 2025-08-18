@@ -20,6 +20,9 @@ func SplitAmount(amount *big.Int, splitNums uint64) []*big.Int {
 	for i := uint64(0); i < splitNums; i++ {
 		splits[i] = new(big.Int).Set(base)
 	}
-	splits[splitNums-1].Add(splits[splitNums-1], remainder)
+	if remainder.Cmp(big.NewInt(0)) != 0 {
+		splits = append(splits, remainder)
+	}
+
 	return splits
 }

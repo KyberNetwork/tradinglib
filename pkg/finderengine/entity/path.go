@@ -15,14 +15,15 @@ type Path struct {
 	GasFeePrice    float64
 	L1GasFeePrice  float64
 	TokenOrders    []string
-	HopOrders      []*Hop
+	HopOrders      []Hop
 }
 
 func NewPath(amountIn *big.Int) *Path {
 	return &Path{
 		AmountIn:    new(big.Int).Set(amountIn),
+		AmountOut:   new(big.Int).Set(amountIn),
 		TokenOrders: []string{},
-		HopOrders:   []*Hop{},
+		HopOrders:   []Hop{},
 	}
 }
 
@@ -32,7 +33,7 @@ func (p *Path) AddToken(token string) *Path {
 }
 
 func (p *Path) AddHop(hop *Hop) *Path {
-	p.HopOrders = append(p.HopOrders, hop)
+	p.HopOrders = append(p.HopOrders, *hop)
 	return p
 }
 
@@ -76,7 +77,7 @@ func (p *Path) Clone() *Path {
 		GasUsed:        p.GasUsed,
 		GasFeePrice:    p.GasFeePrice,
 		L1GasFeePrice:  p.L1GasFeePrice,
-		HopOrders:      append([]*Hop{}, p.HopOrders...),
+		HopOrders:      append([]Hop{}, p.HopOrders...),
 		TokenOrders:    append([]string{}, p.TokenOrders...),
 	}
 }

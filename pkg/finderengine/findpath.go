@@ -3,14 +3,16 @@ package finderengine
 import (
 	dexlibPool "github.com/KyberNetwork/kyberswap-dex-lib/pkg/source/pool"
 	"github.com/KyberNetwork/tradinglib/pkg/finderengine/entity"
+	mapset "github.com/deckarep/golang-set/v2"
 )
 
-func (f *Finder) findBestPathsOptimized(
+func (f *Finder) FindBestPathsOptimized(
 	params *entity.FinderParams,
 	minHops map[string]uint64,
 	edges map[string]map[string][]dexlibPool.IPoolSimulator,
 ) *entity.Path {
 	startNode := entity.NewPath(params.AmountIn)
+	startNode.AddToken(params.TokenIn)
 	layer := map[string]*entity.Path{
 		params.TokenIn: startNode,
 	}
@@ -44,7 +46,12 @@ func (f *Finder) generateNextLayer(
 		tokenInEdges := edges[tokenIn]
 		tokenInInfo := params.Tokens[tokenIn]
 		tokenInPrice := params.Prices[tokenIn]
+		usedTokens := mapset.NewThreadUnsafeSet(path.TokenOrders...)
 		for tokenOut, pools := range tokenInEdges {
+			if usedTokens.Contains(tokenOut) {
+				continue
+			}
+
 			if _, exists := params.WhitelistHopTokens[tokenOut]; tokenOut != params.TargetToken && !exists {
 				continue
 			}
@@ -81,14 +88,14 @@ func (f *Finder) generateNextLayer(
 func (f *Finder) generateNextPath(params *entity.FinderParams, currentPath *entity.Path, hop *entity.Hop) *entity.Path {
 	nextPath := entity.NewPath(currentPath.AmountIn)
 	nextPath.TokenOrders = make([]string, 0, len(currentPath.TokenOrders)+1)
-	nextPath.HopOrders = make([]*entity.Hop, 0, len(currentPath.HopOrders)+1)
+	nextPath.HopOrders = make([]entity.Hop, 0, len(currentPath.HopOrders)+1)
 	for _, token := range currentPath.TokenOrders {
 		nextPath.AddToken(token)
 	}
 	nextPath.AddToken(hop.TokenOut)
 
 	for _, hop := range currentPath.HopOrders {
-		nextPath.AddHop(hop)
+		nextPath.AddHop(&hop)
 	}
 	nextPath.AddHop(hop)
 	nextPath.SetAmountOutAndPrice(

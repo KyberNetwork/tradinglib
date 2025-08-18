@@ -1,4 +1,4 @@
-package finderengine
+package finderengine_test
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	dexlibPool "github.com/KyberNetwork/kyberswap-dex-lib/pkg/source/pool"
+	"github.com/KyberNetwork/tradinglib/pkg/finderengine"
 	"github.com/KyberNetwork/tradinglib/pkg/finderengine/entity"
 )
 
@@ -42,11 +43,12 @@ func BenchmarkFindBestPathsOptimized(b *testing.B) {
 		TokenIn:            "token0",
 		TargetToken:        "token999",
 		AmountIn:           big.NewInt(1_000_000_000_000_000_000),
+		GasPrice:           big.NewInt(0),
 		WhitelistHopTokens: whitelist,
 		Tokens:             tokens,
 		GasIncluded:        false,
 	}
-	finder := &Finder{
+	finder := &finderengine.Finder{
 
 		FindHops: func(tokenIn string, tokenInPrice float64, tokenInDecimals uint8, tokenOut string, amountIn *big.Int, pools []dexlibPool.IPoolSimulator, numSplits uint64) *entity.Hop {
 			return &entity.Hop{
@@ -54,7 +56,8 @@ func BenchmarkFindBestPathsOptimized(b *testing.B) {
 				TokenOut:  tokenOut,
 				AmountIn:  amountIn,
 				AmountOut: new(big.Int).Add(amountIn, big.NewInt(1)),
-				Splits: []*entity.HopSplit{
+				Fee:       big.NewInt(0),
+				Splits: []entity.HopSplit{
 					{ID: fmt.Sprintf("MockPool-%s-%s", tokenIn, tokenOut)},
 				},
 			}
@@ -69,6 +72,6 @@ func BenchmarkFindBestPathsOptimized(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = finder.findBestPathsOptimized(params, minHops, edges)
+		_ = finder.FindBestPathsOptimized(params, minHops, edges)
 	}
 }

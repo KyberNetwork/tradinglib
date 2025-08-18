@@ -21,5 +21,5 @@ type Hop struct {
 	GasUsed       int64
 	GasFeePrice   float64
 	L1GasFeePrice float64
-	Splits        []*HopSplit
+	Splits        []HopSplit
 }

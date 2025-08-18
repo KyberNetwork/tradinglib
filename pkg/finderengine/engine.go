@@ -53,7 +53,7 @@ func (f *Finder) Find(params entity.FinderParams) (*entity.BestRouteResult, erro
 
 	for _, split := range splits {
 		params.AmountIn = split
-		bestPath := f.findBestPathsOptimized(&params, minHops, edges)
+		bestPath := f.FindBestPathsOptimized(&params, minHops, edges)
 		bestRoute.AmountOut.Add(bestPath.AmountOut, bestPath.AmountOut)
 		bestRoute.Paths = append(bestRoute.Paths, bestPath)
 		updatePoolState(bestPath, params.Pools)
