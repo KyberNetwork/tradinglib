@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/KyberNetwork/blockchain-toolkit/number"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/lo1inch"
 	helper1inch "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/lo1inch/helper"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/util/bignumber"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/valueobject"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -18,6 +18,20 @@ const (
 	MethodFillOrderArgs         = "fillOrderArgs"
 	MethodFillContractOrderArgs = "fillContractOrderArgs"
 )
+
+//nolint:gochecknoglobals
+var reserveFundCallbackArguments = abi.Arguments{
+	{Name: "minMakingAmount", Type: Uint256},
+}
+
+type Interaction struct {
+	Target   common.Address `json:"target"`
+	CallData []byte         `json:"call_data"`
+}
+
+func EncodeReserveFundCallback(minMakingAmount *big.Int) ([]byte, error) {
+	return reserveFundCallbackArguments.Pack(minMakingAmount)
+}
 
 // https://github.com/KyberNetwork/aggregator-encoding/blob/v0.37.6/pkg/encode/l1encode/executor/swapdata/lo1inch.go#L19
 func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *big.Int, error) { //nolint:funlen,cyclop
@@ -36,6 +50,16 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 		return nil, nil, fmt.Errorf("[buildLO1inch] ErrUnmarshalFailed err :[%w]", err)
 	}
 
+	poolExtraBytes, err := json.Marshal(encodingSwap.PoolExtra)
+	if err != nil {
+		return nil, nil, fmt.Errorf("[buildLO1inch] ErrMarshalFailed err :[%w]", err)
+	}
+
+	var poolMeta lo1inch.MetaInfo
+	if err = json.Unmarshal(poolExtraBytes, &poolMeta); err != nil {
+		return nil, nil, fmt.Errorf("[buildLO1inch] ErrUnmarshalFailed err :[%w]", err)
+	}
+
 	if len(swapInfo.FilledOrders) == 0 {
 		return nil, nil, fmt.Errorf("[buildLO1inch] cause by filledOrders is empty")
 	}
@@ -48,16 +72,12 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 			break
 		}
 
-		// calculate order's remaining taking amount
-		// orderRemainingTakingAmount = order.TakingAmount * orderRemainingMakingAmount / order.MakingAmount
-		orderRemainingTakingAmount := number.Set(filledOrder.TakingAmount)
-		orderRemainingTakingAmount.Mul(orderRemainingTakingAmount, filledOrder.RemainingMakerAmount)
-		orderRemainingTakingAmount.Div(orderRemainingTakingAmount, filledOrder.MakingAmount)
-
+		orderRemainingTakingAmount := filledOrder.FilledTakingAmount
 		takingAmount := orderRemainingTakingAmount.ToBig()
 		if takingAmount.Sign() == 0 {
 			continue
 		}
+
 		switch amountIn.Cmp(takingAmount) {
 		case -1:
 			takingAmount.Set(amountIn)
@@ -75,11 +95,31 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 			return nil, nil, fmt.Errorf("decode extension: %w", err)
 		}
 
-		receiver := helper1inch.NewAddress(encodingSwap.Recipient)
+		receiver := common.HexToAddress(encodingSwap.Recipient)
 
-		// In the orders response of 1inch limit order API, there is no interaction
-		// so we only encode receiver + extension into takerTraits
-		takerTraitsEncoded := helper1inch.NewTakerTraits(&receiver, extension, nil).Encode()
+		// minAmountOutWei = max(0, filledOrder.FilledMakingAmount - 1)
+		// we sub 1 wei for rounding issue prevent
+		minAmountOutWei := new(big.Int).Set(filledOrder.FilledMakingAmount.ToBig())
+		minAmountOutWei.Sub(minAmountOutWei, bignumber.One)
+		if minAmountOutWei.Sign() < 0 {
+			minAmountOutWei = bignumber.ZeroBI
+		}
+
+		encodedReserveFundCallback, err := EncodeReserveFundCallback(minAmountOutWei)
+		if err != nil {
+			return nil, nil, fmt.Errorf("encode reserve fund callback: %w", err)
+		}
+
+		// init interaction to check min amount out returned.
+		interaction := helper1inch.Interaction{
+			Target: common.HexToAddress(poolMeta.TakerTargetInteraction),
+			Data:   encodedReserveFundCallback,
+		}
+
+		takerTraitsEncoded, args := helper1inch.NewTakerTraits(big.NewInt(0), &receiver, &extension, &interaction).
+			// as we are taker side, we need check makingAmount >= threshold
+			SetAmountThreshold(minAmountOutWei).
+			Encode()
 
 		order := OneInchV6Order{
 			Salt:         bignumber.NewBig(filledOrder.Salt),
@@ -106,7 +146,7 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 				) external returns(uint256 makingAmount, uint256 takingAmount, bytes32 orderHash);
 			*/
 			packed, err := OneInchAggregationRouterV6ABI.Pack("fillContractOrderArgs",
-				order, signature, filledOrder, takingAmount, takerTraitsEncoded.TakerTraits, takerTraitsEncoded.Args,
+				order, signature, takingAmount, takerTraitsEncoded, args,
 			)
 			if err != nil {
 				return nil, nil, fmt.Errorf("pack fillContractOrderArgs error: %w", err)
@@ -137,7 +177,7 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 			copy(rArray[:], r)
 			copy(vsArray[:], vs)
 			packed, err := OneInchAggregationRouterV6ABI.Pack("fillOrderArgs",
-				order, rArray, vsArray, takingAmount, takerTraitsEncoded.TakerTraits, takerTraitsEncoded.Args,
+				order, rArray, vsArray, takingAmount, takerTraitsEncoded, args,
 			)
 			if err != nil {
 				return nil, nil, fmt.Errorf("pack fillOrderArgs error: %w", err)

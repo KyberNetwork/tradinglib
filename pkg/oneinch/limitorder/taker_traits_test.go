@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 //nolint:lll
@@ -35,4 +36,14 @@ func TestEncodeTakerTraits(t *testing.T) {
 	encodedTakerTraits, args := takerTraits.Encode()
 	assert.Equal(t, "0x8000002900085800000000000000000000000000000000000000000000000001", hexutil.Encode(encodedTakerTraits.Bytes()))
 	assert.Equal(t, hexutil.Encode(append(extension.Encode(), interaction.Encode()...)), hexutil.Encode(args))
+}
+
+func TestDecodeTakerTraits(t *testing.T) {
+	flags, _ := new(big.Int).SetString("3618509366893201452521004647767506535233373128719837880688415966015414425874", 10)
+	takerTraits := NewTakerTraits(flags, &common.Address{}, &Extension{}, &Interaction{})
+	t.Logf("%+v", takerTraits.AmountThreshold())
+
+	interaction, err := DecodeInteraction(hexutil.MustDecode("0xbee3211ab312a8d065c4fef0247448e17a8da000000000d400000072000000720000007200000072000000390000000000000000c0dfdb9e7a392c3dbbe7c6fbe8fbc1789c9fe05e00000001f43203b09498030ae3416b66dc74db31d09524fa87b1f7d18bd45f0b94f54a968fc0dfdb9e7a392c3dbbe7c6fbe8fbc1789c9fe05e00000001f43203b09498030ae3416b66dc74db31d09524fa87b1f7d18bd45f0b94f54a968fc0dfdb9e7a392c3dbbe7c6fbe8fbc1789c9fe05e00000000000000000000000000000000000000000090cbe4bdd538d6e9b379bff5fe72c3d67a521de500000001f43203b09498030ae3416b66dc74db31d09524fa87b1f7d18bd45f0b94f54a968fbee3211ab312a8d065c4fef0247448e17a8da000000000000000000000000000000000000000000000000000000f87a33b295912"))
+	require.NoError(t, err)
+	t.Logf("%+v", interaction.Data)
 }

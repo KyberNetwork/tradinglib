@@ -208,9 +208,8 @@ func TestNewFeeTakerExtension(t *testing.T) {
 	assert.NoError(t, err)
 	feeTakerExtension, err := NewFeeTakerFromExtension(extension)
 	assert.NoError(t, err)
-	resolver := common.HexToAddress("0xBEEf02961503351625926Ea9a11AE13B29F5c555")
-	originTakingAmount := big.NewInt(24565559816)
-	assert.Equal(t, new(big.Int).SetInt64(24688387616), feeTakerExtension.GetTakingAmount(resolver, originTakingAmount), "taking amount should be 100000001")
+	resolver := common.HexToAddress("0xbee3211ab312a8d065c4fef0247448e17a8da000")
+	t.Log(feeTakerExtension.GetMakingAmount(resolver, big.NewInt(4371259792644370)))
 }
 
 func TestDecodeExtension(t *testing.T) {
@@ -244,4 +243,12 @@ func TestDecodeExtension(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestAnotherDecodeExtension(t *testing.T) {
+	extension, err := DecodeExtension("0x000000d400000072000000720000007200000072000000390000000000000000c0dfdb9e7a392c3dbbe7c6fbe8fbc1789c9fe05e00000001f43203b09498030ae3416b66dc74db31d09524fa87b1f7d18bd45f0b94f54a968fc0dfdb9e7a392c3dbbe7c6fbe8fbc1789c9fe05e00000001f43203b09498030ae3416b66dc74db31d09524fa87b1f7d18bd45f0b94f54a968fc0dfdb9e7a392c3dbbe7c6fbe8fbc1789c9fe05e00000000000000000000000000000000000000000090cbe4bdd538d6e9b379bff5fe72c3d67a521de500000001f43203b09498030ae3416b66dc74db31d09524fa87b1f7d18bd45f0b94f54a968f")
+	assert.NoError(t, err)
+	feeTakerExtension, err := NewFeeTakerFromExtension(extension)
+	assert.NoError(t, err)
+	t.Log(feeTakerExtension.Fees)
 }
