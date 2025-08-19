@@ -9,6 +9,7 @@ import (
 	helper1inch "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/lo1inch/helper"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/util/bignumber"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/valueobject"
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/limitorder"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -189,7 +190,16 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 	return encodeds, amountIn, nil
 }
 
-func UnpackLO1inch(decoded []byte) (any, error) {
+type UnpackLO1inchResult struct {
+	FillOrderArgs         *FillOrderArgs
+	FillContractOrderArgs *FillContractOrderArgs
+	AmountThreshold       *big.Int
+	Receiver              *common.Address
+	Extension             *limitorder.Extension
+	Interaction           *limitorder.Interaction
+}
+
+func UnpackLO1inch(decoded []byte) (*UnpackLO1inchResult, error) {
 	if len(decoded) < MethodIDLength {
 		return nil, fmt.Errorf("invalid data length: %d", len(decoded))
 	}
@@ -202,10 +212,62 @@ func UnpackLO1inch(decoded []byte) (any, error) {
 
 	switch method.Name {
 	case MethodFillOrderArgs:
-		return UnpackFillOrderArgs(decoded)
+		fillOrderArgs, err := UnpackFillOrderArgs(decoded)
+		if err != nil {
+			return nil, err
+		}
+
+		takerTraits := helper1inch.NewTakerTraits(
+			fillOrderArgs.TakerTraits,
+			nil,
+			nil,
+			nil,
+		)
+
+		receiver, extension, interaction, err := limitorder.DecodeArgs(
+			fillOrderArgs.TakerTraits,
+			fillOrderArgs.Args,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		return &UnpackLO1inchResult{
+			FillOrderArgs:   &fillOrderArgs,
+			AmountThreshold: takerTraits.AmountThreshold(),
+			Receiver:        receiver,
+			Extension:       extension,
+			Interaction:     interaction,
+		}, nil
 
 	case MethodFillContractOrderArgs:
-		return UnpackFillContractOrderArgs(decoded)
+		fillContractOrderArgs, err := UnpackFillContractOrderArgs(decoded)
+		if err != nil {
+			return nil, err
+		}
+
+		takerTraits := helper1inch.NewTakerTraits(
+			fillContractOrderArgs.TakerTraits,
+			nil,
+			nil,
+			nil,
+		)
+
+		receiver, extension, interaction, err := limitorder.DecodeArgs(
+			fillContractOrderArgs.TakerTraits,
+			fillContractOrderArgs.Args,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		return &UnpackLO1inchResult{
+			FillContractOrderArgs: &fillContractOrderArgs,
+			AmountThreshold:       takerTraits.AmountThreshold(),
+			Receiver:              receiver,
+			Extension:             extension,
+			Interaction:           interaction,
+		}, nil
 
 	default:
 		return nil, fmt.Errorf("method not support: %s", method.Name)

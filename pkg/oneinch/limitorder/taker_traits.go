@@ -1,9 +1,12 @@
 package limitorder
 
 import (
+	"fmt"
 	"math/big"
 
+	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 type AmountMode uint
@@ -173,4 +176,59 @@ func (t *TakerTraits) Encode() (*big.Int, []byte) {
 	args = append(append(args, extension...), interaction...)
 
 	return flags, args
+}
+
+// DecodeArgs decodes the args bytes back into receiver, extension, and interaction components.
+// This function reverses the encoding process done in the Encode() method.
+func DecodeArgs(flags *big.Int, args []byte) (*common.Address, *Extension, *Interaction, error) {
+	if len(args) == 0 {
+		return nil, nil, nil, nil
+	}
+
+	bi := decode.NewBytesIterator(args)
+
+	// Check if receiver is present
+	var receiver *common.Address
+	if flags.Bit(argsHasReceiver) != 0 {
+		receiverBytes, err := bi.NextBytes(common.AddressLength)
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("decode receiver: %w", err)
+		}
+		addr := common.BytesToAddress(receiverBytes)
+		receiver = &addr
+	}
+
+	// Get extension length from flags
+	extensionLen := getMask(flags, argsExtensionLenStart, argsExtensionLenEnd).Int64()
+	var extension *Extension
+	if extensionLen > 0 {
+		extensionBytes, err := bi.NextBytes(int(extensionLen))
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("decode extension: %w", err)
+		}
+
+		ext, err := DecodeExtension(hexutil.Encode(extensionBytes))
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("decode extension bytes: %w", err)
+		}
+		extension = &ext
+	}
+
+	// Get interaction length from flags
+	interactionLen := getMask(flags, argsInteractionLenStart, argsInteractionLenEnd).Int64()
+	var interaction *Interaction
+	if interactionLen > 0 {
+		interactionBytes, err := bi.NextBytes(int(interactionLen))
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("decode interaction: %w", err)
+		}
+
+		inter, err := DecodeInteraction(interactionBytes)
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("decode interaction bytes: %w", err)
+		}
+		interaction = &inter
+	}
+
+	return receiver, extension, interaction, nil
 }
