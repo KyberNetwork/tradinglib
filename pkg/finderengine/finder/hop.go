@@ -1,4 +1,4 @@
-package finderengine
+package finder
 
 import (
 	"container/heap"
@@ -7,6 +7,7 @@ import (
 
 	dexlibPool "github.com/KyberNetwork/kyberswap-dex-lib/pkg/source/pool"
 	"github.com/KyberNetwork/tradinglib/pkg/finderengine/entity"
+	"github.com/KyberNetwork/tradinglib/pkg/finderengine/isolated"
 	"github.com/KyberNetwork/tradinglib/pkg/finderengine/utils"
 	"github.com/oleiade/lane/v2"
 )
@@ -19,16 +20,17 @@ type FindHopFunc func(
 	tokenInDecimals uint8,
 	tokenOut string,
 	amountIn *big.Int,
-	pools []dexlibPool.IPoolSimulator,
+	pools []*isolated.Pool,
 	numSplits uint64,
+	minThresholdUSD float64,
 ) *entity.Hop
 
 type poolItem struct {
 	id     uint64
 	addr   string
 	amtOut *big.Int
+	fee    *big.Int
 	gas    int64
-	// res    *dexlibPool.CalcAmountOutResult
 }
 
 type poolMaxHeap []poolItem
@@ -54,36 +56,15 @@ func (h *poolMaxHeap) Pop() any {
 	return it
 }
 
-func calculateHopAmount(
-	pool dexlibPool.IPoolSimulator,
-	currentSplit *entity.HopSplit,
-	tokenIn, tokenOut string,
-	amountIn *big.Int,
-) (*big.Int, *entity.HopSplit, error) {
-	result, err := pool.CalcAmountOut(dexlibPool.CalcAmountOutParams{
-		TokenAmountIn: dexlibPool.TokenAmount{
-			Token:  tokenIn,
-			Amount: new(big.Int).Add(currentSplit.AmountIn, amountIn),
-		},
-		TokenOut: tokenOut,
-	})
-	if err != nil {
-		return nil, nil, err
-	}
-	amountOut := new(big.Int).Sub(result.TokenAmountOut.Amount, currentSplit.AmountOut)
-	currentSplit.AmountOut = new(big.Int).Set(result.TokenAmountOut.Amount)
-	currentSplit.Fee = new(big.Int).Set(result.Fee.Amount)
-	return amountOut, currentSplit, nil
-}
-
 func FindHops(
 	tokenIn string,
 	tokenInPrice float64,
 	tokenInDecimals uint8,
 	tokenOut string,
 	amountIn *big.Int,
-	pools []dexlibPool.IPoolSimulator,
+	pools []*isolated.Pool,
 	numSplits uint64,
+	minThresholdUSD float64,
 ) *entity.Hop {
 	if len(pools) == 0 || amountIn.Sign() <= 0 || numSplits == 0 {
 		return &entity.Hop{
@@ -96,7 +77,7 @@ func FindHops(
 		}
 	}
 
-	splits := utils.SplitAmount(amountIn, numSplits)
+	splits := utils.SplitAmountThreshold(amountIn, tokenInDecimals, numSplits, minThresholdUSD, tokenInPrice)
 	baseSplit := splits[0]
 
 	baseParams := dexlibPool.CalcAmountOutParams{
@@ -144,6 +125,7 @@ func FindHops(
 			id:     uint64(o.idx),
 			addr:   addr,
 			amtOut: new(big.Int).Set(o.res.TokenAmountOut.Amount),
+			fee:    new(big.Int).Set(o.res.Fee.Amount),
 			gas:    o.res.Gas,
 		})
 	}
@@ -154,8 +136,9 @@ func FindHops(
 			TokenOut:  tokenOut,
 			AmountIn:  amountIn,
 			AmountOut: big.NewInt(0),
-			// GasUsed: ,
-			Splits: nil,
+			Fee:       big.NewInt(0),
+			GasUsed:   0,
+			Splits:    nil,
 		}
 	}
 	heap.Init(&h)
@@ -164,6 +147,7 @@ func FindHops(
 	totalIn := big.NewInt(0)
 	totalOut := big.NewInt(0)
 	totalFee := big.NewInt(0)
+	totalGas := int64(0)
 
 	for i := 0; i < len(splits) && h.Len() > 0; i++ {
 		chunk := splits[i]
@@ -171,19 +155,19 @@ func FindHops(
 		best, _ := heap.Pop(&h).(poolItem)
 		p := pools[best.id]
 
-		var res *dexlibPool.CalcAmountOutResult
+		var item poolItem
 		if isLast && chunk.Cmp(baseSplit) != 0 {
 			r, err := p.CalcAmountOut(dexlibPool.CalcAmountOutParams{
 				TokenAmountIn: dexlibPool.TokenAmount{Token: tokenIn, Amount: chunk},
 				TokenOut:      tokenOut,
 			})
 			if err == nil && r != nil {
-				res = r
+				item = poolItem{addr: p.GetAddress(), amtOut: r.TokenAmountOut.Amount, gas: r.Gas, fee: r.Fee.Amount}
 			} else {
-				// res = best.res
+				item = poolItem{amtOut: big.NewInt(0), gas: 0, fee: big.NewInt(0)}
 			}
 		} else {
-			// res = best.res
+			item = best
 		}
 
 		s := hopSplitMap[best.addr]
@@ -194,27 +178,31 @@ func FindHops(
 				AmountOut: big.NewInt(0),
 				Fee:       big.NewInt(0),
 			}
-			hopSplitMap[best.addr] = s
+			hopSplitMap[item.addr] = s
 		}
 		s.AmountIn.Add(s.AmountIn, chunk)
-		s.AmountOut.Add(s.AmountOut, res.TokenAmountOut.Amount)
-		s.Fee.Add(s.Fee, res.Fee.Amount)
+		s.AmountOut.Add(s.AmountOut, item.amtOut)
+		s.Fee.Add(s.Fee, item.fee)
 
 		totalIn.Add(totalIn, chunk)
-		totalOut.Add(totalOut, res.TokenAmountOut.Amount)
-		totalFee.Add(totalFee, res.Fee.Amount)
+		totalOut.Add(totalOut, item.amtOut)
+		totalFee.Add(totalFee, item.fee)
+		totalGas += item.gas
+
+		p.UpdateBalance(dexlibPool.UpdateBalanceParams{
+			TokenAmountIn:  dexlibPool.TokenAmount{Token: tokenIn, Amount: chunk},
+			TokenAmountOut: dexlibPool.TokenAmount{Token: tokenOut, Amount: item.amtOut},
+			Fee:            dexlibPool.TokenAmount{Token: tokenIn, Amount: item.fee},
+		})
 
 		if !isLast {
-			// newRes, err := p.CalcAmountOut(baseParams)
-			// if err == nil && newRes != nil && newRes.TokenAmountOut != nil && newRes.TokenAmountOut.Amount != nil {
-			// 	best.res = newRes
-			// 	best.amtOut = new(big.Int).Set(newRes.TokenAmountOut.Amount)
-			// 	heap.Push(&h, best)
-			// }
-			// amountOut, split, err := calculateHopAmount(p, s, tokenIn, tokenOut, baseParams.TokenAmountIn.Amount)
-			// if err != nil {
-			// best.res =
-			// }
+			newRes, err := p.CalcAmountOut(baseParams)
+			if err == nil && newRes != nil && newRes.TokenAmountOut != nil && newRes.TokenAmountOut.Amount != nil {
+				best.amtOut = new(big.Int).Set(newRes.TokenAmountOut.Amount)
+				best.fee = new(big.Int).Set(newRes.Fee.Amount)
+				best.gas = newRes.Gas
+				heap.Push(&h, best)
+			}
 		}
 	}
 

@@ -1,53 +1,21 @@
-package finderengine_test
+package finder_test
 
 import (
 	"math/big"
 	"testing"
 
 	dexlibPool "github.com/KyberNetwork/kyberswap-dex-lib/pkg/source/pool"
-	"github.com/KyberNetwork/tradinglib/pkg/finderengine"
 	"github.com/KyberNetwork/tradinglib/pkg/finderengine/entity"
+	"github.com/KyberNetwork/tradinglib/pkg/finderengine/finder"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestFindBestPath_BasicGraph(t *testing.T) {
-	f := &finderengine.Finder{
-		FindHops: finderengine.FindHops,
+	f := &finder.Finder{
+		FindHops: finder.FindHops,
 	}
 
-	pools := map[string]dexlibPool.IPoolSimulator{
-		"AB1": &mockPool{
-			address: "AB1", tokenIn: "A", tokenOut: "B",
-			bids: []Order{{A: big.NewInt(10), R: big.NewInt(50)}, {A: big.NewInt(10), R: big.NewInt(20)}},
-			asks: []Order{{A: big.NewInt(10), R: big.NewInt(200)}, {A: big.NewInt(10), R: big.NewInt(90)}},
-		},
-		"AB2": &mockPool{
-			address: "AB2", tokenIn: "A", tokenOut: "B",
-			bids: []Order{{A: big.NewInt(10), R: big.NewInt(50)}},
-			asks: []Order{{A: big.NewInt(10), R: big.NewInt(150)}},
-		},
-		"AC1": &mockPool{
-			address: "AC1", tokenIn: "A", tokenOut: "C",
-			bids: []Order{{A: big.NewInt(10), R: big.NewInt(30)}, {A: big.NewInt(10), R: big.NewInt(20)}},
-			asks: []Order{{A: big.NewInt(20), R: big.NewInt(300)}, {A: big.NewInt(10), R: big.NewInt(100)}},
-		},
-		"AC2": &mockPool{
-			address: "AC2", tokenIn: "A", tokenOut: "C",
-			bids: []Order{{A: big.NewInt(10), R: big.NewInt(50)}},
-			asks: []Order{{A: big.NewInt(10), R: big.NewInt(250)}},
-		},
-
-		"BC1": &mockPool{
-			address: "BC1", tokenIn: "B", tokenOut: "C",
-			bids: []Order{{A: big.NewInt(10), R: big.NewInt(50)}, {A: big.NewInt(10), R: big.NewInt(20)}},
-			asks: []Order{{A: big.NewInt(20), R: big.NewInt(200)}, {A: big.NewInt(10), R: big.NewInt(100)}},
-		},
-		"BC2": &mockPool{
-			address: "BC2", tokenIn: "B", tokenOut: "C",
-			bids: []Order{{A: big.NewInt(10), R: big.NewInt(50)}, {A: big.NewInt(10), R: big.NewInt(20)}},
-			asks: []Order{{A: big.NewInt(10), R: big.NewInt(100)}, {A: big.NewInt(10), R: big.NewInt(50)}},
-		},
-	}
+	pools := PoolTest()
 
 	edges := map[string]map[string][]dexlibPool.IPoolSimulator{
 		"A": {

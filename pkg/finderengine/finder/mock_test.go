@@ -1,4 +1,4 @@
-package finderengine_test
+package finder_test
 
 import (
 	"errors"
@@ -129,10 +129,6 @@ func (mp *mockPool) CanSwapFrom(address string) []string {
 }
 func (mp *mockPool) GetTokens() []string { return []string{mp.tokenIn, mp.tokenOut} }
 func (mp *mockPool) GetReserves() []*big.Int {
-	// for i := range mp.asks {
-	// 	fmt.Println(mp.asks[i])
-	// }
-
 	return nil
 }
 func (mp *mockPool) GetAddress() string { return mp.address }

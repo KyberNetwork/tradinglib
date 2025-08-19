@@ -1,4 +1,4 @@
-package finderengine_test
+package finder_test
 
 import (
 	"fmt"
@@ -6,8 +6,9 @@ import (
 	"testing"
 
 	dexlibPool "github.com/KyberNetwork/kyberswap-dex-lib/pkg/source/pool"
-	"github.com/KyberNetwork/tradinglib/pkg/finderengine"
 	"github.com/KyberNetwork/tradinglib/pkg/finderengine/entity"
+	"github.com/KyberNetwork/tradinglib/pkg/finderengine/finder"
+	"github.com/KyberNetwork/tradinglib/pkg/finderengine/isolated"
 )
 
 func GenTest() (map[string]entity.SimplifiedToken, map[string]struct{}, map[string]map[string][]dexlibPool.IPoolSimulator) {
@@ -48,9 +49,8 @@ func BenchmarkFindBestPathsOptimized(b *testing.B) {
 		Tokens:             tokens,
 		GasIncluded:        false,
 	}
-	finder := &finderengine.Finder{
-
-		FindHops: func(tokenIn string, tokenInPrice float64, tokenInDecimals uint8, tokenOut string, amountIn *big.Int, pools []dexlibPool.IPoolSimulator, numSplits uint64) *entity.Hop {
+	finder := &finder.Finder{
+		FindHops: func(tokenIn string, tokenInPrice float64, tokenInDecimals uint8, tokenOut string, amountIn *big.Int, pools []*isolated.Pool, numSplits uint64, minThresholdUSD float64) *entity.Hop {
 			return &entity.Hop{
 				TokenIn:   tokenIn,
 				TokenOut:  tokenOut,

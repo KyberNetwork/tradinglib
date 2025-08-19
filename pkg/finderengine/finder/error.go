@@ -1,4 +1,4 @@
-package finderengine
+package finder
 
 import "errors"
 

@@ -1,12 +1,13 @@
-package finderengine_test
+package finder_test
 
 import (
 	"math/big"
 	"testing"
 
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/source/pool"
-	"github.com/KyberNetwork/tradinglib/pkg/finderengine"
 	"github.com/KyberNetwork/tradinglib/pkg/finderengine/entity"
+	"github.com/KyberNetwork/tradinglib/pkg/finderengine/finder"
+	"github.com/KyberNetwork/tradinglib/pkg/finderengine/isolated"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,22 +23,23 @@ func Test_FindHops(t *testing.T) {
 		},
 	}
 
+	isolatedPools := isolated.NewIsolatedPools(pools)
 	amountIn := big.NewInt(80)
-	numSplits := uint64(6)
-	hop := finderengine.FindHops("A", 1, 18, "B", amountIn, pools, numSplits)
+	numSplits := uint64(5)
+	hop := finder.FindHops("A", 1, 18, "B", amountIn, isolatedPools, numSplits, 1)
 	assert.Len(t, hop.Splits, 2)
 	expectedHop := &entity.Hop{
 		TokenIn:       "A",
 		TokenOut:      "B",
 		AmountIn:      amountIn,
-		AmountOut:     big.NewInt(98666682),
+		AmountOut:     big.NewInt(113),
 		GasUsed:       0,
 		GasFeePrice:   0,
 		L1GasFeePrice: 0,
-		Fee:           big.NewInt(6),
+		Fee:           big.NewInt(0),
 		Splits: []entity.HopSplit{
 			{
-				ID:            "1",
+				ID:            "AB1",
 				AmountIn:      big.NewInt(32),
 				AmountOut:     big.NewInt(50),
 				Fee:           big.NewInt(0),
@@ -46,9 +48,9 @@ func Test_FindHops(t *testing.T) {
 				L1GasFeePrice: 0,
 			},
 			{
-				ID:            "2",
+				ID:            "AB2",
 				AmountIn:      big.NewInt(48),
-				AmountOut:     big.NewInt(75),
+				AmountOut:     big.NewInt(63),
 				Fee:           big.NewInt(0),
 				GasUsed:       0,
 				GasFeePrice:   0,

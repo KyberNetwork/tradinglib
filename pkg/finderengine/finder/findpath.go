@@ -1,8 +1,9 @@
-package finderengine
+package finder
 
 import (
 	dexlibPool "github.com/KyberNetwork/kyberswap-dex-lib/pkg/source/pool"
 	"github.com/KyberNetwork/tradinglib/pkg/finderengine/entity"
+	"github.com/KyberNetwork/tradinglib/pkg/finderengine/isolated"
 	mapset "github.com/deckarep/golang-set/v2"
 )
 
@@ -64,7 +65,12 @@ func (f *Finder) generateNextLayer(
 				continue
 			}
 
-			hop := f.FindHops(tokenIn, tokenInPrice, tokenInInfo.Decimals, tokenOut, path.AmountOut, pools, params.NumHopSplits)
+			isolatedPools := isolated.NewIsolatedPools(pools)
+			hop := f.FindHops(
+				tokenIn, tokenInPrice, tokenInInfo.Decimals,
+				tokenOut, path.AmountOut, isolatedPools, params.NumHopSplits,
+				f.MinThresholdUSD,
+			)
 			newPath := f.generateNextPath(params, path, hop)
 			newPaths = append(newPaths, newPath)
 		}
@@ -113,7 +119,7 @@ func (f *Finder) generateNextPath(params *entity.FinderParams, currentPath *enti
 	return nextPath
 }
 
-func updatePoolState(path *entity.Path, pools map[string]dexlibPool.IPoolSimulator) {
+func updatePoolState(path *entity.Path, pools map[string]*isolated.Pool) {
 	for _, hop := range path.HopOrders {
 		for _, hopSplit := range hop.Splits {
 			pool := pools[hopSplit.ID]
