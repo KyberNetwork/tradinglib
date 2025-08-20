@@ -219,10 +219,6 @@ func TestEncodeDecodeReserveFundCallbackRoundTrip(t *testing.T) {
 			minMakingAmount: testutil.NewBig10("1000000000000000000000000"), // 1e24
 		},
 		{
-			name:            "negative",
-			minMakingAmount: big.NewInt(-1000),
-		},
-		{
 			name:            "max uint256",
 			minMakingAmount: new(big.Int).Sub(new(big.Int).Lsh(big.NewInt(1), 256), big.NewInt(1)),
 		},

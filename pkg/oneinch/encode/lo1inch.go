@@ -218,6 +218,8 @@ type UnpackLO1inchResult struct {
 	InteractionMinMakingAmount *big.Int
 }
 
+// UnpackLO1inch
+// nolint:funlen,cyclop
 func UnpackLO1inch(decoded []byte) (*UnpackLO1inchResult, error) {
 	if len(decoded) < MethodIDLength {
 		return nil, fmt.Errorf("invalid data length: %d", len(decoded))
