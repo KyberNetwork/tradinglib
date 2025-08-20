@@ -34,6 +34,24 @@ func EncodeReserveFundCallback(minMakingAmount *big.Int) ([]byte, error) {
 	return reserveFundCallbackArguments.Pack(minMakingAmount)
 }
 
+func DecodeReserveFundCallback(data []byte) (*big.Int, error) {
+	unpacked, err := reserveFundCallbackArguments.Unpack(data)
+	if err != nil {
+		return nil, fmt.Errorf("unpack reserve fund callback: %w", err)
+	}
+
+	if len(unpacked) == 0 {
+		return nil, fmt.Errorf("no data unpacked from reserve fund callback")
+	}
+
+	minMakingAmount, ok := unpacked[0].(*big.Int)
+	if !ok {
+		return nil, fmt.Errorf("failed to convert unpacked data to *big.Int")
+	}
+
+	return minMakingAmount, nil
+}
+
 // https://github.com/KyberNetwork/aggregator-encoding/blob/v0.37.6/pkg/encode/l1encode/executor/swapdata/lo1inch.go#L19
 func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *big.Int, error) { //nolint:funlen,cyclop
 	// get contract address for LO.
@@ -191,14 +209,17 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 }
 
 type UnpackLO1inchResult struct {
-	FillOrderArgs         *FillOrderArgs
-	FillContractOrderArgs *FillContractOrderArgs
-	AmountThreshold       *big.Int
-	Receiver              *common.Address
-	Extension             *limitorder.Extension
-	Interaction           *limitorder.Interaction
+	FillOrderArgs              *FillOrderArgs
+	FillContractOrderArgs      *FillContractOrderArgs
+	AmountThreshold            *big.Int
+	Receiver                   *common.Address
+	Extension                  *limitorder.Extension
+	InteractionTarget          *common.Address
+	InteractionMinMakingAmount *big.Int
 }
 
+// UnpackLO1inch
+// nolint:funlen,cyclop
 func UnpackLO1inch(decoded []byte) (*UnpackLO1inchResult, error) {
 	if len(decoded) < MethodIDLength {
 		return nil, fmt.Errorf("invalid data length: %d", len(decoded))
@@ -232,12 +253,22 @@ func UnpackLO1inch(decoded []byte) (*UnpackLO1inchResult, error) {
 			return nil, err
 		}
 
+		minMakingAmount, err := DecodeReserveFundCallback(interaction.Data)
+		if err != nil {
+			return nil, err
+		}
+
+		if interaction == nil {
+			return nil, ErrInteractionIsNil
+		}
+
 		return &UnpackLO1inchResult{
-			FillOrderArgs:   &fillOrderArgs,
-			AmountThreshold: takerTraits.AmountThreshold(),
-			Receiver:        receiver,
-			Extension:       extension,
-			Interaction:     interaction,
+			FillOrderArgs:              &fillOrderArgs,
+			AmountThreshold:            takerTraits.AmountThreshold(),
+			Receiver:                   receiver,
+			Extension:                  extension,
+			InteractionTarget:          &interaction.Target,
+			InteractionMinMakingAmount: minMakingAmount,
 		}, nil
 
 	case MethodFillContractOrderArgs:
@@ -261,12 +292,22 @@ func UnpackLO1inch(decoded []byte) (*UnpackLO1inchResult, error) {
 			return nil, err
 		}
 
+		minMakingAmount, err := DecodeReserveFundCallback(interaction.Data)
+		if err != nil {
+			return nil, err
+		}
+
+		if interaction == nil {
+			return nil, ErrInteractionIsNil
+		}
+
 		return &UnpackLO1inchResult{
-			FillContractOrderArgs: &fillContractOrderArgs,
-			AmountThreshold:       takerTraits.AmountThreshold(),
-			Receiver:              receiver,
-			Extension:             extension,
-			Interaction:           interaction,
+			FillContractOrderArgs:      &fillContractOrderArgs,
+			AmountThreshold:            takerTraits.AmountThreshold(),
+			Receiver:                   receiver,
+			Extension:                  extension,
+			InteractionTarget:          &interaction.Target,
+			InteractionMinMakingAmount: minMakingAmount,
 		}, nil
 
 	default:

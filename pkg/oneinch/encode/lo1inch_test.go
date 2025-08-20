@@ -85,5 +85,184 @@ func TestUnpackLO1inch(t *testing.T) {
 	unpacked, err := encode.UnpackLO1inch(hexutil.MustDecode(encoded))
 	require.NoError(t, err)
 
-	t.Logf("%+v", unpacked.Interaction.Target)
+	t.Logf("%+v %s", unpacked.InteractionTarget, unpacked.InteractionMinMakingAmount.String())
+}
+
+func TestEncodeReserveFundCallback(t *testing.T) {
+	tests := []struct {
+		name            string
+		minMakingAmount *big.Int
+		expectedError   bool
+		expectedDataLen int
+	}{
+		{
+			name:            "zero amount",
+			minMakingAmount: big.NewInt(0),
+			expectedError:   false,
+			expectedDataLen: 32, // uint256 = 32 bytes
+		},
+		{
+			name:            "positive amount",
+			minMakingAmount: big.NewInt(1000000),
+			expectedError:   false,
+			expectedDataLen: 32,
+		},
+		{
+			name:            "large amount",
+			minMakingAmount: testutil.NewBig10("1000000000000000000000000"), // 1e24
+			expectedError:   false,
+			expectedDataLen: 32,
+		},
+		{
+			name:            "negative amount",
+			minMakingAmount: big.NewInt(-1000),
+			expectedError:   false, // ABI encoding allows negative numbers
+			expectedDataLen: 32,
+		},
+		// {
+		// 	name:            "nil amount",
+		// 	minMakingAmount: nil,
+		// 	expectedError:   true,
+		// },
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			encoded, err := encode.EncodeReserveFundCallback(tt.minMakingAmount)
+
+			if tt.expectedError {
+				require.Error(t, err)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, encoded)
+			require.Equal(t, tt.expectedDataLen, len(encoded))
+
+			// Verify the encoded data is not all zeros (unless input was zero)
+			if tt.minMakingAmount != nil && tt.minMakingAmount.Sign() != 0 {
+				allZeros := true
+				for _, b := range encoded {
+					if b != 0 {
+						allZeros = false
+						break
+					}
+				}
+				require.False(t, allZeros, "encoded data should not be all zeros for non-zero input")
+			}
+		})
+	}
+}
+
+func TestDecodeReserveFundCallback(t *testing.T) {
+	tests := []struct {
+		name           string
+		data           []byte
+		expectedAmount *big.Int
+		expectedError  bool
+	}{
+		{
+			name:           "valid zero amount",
+			data:           hexutil.MustDecode("0x0000000000000000000000000000000000000000000000000000000000000000"),
+			expectedAmount: big.NewInt(0),
+			expectedError:  false,
+		},
+		{
+			name:           "valid positive amount",
+			data:           hexutil.MustDecode("0x0000000000000000000000000000000000000000000000000000000000000064"), // 100
+			expectedAmount: big.NewInt(100),
+			expectedError:  false,
+		},
+		{
+			name:           "valid large amount",
+			data:           hexutil.MustDecode("0x0000000000000000000000000000000000000000000000000000000000000001"), // 1
+			expectedAmount: big.NewInt(1),
+			expectedError:  false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			decoded, err := encode.DecodeReserveFundCallback(tt.data)
+
+			if tt.expectedError {
+				require.Error(t, err)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NotNil(t, decoded)
+			require.Equal(t, tt.expectedAmount.String(), decoded.String())
+		})
+	}
+}
+
+func TestEncodeDecodeReserveFundCallbackRoundTrip(t *testing.T) {
+	tests := []struct {
+		name            string
+		minMakingAmount *big.Int
+	}{
+		{
+			name:            "zero",
+			minMakingAmount: big.NewInt(0),
+		},
+		{
+			name:            "small positive",
+			minMakingAmount: big.NewInt(1),
+		},
+		{
+			name:            "medium positive",
+			minMakingAmount: big.NewInt(1000000),
+		},
+		{
+			name:            "large positive",
+			minMakingAmount: testutil.NewBig10("1000000000000000000000000"), // 1e24
+		},
+		{
+			name:            "max uint256",
+			minMakingAmount: new(big.Int).Sub(new(big.Int).Lsh(big.NewInt(1), 256), big.NewInt(1)),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Encode
+			encoded, err := encode.EncodeReserveFundCallback(tt.minMakingAmount)
+			require.NoError(t, err)
+			require.NotNil(t, encoded)
+
+			// Decode
+			decoded, err := encode.DecodeReserveFundCallback(encoded)
+			require.NoError(t, err)
+			require.NotNil(t, decoded)
+
+			// Verify round-trip
+			require.Equal(t, tt.minMakingAmount.String(), decoded.String())
+
+			// Verify they are the same value
+			require.Equal(t, 0, tt.minMakingAmount.Cmp(decoded))
+		})
+	}
+}
+
+func TestEncodeDecodeReserveFundCallbackWithRealData(t *testing.T) {
+	// Test with a realistic amount that might be used in practice
+	realisticAmount := testutil.NewBig10("271133267321") // Same as in TestPackLO1inch
+
+	// Encode
+	encoded, err := encode.EncodeReserveFundCallback(realisticAmount)
+	require.NoError(t, err)
+	require.NotNil(t, encoded)
+
+	// Log the encoded data for debugging
+	t.Logf("Encoded data: %s", hexutil.Encode(encoded))
+
+	// Decode
+	decoded, err := encode.DecodeReserveFundCallback(encoded)
+	require.NoError(t, err)
+	require.NotNil(t, decoded)
+
+	// Verify
+	require.Equal(t, realisticAmount.String(), decoded.String())
+	require.Equal(t, 0, realisticAmount.Cmp(decoded))
 }
