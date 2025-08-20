@@ -211,6 +211,7 @@ func PackLO1inch(_ valueobject.ChainID, encodingSwap EncodingSwap) ([][]byte, *b
 type UnpackLO1inchResult struct {
 	FillOrderArgs              *FillOrderArgs
 	FillContractOrderArgs      *FillContractOrderArgs
+	TakerTraitsIsMakingAmount  bool
 	AmountThreshold            *big.Int
 	Receiver                   *common.Address
 	Extension                  *limitorder.Extension
@@ -269,6 +270,8 @@ func UnpackLO1inch(decoded []byte) (*UnpackLO1inchResult, error) {
 			Extension:                  extension,
 			InteractionTarget:          &interaction.Target,
 			InteractionMinMakingAmount: minMakingAmount,
+			// expect to be false as VT is the taker side
+			TakerTraitsIsMakingAmount: takerTraits.IsMakingAmount(),
 		}, nil
 
 	case MethodFillContractOrderArgs:
@@ -308,6 +311,8 @@ func UnpackLO1inch(decoded []byte) (*UnpackLO1inchResult, error) {
 			Extension:                  extension,
 			InteractionTarget:          &interaction.Target,
 			InteractionMinMakingAmount: minMakingAmount,
+			// expect to be false as VT is the taker side
+			TakerTraitsIsMakingAmount: takerTraits.IsMakingAmount(),
 		}, nil
 
 	default:
