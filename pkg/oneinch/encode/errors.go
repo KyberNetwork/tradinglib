@@ -7,4 +7,5 @@ var (
 	ErrInvalidPoolsAndPoolTypesLength = errors.New("invalid pools and pool types lengths")
 	ErrInvalidPoolsAndTokensLength    = errors.New("invalid pools and tokens lengths")
 	ErrNotSupportedDex                = errors.New("not supported dex")
+	ErrInteractionIsNil               = errors.New("interaction is nil")
 )

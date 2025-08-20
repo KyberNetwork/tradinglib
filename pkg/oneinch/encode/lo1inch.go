@@ -256,6 +256,10 @@ func UnpackLO1inch(decoded []byte) (*UnpackLO1inchResult, error) {
 			return nil, err
 		}
 
+		if interaction == nil {
+			return nil, ErrInteractionIsNil
+		}
+
 		return &UnpackLO1inchResult{
 			FillOrderArgs:              &fillOrderArgs,
 			AmountThreshold:            takerTraits.AmountThreshold(),
@@ -289,6 +293,10 @@ func UnpackLO1inch(decoded []byte) (*UnpackLO1inchResult, error) {
 		minMakingAmount, err := DecodeReserveFundCallback(interaction.Data)
 		if err != nil {
 			return nil, err
+		}
+
+		if interaction == nil {
+			return nil, ErrInteractionIsNil
 		}
 
 		return &UnpackLO1inchResult{
