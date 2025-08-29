@@ -7,12 +7,12 @@ import (
 )
 
 type SurplusParam struct {
-	estimatedTakerAmount *big.Int
-	protocolFee          int64
+	EstimatedTakerAmount *big.Int
+	ProtocolFee          int64
 }
 
 func (s SurplusParam) IsZero() bool {
-	return s.protocolFee == 0
+	return s.ProtocolFee == 0
 }
 
 // https://github.com/1inch/fusion-sdk/blob/bcdb9d67f5c528bbbeb20d6a6b1355e3fcafcb2a/src/fusion-order/surplus-params.ts#L6
@@ -22,7 +22,7 @@ func GetNoFeeSurplusParam() SurplusParam {
 		big.NewInt(1),
 	)
 	return SurplusParam{
-		estimatedTakerAmount: maxUint256,
+		EstimatedTakerAmount: maxUint256,
 	}
 }
 
@@ -38,7 +38,7 @@ func DecodeSurplusParam(iter *decode.BytesIterator) (SurplusParam, error) {
 	}
 
 	return SurplusParam{
-		estimatedTakerAmount: estimatedTakerAmount,
-		protocolFee:          int64(protocolFee * 100),
+		EstimatedTakerAmount: estimatedTakerAmount,
+		ProtocolFee:          int64(protocolFee * 100),
 	}, nil
 }

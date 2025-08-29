@@ -13,6 +13,7 @@ require (
 	github.com/flashbots/mev-share-node v0.0.0-20240517155750-67003f8e8700
 	github.com/getsentry/sentry-go v0.32.0
 	github.com/golang-migrate/migrate/v4 v4.18.3
+	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/holiman/uint256 v1.3.2
 	github.com/jmoiron/sqlx v1.4.0

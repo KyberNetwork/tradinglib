@@ -59,16 +59,19 @@ func DecodeSettlementPostInteractionData(data []byte) (SettlementPostInteraction
 		return SettlementPostInteractionData{}, fmt.Errorf("decode whitelist: %w", err)
 	}
 
-	// surplusParam, err := DecodeSurplusParam(iter)
-	// if err != nil {
-	//	return SettlementPostInteractionData{}, fmt.Errorf("decode surplus param: %w", err)
-	// }
+	surplusParam := GetNoFeeSurplusParam()
+	if iter.HasMore() {
+		surplusParam, err = DecodeSurplusParam(iter)
+		if err != nil {
+			return SettlementPostInteractionData{}, fmt.Errorf("decode surplus param: %w", err)
+		}
+	}
 	return SettlementPostInteractionData{
 		IntegratorFeeRecipient: integratorFeeRecipient,
 		ProtocolFeeRecipient:   protocolFeeRecipient,
 		CustomReceiver:         customReceiver,
 		Fee:                    fee,
 		Whitelist:              whitelist,
-		// SurplusParam:           surplusParam,
+		SurplusParam:           surplusParam,
 	}, nil
 }
