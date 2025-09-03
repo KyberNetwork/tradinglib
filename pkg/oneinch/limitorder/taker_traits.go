@@ -1,6 +1,7 @@
 package limitorder
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/big"
 
@@ -52,6 +53,14 @@ type TakerTraitsOptions struct {
 	SkipOrderPermit bool     `json:"skip_order_permit"`
 	UsePermit2      bool     `json:"use_permit2"`
 	Threshold       *big.Int `json:"threshold"`
+}
+
+type takerTraitsOptionsJSON struct {
+	IsMakingAmount  string `json:"is_making_amount"`
+	UnwrapWeth      string `json:"unwrap_weth"`
+	SkipOrderPermit string `json:"skip_order_permit"`
+	UsePermit2      string `json:"use_permit2"`
+	Threshold       string `json:"threshold,omitempty"`
 }
 
 func boolToBit(b bool) uint {
@@ -231,4 +240,47 @@ func DecodeArgs(flags *big.Int, args []byte) (*common.Address, *Extension, *Inte
 	}
 
 	return receiver, extension, interaction, nil
+}
+
+func (o *TakerTraitsOptions) Marshal() ([]byte, error) {
+	dto := takerTraitsOptionsJSON{
+		IsMakingAmount:  fmt.Sprintf("%t", o.IsMakingAmount),
+		UnwrapWeth:      fmt.Sprintf("%t", o.UnwrapWeth),
+		SkipOrderPermit: fmt.Sprintf("%t", o.SkipOrderPermit),
+		UsePermit2:      fmt.Sprintf("%t", o.UsePermit2),
+	}
+	if o.Threshold != nil {
+		dto.Threshold = o.Threshold.String()
+	}
+	b, err := json.Marshal(dto)
+	if err != nil {
+		return []byte{}, err
+	}
+	return b, nil
+}
+
+func (o *TakerTraitsOptions) Unmarshal(data []byte) error {
+	var dto takerTraitsOptionsJSON
+	if err := json.Unmarshal(data, &dto); err != nil {
+		return err
+	}
+
+	parseBool := func(s string) bool {
+		return s == "true" || s == "1"
+	}
+	var th *big.Int
+	if dto.Threshold != "" {
+		x, ok := new(big.Int).SetString(dto.Threshold, 10)
+		if !ok {
+			return fmt.Errorf("invalid threshold: %s", dto.Threshold)
+		}
+		th = x
+	}
+
+	o.IsMakingAmount = parseBool(dto.IsMakingAmount)
+	o.UnwrapWeth = parseBool(dto.UnwrapWeth)
+	o.SkipOrderPermit = parseBool(dto.SkipOrderPermit)
+	o.UsePermit2 = parseBool(dto.UsePermit2)
+	o.Threshold = th
+	return nil
 }

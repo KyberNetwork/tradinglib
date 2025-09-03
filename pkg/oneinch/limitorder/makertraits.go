@@ -2,10 +2,13 @@ package limitorder
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 var ErrEpochManagerNotAllowed = errors.New("epoch manager allowed only when partialFills and multipleFills enabled")
@@ -82,6 +85,22 @@ type MakerTraitsOption struct {
 	NonceOrEpoch          *big.Int `json:"nonce_or_epoch"`
 	Series                *big.Int `json:"series"`
 	AllowedSender         []byte   `json:"allowed_sender"`
+}
+
+type makerTraitsOptionJson struct {
+	AllowPartialFills     string `json:"allow_partial_fills"`
+	AllowMultipleFills    string `json:"allow_multiple_fills"`
+	NeedCheckEpochManager string `json:"need_check_epoch_manager"`
+	UseBitInvalidator     string `json:"use_bit_invalidator"`
+	NeedPreInteraction    string `json:"need_pre_interaction"`
+	NeedPostInteraction   string `json:"need_post_interaction"`
+	UnwrapWeth            string `json:"unwrap_weth"`
+	HasExtension          string `json:"has_extension"`
+	IsPrivate             string `json:"is_private"`
+	Expiration            string `json:"expiration"`
+	NonceOrEpoch          string `json:"nonce_or_epoch"`
+	Series                string `json:"series"`
+	AllowedSender         string `json:"allowed_sender"`
 }
 
 func (mt *MakerTraits) Decode() MakerTraitsOption {
@@ -299,4 +318,86 @@ func (mt *MakerTraits) enableEpochManagerCheck() error {
 // setSeries sets the series value
 func (mt *MakerTraits) setSeries(series *big.Int) {
 	setMask(mt.value, newBitMask(seriesStart, seriesEnd), series)
+}
+
+func (o *MakerTraitsOption) Marshal() ([]byte, error) {
+	dto := makerTraitsOptionJson{
+		AllowPartialFills:     fmt.Sprintf("%t", o.AllowPartialFills),
+		AllowMultipleFills:    fmt.Sprintf("%t", o.AllowMultipleFills),
+		NeedCheckEpochManager: fmt.Sprintf("%t", o.NeedCheckEpochManager),
+		UseBitInvalidator:     fmt.Sprintf("%t", o.UseBitInvalidator),
+		NeedPreInteraction:    fmt.Sprintf("%t", o.NeedPreInteraction),
+		NeedPostInteraction:   fmt.Sprintf("%t", o.NeedPostInteraction),
+		UnwrapWeth:            fmt.Sprintf("%t", o.UnwrapWeth),
+		HasExtension:          fmt.Sprintf("%t", o.HasExtension),
+		IsPrivate:             fmt.Sprintf("%t", o.IsPrivate),
+	}
+
+	if o.Expiration != nil {
+		dto.Expiration = o.Expiration.String()
+	}
+	if o.NonceOrEpoch != nil {
+		dto.NonceOrEpoch = o.NonceOrEpoch.String()
+	}
+	if o.Series != nil {
+		dto.Series = o.Series.String()
+	}
+	if len(o.AllowedSender) > 0 {
+		dto.AllowedSender = hexutil.Encode(o.AllowedSender)
+	}
+
+	return json.Marshal(dto)
+}
+
+// Unmarshal: JSON string -> MakerTraitsOption
+func (o *MakerTraitsOption) Unmarshal(data []byte) error {
+	var dto makerTraitsOptionJson
+	if err := json.Unmarshal(data, &dto); err != nil {
+		return err
+	}
+
+	parseBool := func(s string) bool {
+		return s == "true" || s == "1"
+	}
+	parseBig := func(s string) (*big.Int, error) {
+		if s == "" {
+			return nil, nil
+		}
+		bi, ok := new(big.Int).SetString(s, 10)
+		if !ok {
+			return nil, fmt.Errorf("invalid big.Int: %s", s)
+		}
+		return bi, nil
+	}
+
+	o.AllowPartialFills = parseBool(dto.AllowPartialFills)
+	o.AllowMultipleFills = parseBool(dto.AllowMultipleFills)
+	o.NeedCheckEpochManager = parseBool(dto.NeedCheckEpochManager)
+	o.UseBitInvalidator = parseBool(dto.UseBitInvalidator)
+	o.NeedPreInteraction = parseBool(dto.NeedPreInteraction)
+	o.NeedPostInteraction = parseBool(dto.NeedPostInteraction)
+	o.UnwrapWeth = parseBool(dto.UnwrapWeth)
+	o.HasExtension = parseBool(dto.HasExtension)
+	o.IsPrivate = parseBool(dto.IsPrivate)
+
+	var err error
+	if o.Expiration, err = parseBig(dto.Expiration); err != nil {
+		return err
+	}
+	if o.NonceOrEpoch, err = parseBig(dto.NonceOrEpoch); err != nil {
+		return err
+	}
+	if o.Series, err = parseBig(dto.Series); err != nil {
+		return err
+	}
+
+	if dto.AllowedSender != "" {
+		b, err := hexutil.Decode(dto.AllowedSender)
+		if err != nil {
+			return fmt.Errorf("invalid allowed_sender: %w", err)
+		}
+		o.AllowedSender = b
+	}
+
+	return nil
 }

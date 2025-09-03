@@ -1,6 +1,7 @@
 package limitorder_test
 
 import (
+	"encoding/json"
 	"math/big"
 	"testing"
 
@@ -141,4 +142,51 @@ func TestDecodeArgs(t *testing.T) {
 		assert.Equal(t, interaction.Target, decodedInteraction.Target)
 		assert.Equal(t, interaction.Data, decodedInteraction.Data)
 	})
+}
+
+func TestTakerTraitsOptionsMarshalAndUnmarshal(t *testing.T) {
+	orig := limitorder.TakerTraitsOptions{
+		IsMakingAmount:  true,
+		UnwrapWeth:      false,
+		SkipOrderPermit: true,
+		UsePermit2:      true,
+		Threshold:       big.NewInt(1234567890),
+	}
+
+	// Marshal
+	js, err := orig.Marshal()
+	if err != nil {
+		t.Fatalf("Marshal error: %v", err)
+	}
+	if !json.Valid([]byte(js)) {
+		t.Fatalf("not valid JSON: %s", js)
+	}
+
+	var m map[string]string
+	if err := json.Unmarshal([]byte(js), &m); err != nil {
+		t.Fatalf("json.Unmarshal to map: %v", err)
+	}
+	for k, v := range m {
+		if v == "" {
+			t.Errorf("field %q empty string", k)
+		}
+	}
+
+	// Unmarshal
+	got := limitorder.TakerTraitsOptions{}
+	err = got.Unmarshal(js)
+	if err != nil {
+		t.Fatalf("Unmarshal error: %v", err)
+	}
+
+	// Compare round-trip
+	if got.IsMakingAmount != orig.IsMakingAmount ||
+		got.UnwrapWeth != orig.UnwrapWeth ||
+		got.SkipOrderPermit != orig.SkipOrderPermit ||
+		got.UsePermit2 != orig.UsePermit2 {
+		t.Fatalf("bool mismatch: got %+v, want %+v", got, orig)
+	}
+	if got.Threshold.Cmp(orig.Threshold) != 0 {
+		t.Fatalf("threshold mismatch: got %v, want %v", got.Threshold, orig.Threshold)
+	}
 }

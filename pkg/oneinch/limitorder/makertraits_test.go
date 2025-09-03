@@ -2,10 +2,13 @@
 package limitorder
 
 import (
+	"encoding/json"
 	"math/big"
+	"reflect"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -215,4 +218,83 @@ func TestIsAllowedSender(t *testing.T) {
 	traits.WithAllowedSender(addr2)
 	assert.False(t, traits.IsAllowedSender(addr1))
 	assert.True(t, traits.IsAllowedSender(addr2))
+}
+
+func TestMakerTraitsOptionMarshalUnmarshal(t *testing.T) {
+	exp := big.NewInt(1756372966)
+	nonce := big.NewInt(473221)
+	series := big.NewInt(0)
+	allowed := []byte{0xde, 0xad, 0xbe, 0xef}
+
+	orig := MakerTraitsOption{
+		AllowPartialFills:     true,
+		AllowMultipleFills:    false,
+		NeedCheckEpochManager: true,
+		UseBitInvalidator:     false,
+		NeedPreInteraction:    true,
+		NeedPostInteraction:   false,
+		UnwrapWeth:            true,
+		HasExtension:          false,
+		IsPrivate:             true,
+		Expiration:            exp,
+		NonceOrEpoch:          nonce,
+		Series:                series,
+		AllowedSender:         allowed,
+	}
+
+	// marshal -> JSON bytes
+	b, err := orig.Marshal()
+	if err != nil {
+		t.Fatalf("marshal error: %v", err)
+	}
+	if !json.Valid(b) {
+		t.Fatalf("output is not valid JSON: %s", string(b))
+	}
+	t.Log(string(b))
+
+	var m map[string]any
+	if err := json.Unmarshal(b, &m); err != nil {
+		t.Fatalf("unmarshal to map error: %v", err)
+	}
+	for k, v := range m {
+		if _, ok := v.(string); !ok {
+			t.Fatalf("field %q is not string (got %T)", k, v)
+		}
+	}
+
+	// Act: unmarshal -> struct
+	got := MakerTraitsOption{}
+	err = got.Unmarshal(b)
+	if err != nil {
+		t.Fatalf("unmarshal error: %v", err)
+	}
+
+	// Assert: round-trip
+	if got.AllowPartialFills != orig.AllowPartialFills ||
+		got.AllowMultipleFills != orig.AllowMultipleFills ||
+		got.NeedCheckEpochManager != orig.NeedCheckEpochManager ||
+		got.UseBitInvalidator != orig.UseBitInvalidator ||
+		got.NeedPreInteraction != orig.NeedPreInteraction ||
+		got.NeedPostInteraction != orig.NeedPostInteraction ||
+		got.UnwrapWeth != orig.UnwrapWeth ||
+		got.HasExtension != orig.HasExtension ||
+		got.IsPrivate != orig.IsPrivate {
+		t.Fatalf("bool fields mismatch after round-trip")
+	}
+	if (got.Expiration == nil) != (orig.Expiration == nil) ||
+		(got.Expiration != nil && got.Expiration.Cmp(orig.Expiration) != 0) {
+		t.Fatalf("Expiration mismatch: got %v, orig %v", got.Expiration, orig.Expiration)
+	}
+	if (got.NonceOrEpoch == nil) != (orig.NonceOrEpoch == nil) ||
+		(got.NonceOrEpoch != nil && got.NonceOrEpoch.Cmp(orig.NonceOrEpoch) != 0) {
+		t.Fatalf("NonceOrEpoch mismatch")
+	}
+	if (got.Series == nil) != (orig.Series == nil) ||
+		(got.Series != nil && got.Series.Cmp(orig.Series) != 0) {
+		t.Fatalf("Series mismatch")
+	}
+	if !reflect.DeepEqual(got.AllowedSender, orig.AllowedSender) {
+		t.Fatalf("AllowedSender mismatch: got %s, orig %s",
+			hexutil.Encode(got.AllowedSender), hexutil.Encode(orig.AllowedSender))
+	}
 }
