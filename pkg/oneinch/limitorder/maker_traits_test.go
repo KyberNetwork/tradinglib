@@ -252,16 +252,6 @@ func TestMakerTraitsOptionMarshalUnmarshal(t *testing.T) {
 	}
 	t.Log(string(b))
 
-	var m map[string]any
-	if err := json.Unmarshal(b, &m); err != nil {
-		t.Fatalf("unmarshal to map error: %v", err)
-	}
-	for k, v := range m {
-		if _, ok := v.(string); !ok {
-			t.Fatalf("field %q is not string (got %T)", k, v)
-		}
-	}
-
 	// Act: unmarshal -> struct
 	got := MakerTraitsOption{}
 	err = got.Unmarshal(b)

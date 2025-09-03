@@ -55,14 +55,6 @@ type TakerTraitsOptions struct {
 	Threshold       *big.Int `json:"threshold"`
 }
 
-type takerTraitsOptionsJSON struct {
-	IsMakingAmount  string `json:"is_making_amount"`
-	UnwrapWeth      string `json:"unwrap_weth"`
-	SkipOrderPermit string `json:"skip_order_permit"`
-	UsePermit2      string `json:"use_permit2"`
-	Threshold       string `json:"threshold,omitempty"`
-}
-
 func boolToBit(b bool) uint {
 	if b {
 		return 1
@@ -243,11 +235,18 @@ func DecodeArgs(flags *big.Int, args []byte) (*common.Address, *Extension, *Inte
 }
 
 func (o *TakerTraitsOptions) Marshal() ([]byte, error) {
+	type takerTraitsOptionsJSON struct {
+		IsMakingAmount  bool   `json:"is_making_amount"`
+		UnwrapWeth      bool   `json:"unwrap_weth"`
+		SkipOrderPermit bool   `json:"skip_order_permit"`
+		UsePermit2      bool   `json:"use_permit2"`
+		Threshold       string `json:"threshold,omitempty"`
+	}
 	dto := takerTraitsOptionsJSON{
-		IsMakingAmount:  fmt.Sprintf("%t", o.IsMakingAmount),
-		UnwrapWeth:      fmt.Sprintf("%t", o.UnwrapWeth),
-		SkipOrderPermit: fmt.Sprintf("%t", o.SkipOrderPermit),
-		UsePermit2:      fmt.Sprintf("%t", o.UsePermit2),
+		IsMakingAmount:  o.IsMakingAmount,
+		UnwrapWeth:      o.UnwrapWeth,
+		SkipOrderPermit: o.SkipOrderPermit,
+		UsePermit2:      o.UsePermit2,
 	}
 	if o.Threshold != nil {
 		dto.Threshold = o.Threshold.String()
@@ -260,14 +259,18 @@ func (o *TakerTraitsOptions) Marshal() ([]byte, error) {
 }
 
 func (o *TakerTraitsOptions) Unmarshal(data []byte) error {
+	type takerTraitsOptionsJSON struct {
+		IsMakingAmount  bool   `json:"is_making_amount"`
+		UnwrapWeth      bool   `json:"unwrap_weth"`
+		SkipOrderPermit bool   `json:"skip_order_permit"`
+		UsePermit2      bool   `json:"use_permit2"`
+		Threshold       string `json:"threshold,omitempty"`
+	}
 	var dto takerTraitsOptionsJSON
 	if err := json.Unmarshal(data, &dto); err != nil {
 		return err
 	}
 
-	parseBool := func(s string) bool {
-		return s == "true" || s == "1"
-	}
 	var th *big.Int
 	if dto.Threshold != "" {
 		x, ok := new(big.Int).SetString(dto.Threshold, 10)
@@ -277,10 +280,10 @@ func (o *TakerTraitsOptions) Unmarshal(data []byte) error {
 		th = x
 	}
 
-	o.IsMakingAmount = parseBool(dto.IsMakingAmount)
-	o.UnwrapWeth = parseBool(dto.UnwrapWeth)
-	o.SkipOrderPermit = parseBool(dto.SkipOrderPermit)
-	o.UsePermit2 = parseBool(dto.UsePermit2)
+	o.IsMakingAmount = dto.IsMakingAmount
+	o.UnwrapWeth = dto.UnwrapWeth
+	o.SkipOrderPermit = dto.SkipOrderPermit
+	o.UsePermit2 = dto.UsePermit2
 	o.Threshold = th
 	return nil
 }

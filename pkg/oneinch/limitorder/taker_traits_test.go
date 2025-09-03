@@ -162,16 +162,6 @@ func TestTakerTraitsOptionsMarshalAndUnmarshal(t *testing.T) {
 		t.Fatalf("not valid JSON: %s", js)
 	}
 
-	var m map[string]string
-	if err := json.Unmarshal(js, &m); err != nil {
-		t.Fatalf("json.Unmarshal to map: %v", err)
-	}
-	for k, v := range m {
-		if v == "" {
-			t.Errorf("field %q empty string", k)
-		}
-	}
-
 	// Unmarshal
 	got := limitorder.TakerTraitsOptions{}
 	err = got.Unmarshal(js)

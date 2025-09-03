@@ -87,22 +87,6 @@ type MakerTraitsOption struct {
 	AllowedSender         []byte   `json:"allowed_sender"`
 }
 
-type makerTraitsOptionJson struct {
-	AllowPartialFills     string `json:"allow_partial_fills"`
-	AllowMultipleFills    string `json:"allow_multiple_fills"`
-	NeedCheckEpochManager string `json:"need_check_epoch_manager"`
-	UseBitInvalidator     string `json:"use_bit_invalidator"`
-	NeedPreInteraction    string `json:"need_pre_interaction"`
-	NeedPostInteraction   string `json:"need_post_interaction"`
-	UnwrapWeth            string `json:"unwrap_weth"`
-	HasExtension          string `json:"has_extension"`
-	IsPrivate             string `json:"is_private"`
-	Expiration            string `json:"expiration"`
-	NonceOrEpoch          string `json:"nonce_or_epoch"`
-	Series                string `json:"series"`
-	AllowedSender         string `json:"allowed_sender"`
-}
-
 func (mt *MakerTraits) Decode() MakerTraitsOption {
 	return MakerTraitsOption{
 		AllowPartialFills:     mt.AllowPartialFills(),
@@ -321,16 +305,31 @@ func (mt *MakerTraits) setSeries(series *big.Int) {
 }
 
 func (o *MakerTraitsOption) Marshal() ([]byte, error) {
+	type makerTraitsOptionJson struct {
+		AllowPartialFills     bool   `json:"allow_partial_fills"`
+		AllowMultipleFills    bool   `json:"allow_multiple_fills"`
+		NeedCheckEpochManager bool   `json:"need_check_epoch_manager"`
+		UseBitInvalidator     bool   `json:"use_bit_invalidator"`
+		NeedPreInteraction    bool   `json:"need_pre_interaction"`
+		NeedPostInteraction   bool   `json:"need_post_interaction"`
+		UnwrapWeth            bool   `json:"unwrap_weth"`
+		HasExtension          bool   `json:"has_extension"`
+		IsPrivate             bool   `json:"is_private"`
+		Expiration            string `json:"expiration"`
+		NonceOrEpoch          string `json:"nonce_or_epoch"`
+		Series                string `json:"series"`
+		AllowedSender         string `json:"allowed_sender"`
+	}
 	dto := makerTraitsOptionJson{
-		AllowPartialFills:     fmt.Sprintf("%t", o.AllowPartialFills),
-		AllowMultipleFills:    fmt.Sprintf("%t", o.AllowMultipleFills),
-		NeedCheckEpochManager: fmt.Sprintf("%t", o.NeedCheckEpochManager),
-		UseBitInvalidator:     fmt.Sprintf("%t", o.UseBitInvalidator),
-		NeedPreInteraction:    fmt.Sprintf("%t", o.NeedPreInteraction),
-		NeedPostInteraction:   fmt.Sprintf("%t", o.NeedPostInteraction),
-		UnwrapWeth:            fmt.Sprintf("%t", o.UnwrapWeth),
-		HasExtension:          fmt.Sprintf("%t", o.HasExtension),
-		IsPrivate:             fmt.Sprintf("%t", o.IsPrivate),
+		AllowPartialFills:     o.AllowPartialFills,
+		AllowMultipleFills:    o.AllowMultipleFills,
+		NeedCheckEpochManager: o.NeedCheckEpochManager,
+		UseBitInvalidator:     o.UseBitInvalidator,
+		NeedPreInteraction:    o.NeedPreInteraction,
+		NeedPostInteraction:   o.NeedPostInteraction,
+		UnwrapWeth:            o.UnwrapWeth,
+		HasExtension:          o.HasExtension,
+		IsPrivate:             o.IsPrivate,
 	}
 
 	if o.Expiration != nil {
@@ -350,13 +349,24 @@ func (o *MakerTraitsOption) Marshal() ([]byte, error) {
 }
 
 func (o *MakerTraitsOption) Unmarshal(data []byte) error {
+	type makerTraitsOptionJson struct {
+		AllowPartialFills     bool   `json:"allow_partial_fills"`
+		AllowMultipleFills    bool   `json:"allow_multiple_fills"`
+		NeedCheckEpochManager bool   `json:"need_check_epoch_manager"`
+		UseBitInvalidator     bool   `json:"use_bit_invalidator"`
+		NeedPreInteraction    bool   `json:"need_pre_interaction"`
+		NeedPostInteraction   bool   `json:"need_post_interaction"`
+		UnwrapWeth            bool   `json:"unwrap_weth"`
+		HasExtension          bool   `json:"has_extension"`
+		IsPrivate             bool   `json:"is_private"`
+		Expiration            string `json:"expiration"`
+		NonceOrEpoch          string `json:"nonce_or_epoch"`
+		Series                string `json:"series"`
+		AllowedSender         string `json:"allowed_sender"`
+	}
 	var dto makerTraitsOptionJson
 	if err := json.Unmarshal(data, &dto); err != nil {
 		return err
-	}
-
-	parseBool := func(s string) bool {
-		return s == "true" || s == "1"
 	}
 	parseBig := func(s string) (*big.Int, error) {
 		if s == "" {
@@ -369,15 +379,15 @@ func (o *MakerTraitsOption) Unmarshal(data []byte) error {
 		return bi, nil
 	}
 
-	o.AllowPartialFills = parseBool(dto.AllowPartialFills)
-	o.AllowMultipleFills = parseBool(dto.AllowMultipleFills)
-	o.NeedCheckEpochManager = parseBool(dto.NeedCheckEpochManager)
-	o.UseBitInvalidator = parseBool(dto.UseBitInvalidator)
-	o.NeedPreInteraction = parseBool(dto.NeedPreInteraction)
-	o.NeedPostInteraction = parseBool(dto.NeedPostInteraction)
-	o.UnwrapWeth = parseBool(dto.UnwrapWeth)
-	o.HasExtension = parseBool(dto.HasExtension)
-	o.IsPrivate = parseBool(dto.IsPrivate)
+	o.AllowPartialFills = dto.AllowPartialFills
+	o.AllowMultipleFills = dto.AllowMultipleFills
+	o.NeedCheckEpochManager = dto.NeedCheckEpochManager
+	o.UseBitInvalidator = dto.UseBitInvalidator
+	o.NeedPreInteraction = dto.NeedPreInteraction
+	o.NeedPostInteraction = dto.NeedPostInteraction
+	o.UnwrapWeth = dto.UnwrapWeth
+	o.HasExtension = dto.HasExtension
+	o.IsPrivate = dto.IsPrivate
 
 	var err error
 	if o.Expiration, err = parseBig(dto.Expiration); err != nil {
