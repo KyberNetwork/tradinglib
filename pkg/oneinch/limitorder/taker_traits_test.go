@@ -158,12 +158,12 @@ func TestTakerTraitsOptionsMarshalAndUnmarshal(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Marshal error: %v", err)
 	}
-	if !json.Valid([]byte(js)) {
+	if !json.Valid(js) {
 		t.Fatalf("not valid JSON: %s", js)
 	}
 
 	var m map[string]string
-	if err := json.Unmarshal([]byte(js), &m); err != nil {
+	if err := json.Unmarshal(js, &m); err != nil {
 		t.Fatalf("json.Unmarshal to map: %v", err)
 	}
 	for k, v := range m {

@@ -349,7 +349,6 @@ func (o *MakerTraitsOption) Marshal() ([]byte, error) {
 	return json.Marshal(dto)
 }
 
-// Unmarshal: JSON string -> MakerTraitsOption
 func (o *MakerTraitsOption) Unmarshal(data []byte) error {
 	var dto makerTraitsOptionJson
 	if err := json.Unmarshal(data, &dto); err != nil {
@@ -361,7 +360,7 @@ func (o *MakerTraitsOption) Unmarshal(data []byte) error {
 	}
 	parseBig := func(s string) (*big.Int, error) {
 		if s == "" {
-			return nil, nil
+			return nil, fmt.Errorf("the number is empty")
 		}
 		bi, ok := new(big.Int).SetString(s, 10)
 		if !ok {
