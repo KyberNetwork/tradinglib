@@ -7,8 +7,8 @@ import (
 )
 
 type SurplusParam struct {
-	EstimatedTakerAmount *big.Int
-	ProtocolFee          int64
+	EstimatedTakerAmount *big.Int `json:"estimatedTakerAmount"`
+	ProtocolFee          int64    `json:"protocolFee"`
 }
 
 func (s SurplusParam) IsZero() bool {
