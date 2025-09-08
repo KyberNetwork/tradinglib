@@ -7,6 +7,7 @@ import (
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 )
 
+// nolint:recvcheck
 type SurplusParam struct {
 	EstimatedTakerAmount *big.Int `json:"estimated_taker_amount"`
 	ProtocolFee          int64    `json:"protocol_fee"`
