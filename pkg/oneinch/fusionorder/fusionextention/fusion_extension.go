@@ -15,17 +15,17 @@ import (
 var ErrInvalidExtension = errors.New("invalid extension")
 
 type Extra struct {
-	MakerPermit    limitorder.Interaction `json:"makerPermit"`
-	CustomReceiver common.Address         `json:"customReceiver"`
+	MakerPermit    limitorder.Interaction `json:"maker_permit"`
+	CustomReceiver common.Address         `json:"custom_receiver"`
 	Fees           limitorder.Fees        `json:"fees"`
 }
 
 type FusionExtension struct {
 	Address        common.Address               `json:"address"`
-	AuctionDetails auctiondetail.AuctionDetails `json:"auctionDetails"`
+	AuctionDetails auctiondetail.AuctionDetails `json:"auction_details"`
 	Whitelist      Whitelist                    `json:"whitelist"`
 	Extra          Extra                        `json:"extra"`
-	SurplusParam   SurplusParam                 `json:"surplusParam"`
+	SurplusParam   SurplusParam                 `json:"surplus_param"`
 }
 
 // public static fromExtension(extension: Extension): FusionExtension

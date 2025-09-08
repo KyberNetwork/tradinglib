@@ -1,14 +1,15 @@
 package fusionextention
 
 import (
+	"encoding/json"
 	"math/big"
 
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/decode"
 )
 
 type SurplusParam struct {
-	EstimatedTakerAmount *big.Int `json:"estimatedTakerAmount"`
-	ProtocolFee          int64    `json:"protocolFee"`
+	EstimatedTakerAmount *big.Int `json:"estimated_taker_amount"`
+	ProtocolFee          int64    `json:"protocol_fee"`
 }
 
 func (s SurplusParam) IsZero() bool {
@@ -41,4 +42,40 @@ func DecodeSurplusParam(iter *decode.BytesIterator) (SurplusParam, error) {
 		EstimatedTakerAmount: estimatedTakerAmount,
 		ProtocolFee:          int64(protocolFee * 100),
 	}, nil
+}
+
+func (s SurplusParam) MarshalJSON() ([]byte, error) {
+	type surplusParam struct {
+		EstimatedTakerAmount string `json:"estimated_taker_amount"`
+		ProtocolFee          int64  `json:"protocol_fee"`
+	}
+	data := surplusParam{
+		ProtocolFee: s.ProtocolFee,
+	}
+	if s.EstimatedTakerAmount != nil {
+		data.EstimatedTakerAmount = s.EstimatedTakerAmount.String()
+	}
+	return json.Marshal(data)
+}
+
+func (s *SurplusParam) UnmarshalJSON(data []byte) error {
+	type surplusParam struct {
+		EstimatedTakerAmount string `json:"estimated_taker_amount"`
+		ProtocolFee          int64  `json:"protocol_fee"`
+	}
+
+	var dto surplusParam
+	if err := json.Unmarshal(data, &dto); err != nil {
+		return err
+	}
+
+	s.ProtocolFee = dto.ProtocolFee
+	if dto.EstimatedTakerAmount != "" {
+		x, ok := new(big.Int).SetString(dto.EstimatedTakerAmount, 10)
+		if !ok {
+			return nil
+		}
+		s.EstimatedTakerAmount = x
+	}
+	return nil
 }
