@@ -24,11 +24,11 @@ var (
 )
 
 type AuctionDetails struct {
-	StartTime       int64
-	Duration        int64
-	InitialRateBump int64
-	Points          []AuctionPoint
-	GasCost         AuctionGasCostInfo
+	StartTime       int64              `json:"start_time"`
+	Duration        int64              `json:"duration"`
+	InitialRateBump int64              `json:"initial_rate_bump"`
+	Points          []AuctionPoint     `json:"points"`
+	GasCost         AuctionGasCostInfo `json:"gas_cost"`
 }
 
 func NewAuctionDetails(
@@ -64,13 +64,13 @@ func NewAuctionDetails(
 }
 
 type AuctionPoint struct {
-	Delay       int64
-	Coefficient int64
+	Delay       int64 `json:"delay"`
+	Coefficient int64 `json:"coefficient"`
 }
 
 type AuctionGasCostInfo struct {
-	GasBumpEstimate  int64
-	GasPriceEstimate int64
+	GasBumpEstimate  int64 `json:"gas_bump_estimate"`
+	GasPriceEstimate int64 `json:"gas_price_estimate"`
 }
 
 // DecodeAuctionDetails decodes auctioncalculator details from hex string
