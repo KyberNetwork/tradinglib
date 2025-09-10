@@ -71,6 +71,7 @@ func NewMakerTraits(val string) *MakerTraits {
 	return &MakerTraits{value: value}
 }
 
+// nolint:recvcheck
 type MakerTraitsOption struct {
 	AllowPartialFills     bool     `json:"allow_partial_fills"`
 	AllowMultipleFills    bool     `json:"allow_multiple_fills"`
@@ -304,7 +305,7 @@ func (mt *MakerTraits) setSeries(series *big.Int) {
 	setMask(mt.value, newBitMask(seriesStart, seriesEnd), series)
 }
 
-func (o *MakerTraitsOption) Marshal() ([]byte, error) {
+func (o MakerTraitsOption) MarshalJSON() ([]byte, error) {
 	type makerTraitsOptionJson struct {
 		AllowPartialFills     bool   `json:"allow_partial_fills"`
 		AllowMultipleFills    bool   `json:"allow_multiple_fills"`
@@ -348,7 +349,7 @@ func (o *MakerTraitsOption) Marshal() ([]byte, error) {
 	return json.Marshal(dto)
 }
 
-func (o *MakerTraitsOption) Unmarshal(data []byte) error {
+func (o *MakerTraitsOption) UnmarshalJSON(data []byte) error {
 	type makerTraitsOptionJson struct {
 		AllowPartialFills     bool   `json:"allow_partial_fills"`
 		AllowMultipleFills    bool   `json:"allow_multiple_fills"`

@@ -153,20 +153,21 @@ func TestTakerTraitsOptionsMarshalAndUnmarshal(t *testing.T) {
 		Threshold:       big.NewInt(1234567890),
 	}
 
-	// Marshal
-	js, err := orig.Marshal()
+	// MarshalJSON
+	js, err := json.Marshal(orig)
 	if err != nil {
-		t.Fatalf("Marshal error: %v", err)
+		t.Fatalf("MarshalJSON error: %v", err)
 	}
 	if !json.Valid(js) {
 		t.Fatalf("not valid JSON: %s", js)
 	}
 
-	// Unmarshal
-	got := limitorder.TakerTraitsOptions{}
-	err = got.Unmarshal(js)
+	t.Log(string(js))
+	// UnmarshalJSON
+	var got limitorder.TakerTraitsOptions
+	err = json.Unmarshal(js, &got)
 	if err != nil {
-		t.Fatalf("Unmarshal error: %v", err)
+		t.Fatalf("UnmarshalJSON error: %v", err)
 	}
 
 	// Compare round-trip

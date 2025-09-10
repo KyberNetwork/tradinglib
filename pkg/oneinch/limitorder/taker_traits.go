@@ -47,6 +47,7 @@ type TakerTraits struct {
 	interaction *Interaction
 }
 
+// nolint:recvcheck
 type TakerTraitsOptions struct {
 	IsMakingAmount  bool     `json:"is_making_amount"`
 	UnwrapWeth      bool     `json:"unwrap_weth"`
@@ -234,7 +235,7 @@ func DecodeArgs(flags *big.Int, args []byte) (*common.Address, *Extension, *Inte
 	return receiver, extension, interaction, nil
 }
 
-func (o *TakerTraitsOptions) Marshal() ([]byte, error) {
+func (o TakerTraitsOptions) MarshalJSON() ([]byte, error) {
 	type takerTraitsOptionsJSON struct {
 		IsMakingAmount  bool   `json:"is_making_amount"`
 		UnwrapWeth      bool   `json:"unwrap_weth"`
@@ -258,7 +259,7 @@ func (o *TakerTraitsOptions) Marshal() ([]byte, error) {
 	return b, nil
 }
 
-func (o *TakerTraitsOptions) Unmarshal(data []byte) error {
+func (o *TakerTraitsOptions) UnmarshalJSON(data []byte) error {
 	type takerTraitsOptionsJSON struct {
 		IsMakingAmount  bool   `json:"is_making_amount"`
 		UnwrapWeth      bool   `json:"unwrap_weth"`
