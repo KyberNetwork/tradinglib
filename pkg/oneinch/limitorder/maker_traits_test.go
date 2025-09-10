@@ -243,7 +243,7 @@ func TestMakerTraitsOptionMarshalUnmarshal(t *testing.T) {
 	}
 
 	// marshal -> JSON bytes
-	b, err := orig.Marshal()
+	b, err := json.Marshal(orig)
 	if err != nil {
 		t.Fatalf("marshal error: %v", err)
 	}
@@ -253,8 +253,8 @@ func TestMakerTraitsOptionMarshalUnmarshal(t *testing.T) {
 	t.Log(string(b))
 
 	// Act: unmarshal -> struct
-	got := MakerTraitsOption{}
-	err = got.Unmarshal(b)
+	var got MakerTraitsOption
+	err = json.Unmarshal(b, &got)
 	if err != nil {
 		t.Fatalf("unmarshal error: %v", err)
 	}
