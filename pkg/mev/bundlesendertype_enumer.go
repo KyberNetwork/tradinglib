@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-const _BundleSenderTypeName = "BundleSenderTypeFlashbotBundleSenderTypeBeaverBundleSenderTypeRsyncBundleSenderTypeTitanBundleSenderTypeBloxrouteBundleSenderTypeAllBundleSenderTypeMevShareBundleSenderTypeBackrunPublicBundleSenderTypeMevBlockerBundleSenderTypeBlinkBundleSenderTypeMerkleBundleSenderTypeJetbldrBundleSenderTypePenguinBundleSenderTypeLokiBundleSenderTypeQuasarBundleSenderTypeBuilderNetBundleSenderTypeBTCS"
+const _BundleSenderTypeName = "BundleSenderTypeFlashbotBundleSenderTypeBeaverBundleSenderTypeRsyncBundleSenderTypeTitanBundleSenderTypeBloxrouteBundleSenderTypeAllBundleSenderTypeMevShareBundleSenderTypeBackrunPublicBundleSenderTypeMevBlockerBundleSenderTypeBlinkBundleSenderTypeMerkleBundleSenderTypeJetbldrBundleSenderTypePenguinBundleSenderTypeLokiBundleSenderTypeQuasarBundleSenderTypeBuilderNetBundleSenderTypeBTCSBundleSenderTypeBaseMainnet"
 
-var _BundleSenderTypeIndex = [...]uint16{0, 24, 46, 67, 88, 113, 132, 156, 185, 211, 232, 254, 277, 300, 320, 342, 368, 388}
+var _BundleSenderTypeIndex = [...]uint16{0, 24, 46, 67, 88, 113, 132, 156, 185, 211, 232, 254, 277, 300, 320, 342, 368, 388, 415}
 
-const _BundleSenderTypeLowerName = "bundlesendertypeflashbotbundlesendertypebeaverbundlesendertypersyncbundlesendertypetitanbundlesendertypebloxroutebundlesendertypeallbundlesendertypemevsharebundlesendertypebackrunpublicbundlesendertypemevblockerbundlesendertypeblinkbundlesendertypemerklebundlesendertypejetbldrbundlesendertypepenguinbundlesendertypelokibundlesendertypequasarbundlesendertypebuildernetbundlesendertypebtcs"
+const _BundleSenderTypeLowerName = "bundlesendertypeflashbotbundlesendertypebeaverbundlesendertypersyncbundlesendertypetitanbundlesendertypebloxroutebundlesendertypeallbundlesendertypemevsharebundlesendertypebackrunpublicbundlesendertypemevblockerbundlesendertypeblinkbundlesendertypemerklebundlesendertypejetbldrbundlesendertypepenguinbundlesendertypelokibundlesendertypequasarbundlesendertypebuildernetbundlesendertypebtcsbundlesendertypebasemainnet"
 
 func (i BundleSenderType) String() string {
 	i -= 1
@@ -42,9 +42,10 @@ func _BundleSenderTypeNoOp() {
 	_ = x[BundleSenderTypeQuasar-(15)]
 	_ = x[BundleSenderTypeBuilderNet-(16)]
 	_ = x[BundleSenderTypeBTCS-(17)]
+	_ = x[BundleSenderTypeBaseMainnet-(18)]
 }
 
-var _BundleSenderTypeValues = []BundleSenderType{BundleSenderTypeFlashbot, BundleSenderTypeBeaver, BundleSenderTypeRsync, BundleSenderTypeTitan, BundleSenderTypeBloxroute, BundleSenderTypeAll, BundleSenderTypeMevShare, BundleSenderTypeBackrunPublic, BundleSenderTypeMevBlocker, BundleSenderTypeBlink, BundleSenderTypeMerkle, BundleSenderTypeJetbldr, BundleSenderTypePenguin, BundleSenderTypeLoki, BundleSenderTypeQuasar, BundleSenderTypeBuilderNet, BundleSenderTypeBTCS}
+var _BundleSenderTypeValues = []BundleSenderType{BundleSenderTypeFlashbot, BundleSenderTypeBeaver, BundleSenderTypeRsync, BundleSenderTypeTitan, BundleSenderTypeBloxroute, BundleSenderTypeAll, BundleSenderTypeMevShare, BundleSenderTypeBackrunPublic, BundleSenderTypeMevBlocker, BundleSenderTypeBlink, BundleSenderTypeMerkle, BundleSenderTypeJetbldr, BundleSenderTypePenguin, BundleSenderTypeLoki, BundleSenderTypeQuasar, BundleSenderTypeBuilderNet, BundleSenderTypeBTCS, BundleSenderTypeBaseMainnet}
 
 var _BundleSenderTypeNameToValueMap = map[string]BundleSenderType{
 	_BundleSenderTypeName[0:24]:         BundleSenderTypeFlashbot,
@@ -81,6 +82,8 @@ var _BundleSenderTypeNameToValueMap = map[string]BundleSenderType{
 	_BundleSenderTypeLowerName[342:368]: BundleSenderTypeBuilderNet,
 	_BundleSenderTypeName[368:388]:      BundleSenderTypeBTCS,
 	_BundleSenderTypeLowerName[368:388]: BundleSenderTypeBTCS,
+	_BundleSenderTypeName[388:415]:      BundleSenderTypeBaseMainnet,
+	_BundleSenderTypeLowerName[388:415]: BundleSenderTypeBaseMainnet,
 }
 
 var _BundleSenderTypeNames = []string{
@@ -101,6 +104,7 @@ var _BundleSenderTypeNames = []string{
 	_BundleSenderTypeName[320:342],
 	_BundleSenderTypeName[342:368],
 	_BundleSenderTypeName[368:388],
+	_BundleSenderTypeName[388:415],
 }
 
 // BundleSenderTypeString retrieves an enum value from the enum constants string name.

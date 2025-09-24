@@ -38,6 +38,7 @@ const (
 	BundleSenderTypeQuasar
 	BundleSenderTypeBuilderNet
 	BundleSenderTypeBTCS
+	BundleSenderTypeBaseMainnet
 )
 
 const (
@@ -58,9 +59,24 @@ const (
 	FlashbotGetUserStats         = "flashbots_getUserStats"
 	FlashbotGetUserStatsV2       = "flashbots_getUserStatsV2"
 	TitanGetUserStats            = "titan_getUserStats"
+	ETHSendRawTransaction        = "eth_sendRawTransaction"
 
 	MaxBlockFromTarget = 3
 )
+
+type ISendRawTransaction interface {
+	SendRawTransaction(
+		ctx context.Context,
+		tx *types.Transaction,
+	) (SendRawTransactionResponse, error)
+}
+
+type SendRawTransactionResponse struct {
+	Jsonrpc string        `json:"jsonrpc"`
+	ID      int           `json:"id"`
+	Result  string        `json:"result"`
+	Error   ErrorResponse `json:"error,omitempty"`
+}
 
 type IBackrunSender interface {
 	SendBackrunBundle(
