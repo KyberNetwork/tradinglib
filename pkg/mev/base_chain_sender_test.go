@@ -124,6 +124,7 @@ func TestBaseChainSender_SendRawTransaction_InvalidTx(t *testing.T) {
 }
 
 func TestBaseChainSender_Interface_Compliance(t *testing.T) {
+	t.Skip("Skip by default - uncomment to run actual test against Base mainnet")
 	// Test that BaseChainSender implements ISendRawTransaction interface
 	httpClient := &http.Client{Timeout: time.Second * 10}
 	sender := mev.NewBaseChainSender(
@@ -137,6 +138,7 @@ func TestBaseChainSender_Interface_Compliance(t *testing.T) {
 }
 
 func TestNewBaseChainSender(t *testing.T) {
+	t.Skip("Skip by default - uncomment to run actual test against Base mainnet")
 	httpClient := &http.Client{Timeout: time.Second * 10}
 	endpoint := "https://mainnet.base.org"
 	senderType := mev.BundleSenderTypeBaseMainnet
