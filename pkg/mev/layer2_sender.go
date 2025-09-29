@@ -11,29 +11,29 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
-type BaseChainSender struct {
+type L2Sender struct {
 	c          *http.Client
 	endpoint   string
 	senderType BundleSenderType
 }
 
-func NewBaseChainSender(
+func NewL2ChainSender(
 	c *http.Client,
 	endpoint string,
 	senderType BundleSenderType,
-) *BaseChainSender {
-	return &BaseChainSender{
+) *L2Sender {
+	return &L2Sender{
 		c:          c,
 		endpoint:   endpoint,
 		senderType: senderType,
 	}
 }
 
-func (s *BaseChainSender) GetSenderType() BundleSenderType {
+func (s *L2Sender) GetSenderType() BundleSenderType {
 	return s.senderType
 }
 
-func (s *BaseChainSender) SendRawTransaction(
+func (s *L2Sender) SendRawTransaction(
 	ctx context.Context,
 	tx *types.Transaction,
 ) (SendRawTransactionResponse, error) {

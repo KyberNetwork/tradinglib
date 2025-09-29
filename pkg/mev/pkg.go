@@ -38,7 +38,7 @@ const (
 	BundleSenderTypeQuasar
 	BundleSenderTypeBuilderNet
 	BundleSenderTypeBTCS
-	BundleSenderTypeBaseMainnet
+	BundleSenderTypeL2
 )
 
 const (

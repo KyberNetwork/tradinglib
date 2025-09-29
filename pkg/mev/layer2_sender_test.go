@@ -22,7 +22,7 @@ func TestBaseChainSender_SendRawTransaction(t *testing.T) {
 	httpClient := &http.Client{Timeout: time.Second * 30}
 
 	// Initialize BaseChainSender with Base mainnet RPC
-	sender := mev.NewBaseChainSender(
+	sender := mev.NewL2ChainSender(
 		httpClient,
 		"https://mainnet.base.org",
 		mev.BundleSenderTypeBaseMainnet,
@@ -94,7 +94,7 @@ func TestBaseChainSender_SendRawTransaction_InvalidTx(t *testing.T) {
 	httpClient := &http.Client{Timeout: time.Second * 10}
 
 	// Initialize BaseChainSender with Base mainnet RPC
-	sender := mev.NewBaseChainSender(
+	sender := mev.NewL2ChainSender(
 		httpClient,
 		"https://mainnet.base.org",
 		mev.BundleSenderTypeBaseMainnet,
@@ -127,7 +127,7 @@ func TestBaseChainSender_Interface_Compliance(t *testing.T) {
 	t.Skip("Skip by default - uncomment to run actual test against Base mainnet")
 	// Test that BaseChainSender implements ISendRawTransaction interface
 	httpClient := &http.Client{Timeout: time.Second * 10}
-	sender := mev.NewBaseChainSender(
+	sender := mev.NewL2ChainSender(
 		httpClient,
 		"https://mainnet.base.org",
 		mev.BundleSenderTypeBaseMainnet,
@@ -143,7 +143,7 @@ func TestNewBaseChainSender(t *testing.T) {
 	endpoint := "https://mainnet.base.org"
 	senderType := mev.BundleSenderTypeBaseMainnet
 
-	sender := mev.NewBaseChainSender(httpClient, endpoint, senderType)
+	sender := mev.NewL2ChainSender(httpClient, endpoint, senderType)
 
 	require.NotNil(t, sender)
 	require.Equal(t, senderType, sender.GetSenderType())
