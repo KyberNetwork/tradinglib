@@ -25,11 +25,11 @@ func TestBaseChainSender_SendRawTransaction(t *testing.T) {
 	sender := mev.NewL2ChainSender(
 		httpClient,
 		"https://mainnet.base.org",
-		mev.BundleSenderTypeBaseMainnet,
+		mev.BundleSenderTypeL2,
 	)
 
 	// Verify sender type
-	require.Equal(t, mev.BundleSenderTypeBaseMainnet, sender.GetSenderType())
+	require.Equal(t, mev.BundleSenderTypeL2, sender.GetSenderType())
 
 	// Create a test transaction (this is a dummy transaction that will likely fail)
 	// In a real scenario, you would use proper private key, nonce, gas price, etc.
@@ -97,7 +97,7 @@ func TestBaseChainSender_SendRawTransaction_InvalidTx(t *testing.T) {
 	sender := mev.NewL2ChainSender(
 		httpClient,
 		"https://mainnet.base.org",
-		mev.BundleSenderTypeBaseMainnet,
+		mev.BundleSenderTypeL2,
 	)
 
 	// Create an invalid transaction (unsigned)
@@ -130,7 +130,7 @@ func TestBaseChainSender_Interface_Compliance(t *testing.T) {
 	sender := mev.NewL2ChainSender(
 		httpClient,
 		"https://mainnet.base.org",
-		mev.BundleSenderTypeBaseMainnet,
+		mev.BundleSenderTypeL2,
 	)
 
 	// Verify it implements the interface
@@ -141,7 +141,7 @@ func TestNewBaseChainSender(t *testing.T) {
 	t.Skip("Skip by default - uncomment to run actual test against Base mainnet")
 	httpClient := &http.Client{Timeout: time.Second * 10}
 	endpoint := "https://mainnet.base.org"
-	senderType := mev.BundleSenderTypeBaseMainnet
+	senderType := mev.BundleSenderTypeL2
 
 	sender := mev.NewL2ChainSender(httpClient, endpoint, senderType)
 
