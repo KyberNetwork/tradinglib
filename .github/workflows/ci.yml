@@ -29,6 +29,8 @@ jobs:
     needs:
       - prepare
     steps:
+      - name: Add git config for Go private module
+        run: git config --global url."https://${{ secrets.GH_PAT }}:x-oauth-basic@github.com/".insteadOf https://github.com/
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install Go
@@ -61,6 +63,8 @@ jobs:
     needs:
       - prepare
     steps:
+      - name: Add git config for Go private module
+        run: git config --global url."https://${{ secrets.GH_PAT }}:x-oauth-basic@github.com/".insteadOf https://github.com/
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install Go
