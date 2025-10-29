@@ -55,8 +55,8 @@ func (c Calculator) FinishTime() *big.Int {
 }
 
 func (c Calculator) CalcRateBump(time, blockBaseFee *big.Int) int64 {
-	gasBump := c.getGasPriceBump(blockBaseFee)
-	auctionBump := c.getAuctionBump(time)
+	gasBump := c.GetGasPriceBump(blockBaseFee)
+	auctionBump := c.GetAuctionBump(time)
 
 	final := big.NewInt(0)
 	if auctionBump.Cmp(gasBump) > 0 { // auctionBump > gasBump
@@ -66,7 +66,26 @@ func (c Calculator) CalcRateBump(time, blockBaseFee *big.Int) int64 {
 	return final.Int64()
 }
 
-func (c Calculator) getGasPriceBump(blockBaseFee *big.Int) *big.Int {
+// IsOrderAuctionBumpNonIncreasing Same making amount and the taking amount is only stays the same or decreases
+func (c Calculator) IsOrderAuctionBumpNonIncreasing() bool {
+	if len(c.points) == 0 {
+		return true
+	}
+
+	if c.initialRateBump.Int64() < c.points[0].Coefficient {
+		return false
+	}
+
+	for i := 1; i < len(c.points); i++ {
+		if c.points[i-1].Coefficient < c.points[i].Coefficient {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (c Calculator) GetGasPriceBump(blockBaseFee *big.Int) *big.Int {
 	if blockBaseFee.Sign() == 0 || c.gasCost.GasPriceEstimate == 0 || c.gasCost.GasBumpEstimate == 0 {
 		return big.NewInt(0)
 	}
@@ -77,7 +96,7 @@ func (c Calculator) getGasPriceBump(blockBaseFee *big.Int) *big.Int {
 	return gasPriceBump.Div(gasPriceBump, big.NewInt(GasPriceBase))
 }
 
-func (c Calculator) getAuctionBump(blockTime *big.Int) *big.Int {
+func (c Calculator) GetAuctionBump(blockTime *big.Int) *big.Int {
 	auctionFinishTime := c.FinishTime()
 
 	if blockTime.Cmp(c.startTime) <= 0 { // blockTime <= startTime
