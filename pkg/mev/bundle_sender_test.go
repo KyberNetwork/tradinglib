@@ -89,6 +89,72 @@ func TestSendBundle(t *testing.T) {
 	require.NoError(t, sender.CancelBundle(ctx, uuid))
 }
 
+func Ptr[T any](v T) *T {
+	return &v
+}
+
+func TestSendBundleV2(t *testing.T) {
+	t.Skip()
+
+	// Generate a new private key
+	privateKey, err := ecdsa.GenerateKey(crypto.S256(), rand.Reader)
+	if err != nil {
+		t.Error("Failed to generate private key:", err)
+		return
+	}
+	var (
+		endpoint   = "https://bsc.blinklabs.xyz/v1/<API_KEY>"
+		ctx        = context.Background()
+		client     = http.DefaultClient
+		bscChainID = 56
+	)
+	require.NoError(t, err)
+	address := crypto.PubkeyToAddress(privateKey.PublicKey)
+
+	ethClient, err := ethclient.Dial("wss://bsc.kyberengineering.io")
+	require.NoError(t, err)
+
+	head, err := ethClient.HeaderByNumber(ctx, nil)
+	require.NoError(t, err)
+	t.Log("blockNumber", head.Number)
+
+	nonce, err := ethClient.PendingNonceAt(ctx, address)
+	require.NoError(t, err)
+
+	tip, err := convert.FloatToWei(0.3, 18)
+	require.NoError(t, err)
+	fee, err := convert.FloatToWei(1, 18)
+	require.NoError(t, err)
+
+	tx := types.NewTx(&types.DynamicFeeTx{
+		ChainID:   big.NewInt(int64(bscChainID)),
+		Nonce:     nonce,
+		To:        &address,
+		GasTipCap: tip,
+		GasFeeCap: fee,
+		Value:     big.NewInt(1),
+	})
+	signedTx, err := types.SignTx(tx, types.NewLondonSigner(big.NewInt(int64(bscChainID))), privateKey)
+	require.NoError(t, err)
+
+	t.Log("new tx", signedTx.Hash().String())
+
+	uuid := uuid.NewString()
+	require.NoError(t, err)
+	sender, err := mev.NewClient(client, endpoint, privateKey, mev.BundleSenderTypeBlink, false, false)
+	require.NoError(t, err)
+
+	resp, err := sender.SendBundleV2(ctx, mev.SendBundleV2Request{
+		MinTimestamp: Ptr(head.Time + 1),
+		MaxTimestamp: Ptr(head.Time + 5),
+		UUID:         Ptr(uuid),
+	})
+	require.NoError(t, err) // sepolia: code: [-32000], message: [internal server error]
+	t.Log("send bundle response", resp)
+
+	// require.NoError(t, sender.CancelBundle(ctx, uuid))
+}
+
 func TestUnmarshal(t *testing.T) {
 	var (
 		data = "{\"id\":\"1\",\"result\":{\"bundleHash\":\"0xe0e0592348830d57fac820a6bec9fdbf0ac20a2b503351c63217cf8c274b70a8\"},\"jsonrpc\":\"2.0\"}\n" // nolint:lll

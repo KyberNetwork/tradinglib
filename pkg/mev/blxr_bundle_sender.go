@@ -90,6 +90,28 @@ func (s *BloxrouteClient) SendBundle(
 	return s.sendBundle(ctx, p)
 }
 
+func (s *BloxrouteClient) SendBundleV2(
+	ctx context.Context,
+	req SendBundleV2Request,
+	txs ...*types.Transaction,
+) (SendBundleResponse, error) {
+	p := new(BLXRSubmitBundleParams).
+		SetTransactions(txs...)
+
+	if req.BlockNumber != nil {
+		p.SetBlockNumber(*req.BlockNumber)
+	}
+	if req.UUID != nil {
+		p.SetUUID(*req.UUID)
+	}
+
+	if err := p.Err(); err != nil {
+		return SendBundleResponse{}, err
+	}
+
+	return s.sendBundle(ctx, p)
+}
+
 func (s *BloxrouteClient) SendBundleHex(
 	ctx context.Context,
 	uuid *string,
