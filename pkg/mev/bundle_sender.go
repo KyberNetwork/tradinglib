@@ -59,6 +59,40 @@ func (s *Client) SendBundle(
 	return s.sendBundle(ctx, ETHSendBundleMethod, uuid, blockNumber, txs, nil)
 }
 
+func (s *Client) SendBundleV2(
+	ctx context.Context,
+	req SendBundleV2Request,
+	txs ...*types.Transaction,
+) (SendBundleResponse, error) {
+	p := new(SendBundleParams).
+		SetTransactions(txs...)
+
+	if req.UUID != nil {
+		p.SetUUID(*req.UUID, s.senderType)
+	}
+	if req.BlockNumber != nil {
+		p.SetBlockNumber(*req.BlockNumber)
+	}
+	if req.MinTimestamp != nil {
+		p.MinTimestamp = req.MinTimestamp
+	}
+	if req.MaxTimestamp != nil {
+		p.MaxTimestamp = req.MaxTimestamp
+	}
+	if req.RevertingTxs != nil {
+		p.RevertingTxs = req.RevertingTxs
+	}
+	if s.senderType == BundleSenderTypeFlashbot {
+		p = p.SetStateBlockNumber("latest")
+	}
+
+	if err := p.Err(); err != nil {
+		return SendBundleResponse{}, err
+	}
+
+	return s.sendRawBundle(ctx, ETHSendBundleMethod, p)
+}
+
 func (s *Client) SendBundleHex(
 	ctx context.Context,
 	uuid *string,
@@ -201,11 +235,6 @@ func (s *Client) sendBundle(
 	txs []*types.Transaction,
 	hexEncodedTxs []string,
 ) (SendBundleResponse, error) {
-	req := SendRequest{
-		ID:      SendBundleID,
-		JSONRPC: JSONRPC2,
-		Method:  method,
-	}
 	p := new(SendBundleParams).
 		SetBlockNumber(blockNumber).
 		SetTransactions(txs...).
@@ -219,6 +248,16 @@ func (s *Client) sendBundle(
 
 	if uuid != nil {
 		p.SetUUID(*uuid, s.senderType)
+	}
+
+	return s.sendRawBundle(ctx, method, p)
+}
+
+func (s *Client) sendRawBundle(ctx context.Context, method string, p *SendBundleParams) (SendBundleResponse, error) {
+	req := SendRequest{
+		ID:      SendBundleID,
+		JSONRPC: JSONRPC2,
+		Method:  method,
 	}
 
 	req.Params = append(req.Params, p)

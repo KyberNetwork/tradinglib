@@ -104,6 +104,11 @@ type IBundleSender interface {
 		blockNumber uint64,
 		tx ...*types.Transaction,
 	) (SendBundleResponse, error)
+	SendBundleV2(
+		ctx context.Context,
+		req SendBundleV2Request,
+		txs ...*types.Transaction,
+	) (SendBundleResponse, error)
 	SendBundleHex(
 		ctx context.Context,
 		uuid *string,
@@ -356,4 +361,20 @@ func CleanBundleHash(hash string) string {
 	hash = strings.Trim(hash, "\"")
 
 	return hash
+}
+
+type SendBundleV2Request struct {
+	BlockNumber    *uint64 `json:"blockNumber,omitempty"`
+	MaxBlockNumber *uint64 `json:"maxBlockNumber,omitempty"`
+
+	// (Optional) Number, the minimum timestamp for which this bundle is valid, in seconds since the unix epoch
+	MinTimestamp *uint64 `json:"minTimestamp,omitempty"`
+	// (Optional) Number, the maximum timestamp for which this bundle is valid, in seconds since the unix epoch
+	MaxTimestamp *uint64 `json:"maxTimestamp,omitempty"`
+	// (Optional) Array[String], A list of tx hashes that are allowed to revert
+	RevertingTxs *[]string `json:"revertingTxHashes,omitempty"`
+	// (Optional) String, UUID that can be used to cancel/replace this bundle
+	ReplacementUUID *string `json:"ReplacementUuid,omitempty"`
+	// (Optional) String, UUID that can be used to cancel/replace this bundle (For beaverbuild)
+	UUID *string `json:"uuid,omitempty"`
 }
