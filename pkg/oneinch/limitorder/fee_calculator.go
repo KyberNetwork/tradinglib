@@ -112,9 +112,18 @@ func (c FeeCalculator) getFee(taker common.Address) *big.Int {
 	return new(big.Int).SetInt64(Base10000 + resolverFee + integratorFee)
 }
 
+func (c FeeCalculator) getWhitelistFee() *big.Int {
+	resolverFee, integratorFee := c.GetWhitelistFees()
+	return new(big.Int).SetInt64(Base10000 + resolverFee + integratorFee)
+}
+
 // GetTakingAmount https://github.com/1inch/limit-order-sdk/blob/1793d32bd36c6cfea909caafbc15e8023a033249/src/limit-order/extensions/fee-taker/fee-calculator.ts#L13
 func (c FeeCalculator) GetTakingAmount(taker common.Address, orderTakingAmount *big.Int) *big.Int {
 	return util.MulDiv(orderTakingAmount, c.getFee(taker), big.NewInt(Base10000), util.Ceil)
+}
+
+func (c FeeCalculator) GetTakingAmountWhitelist(orderTakingAmount *big.Int) *big.Int {
+	return util.MulDiv(orderTakingAmount, c.getWhitelistFee(), big.NewInt(Base10000), util.Ceil)
 }
 
 // GetMakingAmount https://github.com/1inch/limit-order-sdk/blob/1793d32bd36c6cfea909caafbc15e8023a033249/src/limit-order/extensions/fee-taker/fee-calculator.ts#L23
@@ -129,6 +138,13 @@ func (c FeeCalculator) GetFeesForTaker(taker common.Address) (int64, int64) {
 		discountNumerator = Base10000 - c.fees.Resolver.WhitelistDiscount
 	}
 
+	resolverFee := int64(discountNumerator) * int64(c.fees.Resolver.Fee) / Base10000
+
+	return resolverFee, int64(c.fees.Integrator.Fee)
+}
+
+func (c FeeCalculator) GetWhitelistFees() (int64, int64) {
+	discountNumerator := Base10000 - c.fees.Resolver.WhitelistDiscount
 	resolverFee := int64(discountNumerator) * int64(c.fees.Resolver.Fee) / Base10000
 
 	return resolverFee, int64(c.fees.Integrator.Fee)

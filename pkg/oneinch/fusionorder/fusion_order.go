@@ -37,6 +37,15 @@ func (o FusionOrder) CalcTakingAmount(
 	return o.amountCalculator.GetRequiredTakingAmount(taker, takingAmount, blockTime, baseFee)
 }
 
+func (o FusionOrder) CalcBestTakingAmount(
+	makingAmount *big.Int,
+	blockTime,
+	baseFee *big.Int,
+) *big.Int {
+	takingAmount := util.CalcTakingAmount(makingAmount, o.LimitOrder.MakingAmount, o.LimitOrder.TakingAmount)
+	return o.amountCalculator.GetBestRequiredTakingAmount(takingAmount, blockTime, baseFee)
+}
+
 func (o FusionOrder) CalcMakingAmount(
 	taker common.Address,
 	takingAmount *big.Int,
