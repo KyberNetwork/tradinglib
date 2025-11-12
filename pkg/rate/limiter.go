@@ -31,6 +31,9 @@ func (l *Limiter) Wait(ctx context.Context) error {
 }
 
 func (l *Limiter) WaitN(ctx context.Context, n int) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
 	if n <= 0 {
 		return nil
 	}
@@ -41,26 +44,15 @@ func (l *Limiter) WaitN(ctx context.Context, n int) error {
 
 	now := time.Now()
 
-	// Get the oldest request in queue for waiting and add new requests to queue.
+	// Get the oldest request in queue for waiting.
 	var (
 		shouldWait bool
 		oldest     time.Time
 	)
-
-	l.mu.Lock()
-
-	{
-		if l.requestsSize()+n > l.limit {
-			shouldWait = true
-			oldest, _ = l.requestAt(l.requestsSize() + n - l.limit - 1)
-		}
-
-		for range n {
-			l.addRequest(now)
-		}
+	if l.requestsSize()+n > l.limit {
+		shouldWait = true
+		oldest, _ = l.requestAt(l.requestsSize() + n - l.limit - 1)
 	}
-
-	l.mu.Unlock()
 
 	// Wait if rate limit is reached.
 	if shouldWait {
@@ -71,12 +63,17 @@ func (l *Limiter) WaitN(ctx context.Context, n int) error {
 
 			select {
 			case <-timer.C:
-				return nil
+				// We can proceed.
 			case <-ctx.Done():
 				// Context was canceled before we could proceed.
 				return ctx.Err()
 			}
 		}
+	}
+
+	// Add new requests to queue.
+	for range n {
+		l.addRequest(now)
 	}
 
 	return nil
