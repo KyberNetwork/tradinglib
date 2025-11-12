@@ -68,7 +68,8 @@ func (c AmountCalculator) GetBestRequiredTakingAmount(
 	ts *big.Int,
 	blockBaseFee *big.Int,
 ) *big.Int {
-	return c.getAuctionBumpedAmount(big.NewInt(0), ts, blockBaseFee)
+	withFee := c.feeCalculator.GetTakingAmountWhitelist(takingAmount)
+	return c.getAuctionBumpedAmount(withFee, ts, blockBaseFee)
 }
 
 func (c AmountCalculator) GetRequiredMakingAmount(
