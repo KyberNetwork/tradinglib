@@ -42,8 +42,6 @@ func (l *Limiter) WaitN(ctx context.Context, n int) error {
 		return fmt.Errorf("rate: Wait (n=%d) exceed limiter %d", n, l.limit)
 	}
 
-	now := time.Now()
-
 	// Get the oldest request in queue for waiting.
 	var (
 		shouldWait bool
@@ -56,7 +54,7 @@ func (l *Limiter) WaitN(ctx context.Context, n int) error {
 
 	// Wait if rate limit is reached.
 	if shouldWait {
-		waitDuration := l.period - now.Sub(oldest)
+		waitDuration := l.period - time.Since(oldest)
 		if waitDuration > 0 {
 			timer := time.NewTimer(waitDuration)
 			defer timer.Stop()
@@ -73,7 +71,7 @@ func (l *Limiter) WaitN(ctx context.Context, n int) error {
 
 	// Add new requests to queue.
 	for range n {
-		l.addRequest(now)
+		l.addRequest(time.Now())
 	}
 
 	return nil
