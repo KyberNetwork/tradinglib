@@ -45,13 +45,11 @@ func (l *Limiter) WaitN(ctx context.Context, n int) error {
 	var (
 		shouldWait bool
 		oldest     time.Time
-		period     time.Duration
 	)
 
 	l.mu.Lock()
 
 	{
-		period = l.period
 		if l.requestsSize()+n > l.limit {
 			shouldWait = true
 			oldest, _ = l.requestAt(l.requestsSize() + n - l.limit - 1)
@@ -66,7 +64,7 @@ func (l *Limiter) WaitN(ctx context.Context, n int) error {
 
 	// Wait if rate limit is reached.
 	if shouldWait {
-		waitDuration := period - now.Sub(oldest)
+		waitDuration := l.period - now.Sub(oldest)
 		if waitDuration > 0 {
 			timer := time.NewTimer(waitDuration)
 			defer timer.Stop()
