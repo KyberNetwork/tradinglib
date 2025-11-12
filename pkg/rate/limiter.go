@@ -82,7 +82,7 @@ func (l *Limiter) requestsSize() int {
 }
 
 func (l *Limiter) requestAt(i int) (time.Time, bool) {
-	if l.size == 0 {
+	if i >= l.size {
 		return time.Now(), false
 	}
 
