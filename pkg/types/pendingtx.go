@@ -18,6 +18,7 @@ const (
 	BlinkMempool
 	MerkleMempool
 	BlinkV3Mempool
+	BloxRoute
 )
 
 type Message struct {
@@ -122,7 +123,7 @@ func (m Message) GetAllLogs() []*types.Log {
 			}
 			return results
 		}
-	case MevBlockerMempool, PublicMempool, BlinkMempool, MerkleMempool, BlinkV3Mempool:
+	case MevBlockerMempool, PublicMempool, BlinkMempool, MerkleMempool, BlinkV3Mempool, BloxRoute:
 		if m.InternalTx != nil {
 			return m.InternalTx.getLogs()
 		}
