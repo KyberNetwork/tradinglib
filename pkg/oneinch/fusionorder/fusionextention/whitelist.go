@@ -74,6 +74,17 @@ func (wl Whitelist) CanExecuteAt(executor common.Address, executionTime int64) b
 	return false
 }
 
+func (wl Whitelist) AnyCanExecuteAt(executionTime int64) bool {
+	allowedFrom := wl.ResolvingStartTime
+	for _, item := range wl.Whitelist {
+		allowedFrom += item.Delay
+		if executionTime >= allowedFrom {
+			return true
+		}
+	}
+	return false
+}
+
 func (wl Whitelist) IsExclusivityPeriod(ts int64) bool {
 	size := wl.Length()
 	if size == 0 {
