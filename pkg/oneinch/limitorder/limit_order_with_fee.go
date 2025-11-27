@@ -9,8 +9,8 @@ import (
 
 type LimitOrderWithFee struct {
 	LimitOrder        LimitOrderV4 `json:"limit_order"`
-	extension         Extension
-	feeTakerExtension *FeeTakerExtension
+	Extension         Extension
+	FeeTakerExtension *FeeTakerExtension
 }
 
 func NewLimitOrderWithFee(
@@ -19,7 +19,7 @@ func NewLimitOrderWithFee(
 ) (LimitOrderWithFee, error) {
 	loWithFee := LimitOrderWithFee{
 		LimitOrder: limitOrder,
-		extension:  extension,
+		Extension:  extension,
 	}
 
 	if extension.IsEmpty() {
@@ -29,7 +29,7 @@ func NewLimitOrderWithFee(
 	if err != nil {
 		return LimitOrderWithFee{}, err
 	}
-	loWithFee.feeTakerExtension = &feeTakerExtension
+	loWithFee.FeeTakerExtension = &feeTakerExtension
 	return loWithFee, nil
 }
 
@@ -38,10 +38,10 @@ func (l LimitOrderWithFee) CalcTakingAmount(
 	makingAmount *big.Int,
 ) *big.Int {
 	takingAmount := l.LimitOrder.CalcTakingAmount(makingAmount)
-	if l.feeTakerExtension == nil {
+	if l.FeeTakerExtension == nil {
 		return takingAmount
 	}
-	return l.feeTakerExtension.GetTakingAmount(taker, takingAmount)
+	return l.FeeTakerExtension.GetTakingAmount(taker, takingAmount)
 }
 
 func (l LimitOrderWithFee) CalcMakingAmount(
@@ -49,15 +49,15 @@ func (l LimitOrderWithFee) CalcMakingAmount(
 	takingAmount *big.Int,
 ) *big.Int {
 	makingAmount := util.CalcMakingAmount(takingAmount, l.LimitOrder.MakingAmount, l.LimitOrder.TakingAmount)
-	if l.feeTakerExtension == nil {
+	if l.FeeTakerExtension == nil {
 		return makingAmount
 	}
-	return l.feeTakerExtension.GetMakingAmount(taker, makingAmount)
+	return l.FeeTakerExtension.GetMakingAmount(taker, makingAmount)
 }
 
 func (l LimitOrderWithFee) GetFee(taker common.Address) (int64, int64) {
-	if l.feeTakerExtension == nil {
+	if l.FeeTakerExtension == nil {
 		return 0, 0
 	}
-	return l.feeTakerExtension.feeCalculator.GetFeesForTaker(taker)
+	return l.FeeTakerExtension.feeCalculator.GetFeesForTaker(taker)
 }
