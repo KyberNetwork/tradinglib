@@ -39,6 +39,7 @@ const (
 	BundleSenderTypeBuilderNet
 	BundleSenderTypeBTCS
 	BundleSenderTypeL2
+	BundleSenderTypeBloxrouteBackrunme
 )
 
 const (
