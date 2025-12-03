@@ -114,6 +114,7 @@ func (m FlashbotMevShareSender) SendBackrunBundle(
 }
 
 func (m FlashbotMevShareSender) MevSimulateBundle(
+	_ context.Context,
 	blockNumber uint64,
 	pendingTxHash common.Hash,
 	tx *types.Transaction,

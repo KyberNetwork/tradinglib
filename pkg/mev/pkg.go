@@ -39,6 +39,7 @@ const (
 	BundleSenderTypeBuilderNet
 	BundleSenderTypeBTCS
 	BundleSenderTypeL2
+	BundleSenderTypeBloxrouteBackrunme
 )
 
 const (
@@ -90,6 +91,7 @@ type IBackrunSender interface {
 	) (SendBundleResponse, error)
 	// MevSimulateBundle only use for backrun simulate with pending tx hash
 	MevSimulateBundle(
+		ctx context.Context,
 		blockNumber uint64,
 		pendingTxHash common.Hash,
 		tx *types.Transaction,
