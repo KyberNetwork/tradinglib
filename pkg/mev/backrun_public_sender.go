@@ -96,6 +96,7 @@ func (b BackrunPublicClient) SendBackrunBundle(
 }
 
 func (b BackrunPublicClient) MevSimulateBundle(
+	_ context.Context,
 	_ uint64, _ common.Hash, _ *types.Transaction,
 ) (*mevshare.SimMevBundleResponse, error) {
 	return nil, ErrMethodNotSupport
