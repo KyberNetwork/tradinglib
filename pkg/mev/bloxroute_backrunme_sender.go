@@ -91,9 +91,27 @@ func NewBloxrouteBackrunmeSender(authHeader, endpoint string) (*BloxrouteBackrun
 		endpoint = DefaultEndpoint
 	}
 
+	/*
+			curl https://backrunme.blxrbdn.com \
+		    --insecure \
+		    -X POST \
+		    -H "Content-Type: application/json" \
+		    -H "Authorization: <YOUR-AUTHORIZATION-HEADER>" \
+		    -d '{"method": "simulate_arb_only_bundle",
+		         "id": "1",
+		         "params": {
+		            "transaction_hash": "ab..ab"
+		            "transaction": ["cd..cd", "ef..ef"],
+		            "block_number": "0xba10d0",
+		            "state_block_number": "latest",
+		            "timestamp": 1617806320
+		         }
+		        }'
+	*/
 	// Create HTTP client with insecure TLS (as shown in curl --insecure)
 	httpClient := &http.Client{
 		Transport: &http.Transport{
+			// nolint:gosec
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
 	}

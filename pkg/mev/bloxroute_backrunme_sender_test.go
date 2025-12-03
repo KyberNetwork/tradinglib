@@ -1,9 +1,10 @@
-package mev
+package mev_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/KyberNetwork/tradinglib/pkg/mev"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/stretchr/testify/require"
@@ -12,7 +13,7 @@ import (
 func TestBloxrouteBackrunmeSender_SendBackrunBundle(t *testing.T) {
 	t.Skip()
 
-	sender, err := NewBloxrouteBackrunmeSender("YzJjNTM5MDAtMmZiYy00M2Q0LTkyNGMtYTU3YTk4NzUwZDJlOmZjMDFmOTIxMjZhYmFlOGE0MjRmYmJlNzU1ZGYwMzBh", "https://backrunme.blxrbdn.com")
+	sender, err := mev.NewBloxrouteBackrunmeSender("YzJjNTM5MDAtMmZiYy00M2Q0LTkyNGMtYTU3YTk4NzUwZDJlOmZjMDFmOTIxMjZhYmFlOGE0MjRmYmJlNzU1ZGYwMzBh", "https://backrunme.blxrbdn.com")
 	require.NoError(t, err)
 
 	ethClient, err := ethclient.Dial("https://ethereum-rpc.publicnode.com")
