@@ -13,7 +13,7 @@ import (
 func TestBloxrouteBackrunmeSender_SendBackrunBundle(t *testing.T) {
 	t.Skip()
 
-	sender, err := mev.NewBloxrouteBackrunmeSender("YzJjNTM5MDAtMmZiYy00M2Q0LTkyNGMtYTU3YTk4NzUwZDJlOmZjMDFmOTIxMjZhYmFlOGE0MjRmYmJlNzU1ZGYwMzBh", "https://backrunme.blxrbdn.com")
+	sender, err := mev.NewBloxrouteBackrunmeSender("your_token", "https://backrunme.blxrbdn.com")
 	require.NoError(t, err)
 
 	ethClient, err := ethclient.Dial("https://ethereum-rpc.publicnode.com")
