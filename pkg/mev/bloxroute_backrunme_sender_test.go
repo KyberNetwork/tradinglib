@@ -10,9 +10,9 @@ import (
 )
 
 func TestBloxrouteBackrunmeSender_SendBackrunBundle(t *testing.T) {
-	t.Skip()
+	// t.Skip()
 
-	sender, err := NewBloxrouteBackrunmeSender("YzJjNTM5MDAtMmZiYy00M2Q0LTkyNGMtYTU3YTk4NzUwZDJlOmZjMDFmOTIxMjZhYmFlOGE0MjRmYmJlNzU1ZGYwMzBh", "ws://136.110.55.11:63821/ws")
+	sender, err := NewBloxrouteBackrunmeSender("YzJjNTM5MDAtMmZiYy00M2Q0LTkyNGMtYTU3YTk4NzUwZDJlOmZjMDFmOTIxMjZhYmFlOGE0MjRmYmJlNzU1ZGYwMzBh", "https://backrunme.blxrbdn.com")
 	require.NoError(t, err)
 
 	ethClient, err := ethclient.Dial("https://ethereum-rpc.publicnode.com")
