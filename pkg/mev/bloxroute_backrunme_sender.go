@@ -12,6 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/flashbots/mev-share-node/mevshare"
 )
 
 type BloxrouteBackrunmeSender struct {
@@ -196,11 +197,11 @@ func (s *BloxrouteBackrunmeSender) MevSimulateBundle(
 	blockNumber uint64,
 	pendingTxHash common.Hash,
 	tx *types.Transaction,
-) (SendBundleResponse, error) {
+) (*mevshare.SimMevBundleResponse, error) {
 	// Encode backrun transaction (without 0x prefix as per API spec)
 	txBin, err := tx.MarshalBinary()
 	if err != nil {
-		return SendBundleResponse{}, fmt.Errorf("marshal tx: %w", err)
+		return nil, fmt.Errorf("marshal tx: %w", err)
 	}
 	hexTx := hexutil.Encode(txBin)
 	// Remove 0x prefix as required by the API
@@ -225,13 +226,13 @@ func (s *BloxrouteBackrunmeSender) MevSimulateBundle(
 	// Marshal request body
 	reqBody, err := json.Marshal(req)
 	if err != nil {
-		return SendBundleResponse{}, fmt.Errorf("marshal simulate request: %w", err)
+		return nil, fmt.Errorf("marshal simulate request: %w", err)
 	}
 
 	// Create HTTP request
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, s.endpoint, bytes.NewBuffer(reqBody))
 	if err != nil {
-		return SendBundleResponse{}, fmt.Errorf("create simulate http request: %w", err)
+		return nil, fmt.Errorf("create simulate http request: %w", err)
 	}
 
 	// Set headers
@@ -241,32 +242,32 @@ func (s *BloxrouteBackrunmeSender) MevSimulateBundle(
 	// Send request
 	resp, err := s.httpClient.Do(httpReq)
 	if err != nil {
-		return SendBundleResponse{}, fmt.Errorf("send simulate http request: %w", err)
+		return nil, fmt.Errorf("send simulate http request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	// Parse response
 	var simResp simulateResponse
 	if err := json.NewDecoder(resp.Body).Decode(&simResp); err != nil {
-		return SendBundleResponse{}, fmt.Errorf("decode simulate response: %w", err)
+		return nil, fmt.Errorf("decode simulate response: %w", err)
 	}
 
 	// Check for errors
 	if simResp.Error != nil && simResp.Error.Message != "" {
-		return SendBundleResponse{}, fmt.Errorf("simulate error [%d]: %s",
+		return nil, fmt.Errorf("simulate error [%d]: %s",
 			simResp.Error.Code, simResp.Error.Message)
 	}
 
 	// Check simulation status
 	if simResp.Result.Status != "good" {
-		return SendBundleResponse{}, fmt.Errorf("simulation status not good: %s", simResp.Result.Status)
+		return nil, fmt.Errorf("simulation status not good: %s", simResp.Result.Status)
 	}
 
 	// Return simulation result as bundle hash for consistency
-	return SendBundleResponse{
-		Result: SendBundleResult{
-			BundleHash: simResp.Result.BundleHash,
-		},
+	return &mevshare.SimMevBundleResponse{
+		Success:    true,
+		StateBlock: hexutil.Uint64(simResp.Result.StateBlockNumber),
+		GasUsed:    hexutil.Uint64(simResp.Result.TotalGasUsed),
 	}, nil
 }
 
