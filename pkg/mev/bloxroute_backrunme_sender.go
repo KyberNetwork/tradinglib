@@ -80,9 +80,15 @@ type backrunmeResponseError struct {
 	Message string `json:"message"`
 }
 
+const (
+	DefaultEndpoint             = "https://backrunme.blxrbdn.com"
+	SubmitArbOnlyBundleMethod   = "submit_arb_only_bundle"
+	SimulateArbOnlyBundleMethod = "simulate_arb_only_bundle"
+)
+
 func NewBloxrouteBackrunmeSender(authHeader, endpoint string) (*BloxrouteBackrunmeSender, error) {
 	if endpoint == "" {
-		endpoint = "https://backrunme.blxrbdn.com"
+		endpoint = DefaultEndpoint
 	}
 
 	// Create HTTP client with insecure TLS (as shown in curl --insecure)
@@ -145,7 +151,7 @@ func (s *BloxrouteBackrunmeSender) SendBackrunBundle(
 
 	// Build request
 	req := backrunmeRequest{
-		Method: "submit_arb_only_bundle",
+		Method: SubmitArbOnlyBundleMethod,
 		ID:     "1",
 		Params: params,
 	}
@@ -218,8 +224,8 @@ func (s *BloxrouteBackrunmeSender) MevSimulateBundle(
 
 	// Build request
 	req := backrunmeRequest{
-		Method: "simulate_arb_only_bundle",
-		ID:     "1",
+		Method: SimulateArbOnlyBundleMethod,
+		ID:     tx.ChainId().String(),
 		Params: params,
 	}
 
