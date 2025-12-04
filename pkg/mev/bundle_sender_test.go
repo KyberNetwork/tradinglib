@@ -72,7 +72,7 @@ func TestSendBundle(t *testing.T) {
 
 	uuid := uuid.NewString()
 	require.NoError(t, err)
-	sender, err := mev.NewClient(client, endpoint, privateKey, mev.BundleSenderTypeFlashbot, false, false)
+	sender, err := mev.NewClient(client, endpoint, privateKey, mev.BundleSenderTypeFlashbot, false)
 	require.NoError(t, err)
 
 	resp, err := sender.SendBundle(ctx, &uuid, blockNumber+12, signedTx)
@@ -141,7 +141,7 @@ func TestSendBundleV2(t *testing.T) {
 
 	uuid := uuid.NewString()
 	require.NoError(t, err)
-	sender, err := mev.NewClient(client, endpoint, privateKey, mev.BundleSenderTypeBlink, false, false)
+	sender, err := mev.NewClient(client, endpoint, privateKey, mev.BundleSenderTypeBlink, false)
 	require.NoError(t, err)
 
 	resp, err := sender.SendBundleV2(ctx, mev.SendBundleV2Request{
@@ -175,7 +175,7 @@ func TestCancelBeaver(t *testing.T) {
 		bundleUUID = uuid.New().String()
 	)
 
-	sender, err := mev.NewClient(client, endpoint, nil, mev.BundleSenderTypeBeaver, true, false)
+	sender, err := mev.NewClient(client, endpoint, nil, mev.BundleSenderTypeBeaver, true)
 	require.NoError(t, err)
 
 	require.NoError(t, sender.CancelBundle(ctx, bundleUUID))
@@ -220,7 +220,7 @@ func Test_SimulateBundle(t *testing.T) {
 
 	client, err := mev.NewClient(http.DefaultClient,
 		simulationEndpoint, privateKey,
-		mev.BundleSenderTypeFlashbot, false, false)
+		mev.BundleSenderTypeFlashbot, false)
 	require.NoError(t, err)
 
 	simulationResponse, err := client.SimulateBundle(context.Background(), uint64(blockNumber), txs...) // nolint:gosec
@@ -363,7 +363,7 @@ func TestClient_GetBundleStats(t *testing.T) {
 
 	client, err := mev.NewClient(http.DefaultClient,
 		SimulationEndpoint, fbSigningKey,
-		mev.BundleSenderTypeFlashbot, false, false)
+		mev.BundleSenderTypeFlashbot, false)
 	require.NoError(t, err)
 	// Get bundle stats
 	stats, err := client.GetBundleStats(context.Background(), blockNumber+1, res.BundleHash)
@@ -397,7 +397,6 @@ func TestGetUserStats(t *testing.T) {
 		endpoint,
 		privateKey,
 		mev.BundleSenderTypeTitan,
-		false,
 		false,
 	)
 	require.NoError(t, err)

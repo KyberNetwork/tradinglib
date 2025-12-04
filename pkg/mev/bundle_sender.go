@@ -19,12 +19,12 @@ import (
 // Client https://beaverbuild.org/docs.html; https://rsync-builder.xyz/docs;
 // https://docs.flashbots.net/flashbots-auction/advanced/rpc-endpoint#eth_sendbundle
 type Client struct {
-	c                    *http.Client
-	endpoint             string
-	flashbotKey          *ecdsa.PrivateKey
-	cancelBySendBundle   bool
-	senderType           BundleSenderType
-	enableSendPrivateRaw bool
+	c                  *http.Client
+	endpoint           string
+	flashbotKey        *ecdsa.PrivateKey
+	cancelBySendBundle bool
+	senderType         BundleSenderType
+	opts               newBundleSendleClientOptions
 }
 
 // NewClient set the flashbotKey to nil will skip adding the signature header.
@@ -34,15 +34,23 @@ func NewClient(
 	flashbotKey *ecdsa.PrivateKey,
 	senderType BundleSenderType,
 	cancelBySendBundle bool,
-	enableSendPrivateRaw bool,
+	opts ...NewBundleSendleClientOption,
 ) (*Client, error) {
+	var options newBundleSendleClientOptions
+	for i := range opts {
+		if opts[i] == nil {
+			continue
+		}
+		options = opts[i](options)
+	}
+
 	return &Client{
-		c:                    c,
-		endpoint:             endpoint,
-		flashbotKey:          flashbotKey,
-		cancelBySendBundle:   cancelBySendBundle,
-		senderType:           senderType,
-		enableSendPrivateRaw: enableSendPrivateRaw,
+		c:                  c,
+		endpoint:           endpoint,
+		flashbotKey:        flashbotKey,
+		cancelBySendBundle: cancelBySendBundle,
+		senderType:         senderType,
+		opts:               options,
 	}, nil
 }
 
@@ -242,6 +250,9 @@ func (s *Client) sendBundle(
 	if s.senderType == BundleSenderTypeFlashbot {
 		p = p.SetStateBlockNumber("latest")
 	}
+	if s.opts.builderNetRefundAddress != "" {
+		p = p.SetBuilderNetRefundAddress(s.opts.builderNetRefundAddress)
+	}
 	if err := p.Err(); err != nil {
 		return SendBundleResponse{}, err
 	}
@@ -312,7 +323,7 @@ func (s *Client) SendPrivateRawTransaction(
 	ctx context.Context,
 	tx *types.Transaction,
 ) (SendPrivateRawTransactionResponse, error) {
-	if !s.enableSendPrivateRaw {
+	if !s.opts.enableSendPrivateRaw {
 		return SendPrivateRawTransactionResponse{}, nil
 	}
 
@@ -474,6 +485,15 @@ type SendBundleParams struct {
 	UUID             string `json:"uuid,omitempty"`
 	StateBlockNumber string `json:"stateBlockNumber,omitempty"`
 
+	// A boolean, defaults to true since 1st May, 2025.
+	// If set to false, transactions may not be forwarded to BuilderNet for improved inclusion.
+	// Transactions forwarded to BuilderNet become eligible for refunds if builderNetRefundAddress is set.
+	AllowBuilderNetRefunds bool `json:"allowBuilderNetRefunds"`
+	// Optional. You can specify an address that will receive builderNet refunds in ETH
+	// when allowBuilderNetRefunds is not false.
+	// From 3rd November, 2025: must be set explicitly to be eligible for refunds.
+	BuilderNetRefundAddress string `json:"builderNetRefundAddress"`
+
 	Errors []error `json:"-"` // check when building bundle
 }
 
@@ -555,6 +575,13 @@ func (p *SendBundleParams) SetUUID(uuid string, senderType BundleSenderType) *Se
 		return p
 	}
 	p.ReplacementUUID = uuid
+
+	return p
+}
+
+func (p *SendBundleParams) SetBuilderNetRefundAddress(addr string) *SendBundleParams {
+	p.AllowBuilderNetRefunds = true
+	p.BuilderNetRefundAddress = addr
 
 	return p
 }
