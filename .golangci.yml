@@ -28,6 +28,7 @@ linters:
     - wrapcheck
     - wsl
     - wsl_v5
+    - noinlineerr
   settings:
     cyclop:
       max-complexity: 15
