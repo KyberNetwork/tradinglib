@@ -40,6 +40,7 @@ type Message struct {
 	Type                  *big.Int                     `json:"type"`
 	FlashbotMevshareEvent *FlashbotMevshareEvent       `json:"flashbot_mevshare_event,omitempty"`
 	Logs                  []SimulatedPrivateMempoolLog `json:"logs,omitempty"`
+	ExtraData             string                       `json:"extra_data"`
 }
 
 type Prestate struct {
