@@ -1,5 +1,7 @@
 package list
 
+import "fmt"
+
 const (
 	defaultInitSize = 4
 	resizeFactor    = 1.5
@@ -115,4 +117,19 @@ func (r *Ring[T]) expand(newSize int) {
 	r.items = newSlice
 	r.writeIdx = r.itemCount
 	r.tailIdx = 0
+}
+
+func (r *Ring[T]) Log() {
+	i := r.tailIdx
+	for {
+		fmt.Printf("%v ", r.items[i])
+		i++
+		if i >= len(r.items) {
+			i = 0
+		}
+		if i == r.tailIdx {
+			break
+		}
+	}
+	fmt.Println("")
 }

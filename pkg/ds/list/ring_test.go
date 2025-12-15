@@ -23,6 +23,7 @@ func TestCycleBuffer(t *testing.T) {
 		return item < 5
 	})
 	assert.Equal(t, list.List[int]{5, 6, 7}, c.Filter(func(e int) bool { return true }))
+	c.Log()
 }
 
 func TestList(t *testing.T) {
