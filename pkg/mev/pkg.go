@@ -40,6 +40,7 @@ const (
 	BundleSenderTypeBTCS
 	BundleSenderTypeL2
 	BundleSenderTypeBloxrouteBackrunme
+	BundleSenderTypePublicMempool
 )
 
 const (
