@@ -20,11 +20,13 @@ func TestBaseChainSender_SendRawTransaction(t *testing.T) {
 
 	// Create HTTP client
 	httpClient := &http.Client{Timeout: time.Second * 30}
+	rpc := "https://mainnet.base.org"
+	chainID := int64(8453)
 
 	// Initialize BaseChainSender with Base mainnet RPC
 	sender := mev.NewL2ChainSender(
 		httpClient,
-		"https://mainnet.base.org",
+		rpc,
 		mev.BundleSenderTypeL2,
 	)
 
@@ -37,7 +39,7 @@ func TestBaseChainSender_SendRawTransaction(t *testing.T) {
 	require.NoError(t, err)
 
 	// Connect to Base mainnet to get current gas price and nonce
-	ethClient, err := ethclient.Dial("https://mainnet.base.org")
+	ethClient, err := ethclient.Dial(rpc)
 	require.NoError(t, err)
 
 	fromAddress := crypto.PubkeyToAddress(privateKey.PublicKey)
@@ -53,15 +55,15 @@ func TestBaseChainSender_SendRawTransaction(t *testing.T) {
 	gasLimit := uint64(21000)                                                      // Standard ETH transfer gas
 
 	// Get chain ID for Base mainnet (8453)
-	chainID, err := ethClient.ChainID(context.Background())
+	cID, err := ethClient.ChainID(context.Background())
 	require.NoError(t, err)
-	require.Equal(t, int64(8453), chainID.Int64()) // Base mainnet chain ID
+	require.Equal(t, chainID, cID.Int64()) // Base mainnet chain ID
 
 	// Create transaction
 	tx := types.NewTransaction(nonce, toAddress, value, gasLimit, gasPrice, nil)
 
 	// Sign transaction
-	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKey)
+	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(cID), privateKey)
 	require.NoError(t, err)
 
 	// Send transaction using BaseChainSender
