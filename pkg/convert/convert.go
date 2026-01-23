@@ -66,6 +66,7 @@ func WeiToFloat(amount *big.Int, decimals int64) float64 {
 	output, _ := amountFloat.Float64()
 	return output
 }
+
 // WeiToFloatDecimal similar to WeiToFloat but use decimal int, slower but more precision
 func WeiToFloatDecimal(amount *big.Int, decimals int64) float64 {
 	d1 := decimal.NewFromBigInt(amount, 0)
