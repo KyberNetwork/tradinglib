@@ -16,12 +16,30 @@ var (
 )
 
 const (
-	maxBPS = 10000
+	exp10PrebuildSize = 20
+	maxBPS            = 10000
 )
+
+var exps10 = buildCalculateExp10(exp10PrebuildSize)
+
+func buildCalculateExp10(n int64) []*big.Int {
+	res := make([]*big.Int, n)
+	for i := int64(0); i < n; i++ {
+		res[i] = exp10(i)
+	}
+	return res
+}
+
+func exp10(n int64) *big.Int {
+	return new(big.Int).Exp(big.NewInt(10), big.NewInt(n), nil)
+}
 
 // Exp10 ...
 func Exp10(n int64) *big.Int {
-	return new(big.Int).Exp(big.NewInt(10), big.NewInt(n), nil) // nolint: gomnd
+	if n < exp10PrebuildSize {
+		return exps10[n]
+	}
+	return new(big.Int).Exp(big.NewInt(10), big.NewInt(n), nil)
 }
 
 func BPS(amount *big.Int, bps int64) *big.Int {
@@ -47,6 +65,12 @@ func WeiToFloat(amount *big.Int, decimals int64) float64 {
 	amountFloat.Quo(amountFloat, new(big.Float).SetInt(Exp10(decimals)))
 	output, _ := amountFloat.Float64()
 	return output
+}
+// WeiToFloatDecimal similar to WeiToFloat but use decimal int, slower but more precision
+func WeiToFloatDecimal(amount *big.Int, decimals int64) float64 {
+	d1 := decimal.NewFromBigInt(amount, 0)
+	v, _ := d1.Div(decimal.NewFromBigInt(Exp10(decimals), 0)).Float64()
+	return v
 }
 
 // FloatToWei ...
