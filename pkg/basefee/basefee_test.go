@@ -1,10 +1,11 @@
-package basefee
+package basefee_test
 
 import (
 	"context"
 	"math/big"
 	"testing"
 
+	"github.com/KyberNetwork/tradinglib/pkg/basefee"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/stretchr/testify/assert"
 )
@@ -50,7 +51,7 @@ func TestCalculateNextBaseFee(t *testing.T) {
 			assert.NoError(t, err, "Failed to connect to Ethereum client")
 			head, err := ethClient.HeaderByNumber(ctx, tc.blockNumber)
 			assert.NoError(t, err, "Failed to get block header", tc.rpcURL)
-			nextBaseFee, err := CalcNextBaseFee(tc.chainID, head)
+			nextBaseFee, err := basefee.CalcNextBaseFee(tc.chainID, head)
 			assert.NoError(t, err)
 			nextHead, err := ethClient.HeaderByNumber(ctx, new(big.Int).Add(head.Number, big.NewInt(1)))
 			assert.NoError(t, err, "Failed to get next block header")
