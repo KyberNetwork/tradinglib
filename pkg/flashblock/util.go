@@ -3,7 +3,7 @@ package flashblock
 import (
 	"bytes"
 	"io"
-	
+
 	"github.com/andybalholm/brotli"
 )
 
