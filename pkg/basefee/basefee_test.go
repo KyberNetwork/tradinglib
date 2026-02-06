@@ -11,7 +11,6 @@ import (
 
 func TestCalculateNextBaseFee(t *testing.T) {
 	t.Skip()
-	t.Parallel()
 	testCases := []struct {
 		name        string
 		rpcURL      string

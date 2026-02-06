@@ -61,6 +61,7 @@ linters:
       - third_party$
       - builtin$
       - examples$
+      - pkg/basefee/op-geth/
 formatters:
   enable:
     - gci
@@ -73,3 +74,4 @@ formatters:
       - third_party$
       - builtin$
       - examples$
+      - pkg/basefee/op-geth/
