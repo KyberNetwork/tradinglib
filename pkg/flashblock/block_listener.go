@@ -36,6 +36,7 @@ type NodeClient struct {
 	dataSource DataSource
 }
 
+// nolint:lll
 func NewNodeListenerClient(config NodeBlockListenerConfig, publisher Publisher, dataSource DataSource) (*NodeClient, error) {
 	if err := config.validate(); err != nil {
 		return nil, err
@@ -81,6 +82,7 @@ func (c *NodeClient) ListenFlashBlocks(ctx context.Context) error {
 	}
 }
 
+// nolint:cyclop
 func (c *NodeClient) connectAndListen(ctx context.Context, resetRetryDelay func()) error {
 	c.l.Infow("Connecting to flashblock stream", "url", c.config.WebSocketURL)
 

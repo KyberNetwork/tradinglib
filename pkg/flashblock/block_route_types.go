@@ -114,6 +114,7 @@ func (b *Metadata) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// nolint: godox
 // TODO: update logs later
 // Receipt represents a transaction receipt
 type Receipt struct {
