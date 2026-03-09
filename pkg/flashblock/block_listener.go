@@ -17,6 +17,7 @@ const (
 
 type NodeBlockListenerConfig struct {
 	WebSocketURL string
+	AuthHeader   string
 }
 
 func (c NodeBlockListenerConfig) validate() error {
@@ -28,21 +29,23 @@ func (c NodeBlockListenerConfig) validate() error {
 }
 
 type NodeClient struct {
-	config    NodeBlockListenerConfig
-	l         *zap.SugaredLogger
-	conn      *websocket.Conn
-	publisher Publisher
+	config     NodeBlockListenerConfig
+	l          *zap.SugaredLogger
+	conn       *websocket.Conn
+	publisher  Publisher
+	dataSource DataSource
 }
 
-func NewNodeListenerClient(config NodeBlockListenerConfig, publisher Publisher) (*NodeClient, error) {
+func NewNodeListenerClient(config NodeBlockListenerConfig, publisher Publisher, dataSource DataSource) (*NodeClient, error) {
 	if err := config.validate(); err != nil {
 		return nil, err
 	}
 
 	return &NodeClient{
-		config:    config,
-		l:         zap.S().Named("block-listener"),
-		publisher: publisher,
+		config:     config,
+		l:          zap.S().Named("block-listener"),
+		publisher:  publisher,
+		dataSource: dataSource,
 	}, nil
 }
 
@@ -81,7 +84,12 @@ func (c *NodeClient) ListenFlashBlocks(ctx context.Context) error {
 func (c *NodeClient) connectAndListen(ctx context.Context, resetRetryDelay func()) error {
 	c.l.Infow("Connecting to flashblock stream", "url", c.config.WebSocketURL)
 
-	conn, _, err := websocket.DefaultDialer.Dial(c.config.WebSocketURL, nil)
+	header := make(map[string][]string)
+	if c.config.AuthHeader != "" {
+		header["Authorization"] = []string{c.config.AuthHeader}
+	}
+
+	conn, _, err := websocket.DefaultDialer.Dial(c.config.WebSocketURL, header)
 	if err != nil {
 		return fmt.Errorf("failed to connect to WebSocket: %w", err)
 	}
@@ -153,7 +161,7 @@ func (c *NodeClient) connectAndListen(ctx context.Context, resetRetryDelay func(
 				continue
 			}
 
-			if err := c.publisher.Publish(ctx, NodeDataSource, flashBlock); err != nil {
+			if err := c.publisher.Publish(ctx, c.dataSource, flashBlock); err != nil {
 				c.l.Errorw("Error publishing flashblock", "error", err)
 			}
 		}

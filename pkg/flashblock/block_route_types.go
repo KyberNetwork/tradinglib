@@ -114,11 +114,14 @@ func (b *Metadata) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// TODO: update logs later
 // Receipt represents a transaction receipt
 type Receipt struct {
 	Eip1559 *Eip1559Receipt `json:"Eip1559,omitempty"`
 	Legacy  *LegacyReceipt  `json:"Legacy,omitempty"`
 	Deposit *DepositReceipt `json:"Deposit,omitempty"`
+	Status  string          `json:"status"`
+	Type    string          `json:"type"`
 }
 
 // Eip1559Receipt represents an EIP-1559 transaction receipt
