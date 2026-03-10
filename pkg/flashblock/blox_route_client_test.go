@@ -13,7 +13,6 @@ import (
 var (
 	bloxRouteWsUrl = "wss://base.blxrbdn.com:5005/ws"
 	authHeader     = os.Getenv("AUTH_HEADER")
-	nodeWsUrl      = os.Getenv("NODE_WS_URL")
 )
 
 type logPublisher struct {
