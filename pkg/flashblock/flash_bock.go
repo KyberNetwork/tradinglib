@@ -38,7 +38,6 @@ type FlashblockMeta struct {
 	Receipts           map[common.Hash]*Receipt        `json:"receipts"`
 }
 
-// --- Unmarshal Implementations ---
 func (b *FlashblockBase) UnmarshalJSON(data []byte) error {
 	type Alias FlashblockBase
 	aux := &struct {
