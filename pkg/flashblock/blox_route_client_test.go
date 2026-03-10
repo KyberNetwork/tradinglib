@@ -1,3 +1,4 @@
+// nolint: testpackage
 package flashblock
 
 import (
@@ -12,6 +13,7 @@ import (
 var (
 	bloxRouteWsUrl = "wss://base.blxrbdn.com:5005/ws"
 	authHeader     = os.Getenv("AUTH_HEADER")
+	nodeWsUrl      = os.Getenv("NODE_WS_URL")
 )
 
 type logPublisher struct {
@@ -46,7 +48,7 @@ func TestListenFlashBlock(t *testing.T) {
 	defer cancel()
 
 	err = client.ListenFlashBlock(ctx)
-	if err != nil && err != context.DeadlineExceeded {
+	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 }
@@ -74,7 +76,7 @@ func TestListenParsedBdnFlashBlock(t *testing.T) {
 	defer cancel()
 
 	err = client.ListenParsedBdnFlashBlock(ctx)
-	if err != nil && err != context.DeadlineExceeded {
+	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 }

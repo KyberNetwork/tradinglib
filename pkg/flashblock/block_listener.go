@@ -72,7 +72,7 @@ func (c *NodeClient) ListenFlashBlocks(ctx context.Context) error {
 				return nil
 			}
 
-			c.l.Warnw("Retrying in %s...", "wait", retryWait)
+			c.l.Warnw("Retrying in", "wait", retryWait)
 			time.Sleep(retryWait)
 			retryWait *= 2
 			if retryWait > maxRetryWait {
