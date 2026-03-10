@@ -15,6 +15,10 @@ import (
 // GetParsedBdnFlashBlockStreamRequest is the request message
 type GetParsedBdnFlashBlockStreamRequest struct{}
 
+type GetBdnFlashBlockStreamResponse struct {
+	BdnFlashBlock []byte `json:"bdnFlashBlock"`
+}
+
 // GetParsedBdnFlashBlockStreamResponse represents a parsed flashblock response
 type GetParsedBdnFlashBlockStreamResponse struct {
 	PayloadId string    `json:"payloadId"`
