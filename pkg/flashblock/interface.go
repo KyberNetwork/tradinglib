@@ -12,5 +12,5 @@ const (
 )
 
 type Publisher interface {
-	Publish(ctx context.Context, source DataSource, data Flashblock) error
+	PublishFlashBlock(ctx context.Context, source DataSource, data Flashblock) error
 }

@@ -283,9 +283,9 @@ func (c *Client) processParsedFlashblock(ctx context.Context, data []byte) {
 		c.l.Errorw("Error converting bloxroute flashblock", "error", err, "blockNumber", blockNumber, "index", response.Params.Result.Index)
 		return
 	}
-	// Publish the flashblock data to subscribers
+	// PublishFlashBlock the flashblock data to subscribers
 	if c.publisher != nil {
-		if err := c.publisher.Publish(ctx, BloxRouteDataSource, flashBlock); err != nil {
+		if err := c.publisher.PublishFlashBlock(ctx, BloxRouteDataSource, flashBlock); err != nil {
 			c.l.Errorw("Failed to publish flashblock", "error", err, "blockNumber", blockNumber)
 		}
 	}
@@ -329,7 +329,7 @@ func (c *Client) processFlashBlock(ctx context.Context, data []byte) {
 		return
 	}
 
-	if err := c.publisher.Publish(ctx, BloxRouteDataSource, flashBlock); err != nil {
+	if err := c.publisher.PublishFlashBlock(ctx, BloxRouteDataSource, flashBlock); err != nil {
 		c.l.Errorw("Error publishing flashblock", "error", err)
 	}
 }

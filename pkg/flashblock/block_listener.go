@@ -163,7 +163,7 @@ func (c *NodeClient) connectAndListen(ctx context.Context, resetRetryDelay func(
 				continue
 			}
 
-			if err := c.publisher.Publish(ctx, c.dataSource, flashBlock); err != nil {
+			if err := c.publisher.PublishFlashBlock(ctx, c.dataSource, flashBlock); err != nil {
 				c.l.Errorw("Error publishing flashblock", "error", err)
 			}
 		}
