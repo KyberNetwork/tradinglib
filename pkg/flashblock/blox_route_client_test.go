@@ -19,7 +19,7 @@ type logPublisher struct {
 	l *zap.SugaredLogger
 }
 
-func (p *logPublisher) Publish(_ context.Context, source DataSource, data Flashblock) error {
+func (p *logPublisher) PublishFlashBlock(_ context.Context, source DataSource, data Flashblock) error {
 	p.l.Infow("received flashblock", "source", source, "payloadID", data.PayloadID, "index", data.Index, "blockNumber", data.Metadata.BlockNumber)
 	return nil
 }
