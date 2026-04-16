@@ -38,6 +38,7 @@ const (
 	BundleSenderTypeQuasar
 	BundleSenderTypeBuilderNet
 	BundleSenderTypeBTCS
+	BundleSenderTypeEureka
 	BundleSenderTypeL2
 	BundleSenderTypeBloxrouteBackrunme
 	BundleSenderTypePublicMempool
