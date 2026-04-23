@@ -11,7 +11,6 @@ type WidgetFee struct {
 	FeeRecipient common.Address
 	FeeRate      *big.Int
 }
-
 type RFQTQuote struct {
 	Pool                      common.Address
 	Signer                    common.Address

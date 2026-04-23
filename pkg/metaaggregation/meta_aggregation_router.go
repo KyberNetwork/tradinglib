@@ -17,6 +17,7 @@ var (
 
 type InputsTypes string
 
+// nolint:staticcheck
 const (
 	Swap       InputsTypes = "swap"
 	methodSwap             = "swap"

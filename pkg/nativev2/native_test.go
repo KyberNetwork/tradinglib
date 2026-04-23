@@ -173,5 +173,4 @@ func TestDecodeTradeRFQTFromRawData(t *testing.T) {
 			t.Log(hexutil.Encode(result.Quote.QuoteId[:]))
 		})
 	}
-
 }

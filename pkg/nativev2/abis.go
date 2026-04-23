@@ -10,9 +10,7 @@ const (
 	methodTradeRFQT = "tradeRFQT"
 )
 
-var (
-	nativeABI abi.ABI
-)
+var nativeABI abi.ABI
 
 //nolint:gochecknoinits
 func init() {

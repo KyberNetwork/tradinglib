@@ -6,9 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
-var (
-	RouterV2ABI abi.ABI
-)
+var RouterV2ABI abi.ABI
 
 //nolint:gochecknoinits
 func init() {
