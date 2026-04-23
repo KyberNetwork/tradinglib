@@ -7,6 +7,11 @@ linters:
     - err113
     - exhaustive
     - exhaustruct
+    - wsl
+    - wsl_v5
+    - noinlineerr
+    - godoclint
+    - embeddedstructfieldcheck
     - funcorder # don't have effort to fix this
     - gochecknoglobals
     - gochecknoinits

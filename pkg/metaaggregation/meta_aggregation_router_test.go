@@ -1,3 +1,4 @@
+//nolint:testpackage
 package metaaggregation
 
 import (
@@ -90,6 +91,7 @@ func TestDecodeMetaAggregationRouterSwap(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			result, err := DecodeMetaAggregationRouterSwapData(tc.input)
 			assert.NoError(t, err)
+			// nolint: forcetypeassert
 			assert.Equal(t, tc.expected, result.(*metaAggregationSwapInputs).SwapInputs)
 		})
 	}

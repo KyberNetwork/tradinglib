@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	ErrorInvalidMethodName = errors.New("invalid method name")
-	ErrorUnsupportedType   = errors.New("unsupported type")
+	ErrInvalidMethodName = errors.New("invalid method name")
+	ErrUnsupportedType   = errors.New("unsupported type")
 )
 
 type InputsTypes string
@@ -59,10 +59,11 @@ func DecodeMetaAggregationRouterSwapData(data []byte) (MetaAggregationRouterSwap
 		input.SwapInputs = swapInputs
 		return input, nil
 	default:
-		return nil, ErrorInvalidMethodName
+		return nil, ErrInvalidMethodName
 	}
 }
 
+// nolint: forcetypeassert
 func EncodeMetaAggregationRouterSwapData(
 	input MetaAggregationRouterSwapInputs,
 ) ([]byte, error) {
@@ -70,7 +71,7 @@ func EncodeMetaAggregationRouterSwapData(
 	case Swap:
 		return router.PackSwapInputs(input.(*metaAggregationSwapInputs).SwapInputs)
 	default:
-		return nil, ErrorUnsupportedType
+		return nil, ErrUnsupportedType
 	}
 }
 
