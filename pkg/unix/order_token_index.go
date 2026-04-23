@@ -83,6 +83,7 @@ func unpackTokenOutputIndex(input *big.Int) ([]OrderTokenIndex, error) {
 	return result, nil
 }
 
+// nolint:gofumpt
 func getOrderTokenIndex(input *big.Int, i int) (result OrderTokenIndex) {
 	shift := uint(i)*7 + 8
 

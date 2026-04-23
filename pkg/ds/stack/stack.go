@@ -26,6 +26,7 @@ func (s *Stack[T]) Len() int {
 }
 
 // Peek views the top element of the stack.
+// nolint:gofumpt
 func (s *Stack[T]) Peek() (elem T, ok bool) {
 	if s.Empty() {
 		return
