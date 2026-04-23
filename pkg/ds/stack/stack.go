@@ -41,6 +41,7 @@ func (s *Stack[T]) Push(elem T) {
 }
 
 // Pop pops the top element from the stack.
+// nolint:gofumpt
 func (s *Stack[T]) Pop() (elem T, ok bool) {
 	if s.Empty() {
 		return
