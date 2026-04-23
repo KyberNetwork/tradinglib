@@ -46,6 +46,7 @@ func packTradeRFQT(t *testing.T, quote quoteInput, actualSellerAmount, actualMin
 	return append(nativeABI.Methods[methodTradeRFQT].ID, packed...)
 }
 
+// nolint: gocritic
 func TestDecodeTradeRFQT(t *testing.T) {
 	t.Run("decodes all fields correctly", func(t *testing.T) {
 		quote := quoteInput{

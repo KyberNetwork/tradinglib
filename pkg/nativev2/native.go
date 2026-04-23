@@ -1,6 +1,7 @@
 package nativev2
 
 import (
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -40,6 +41,9 @@ type TradeRFQTArguments struct {
 }
 
 func DecodeTradeRFQT(data []byte) (TradeRFQTArguments, error) {
+	if len(data) < 4 {
+		return TradeRFQTArguments{}, fmt.Errorf("invalid data length: %d", len(data))
+	}
 	inputs, err := nativeABI.Methods[methodTradeRFQT].Inputs.Unpack(data[4:])
 	if err != nil {
 		return TradeRFQTArguments{}, err
