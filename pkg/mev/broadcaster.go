@@ -14,7 +14,9 @@ const (
 	EndpointQuasar       = "https://rpc.quasar.win"
 	EndpointQuasarCustom = "https://kipseli.quasar.win"
 	EndpointRsync        = "https://rsync-builder.xyz"
-	EndpointTitan        = "https://ap.rpc.titanbuilder.xyz"
+	EndpointTitanAsia    = "https://ap.rpc.titanbuilder.xyz"
+	EndpointTitanEU      = "https://eu.rpc.titanbuilder.xyz"
+	EndpointTitanUS      = "https://us.rpc.titanbuilder.xyz"
 )
 
 const (
