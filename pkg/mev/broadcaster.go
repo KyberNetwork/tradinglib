@@ -1,22 +1,23 @@
 package mev
 
 const (
-	EndpointBeaverbuild  = "https://rpc.beaverbuild.org"
-	EndpointBloxroute    = "https://mev.api.blxrbdn.com"
-	EndpointBTCS         = "https://rpc.btcs.com"
-	EndpointBuilderNet   = "https://direct-us.buildernet.org"
-	EndpointEureka       = "https://rpc.eurekabuilder.xyz"
-	EndpointFlashbot     = "https://relay.flashbots.net"
-	EndpointJetbldr      = "https://rpc.jetbldr.xyz"
-	EndpointLoki         = "https://rpc.lokibuilder.xyz"
-	EndpointMerkle       = "https://mempool.merkle.io/relay"
-	EndpointMevBlocker   = "https://rpc.mevblocker.io"
-	EndpointQuasar       = "https://rpc.quasar.win"
-	EndpointQuasarCustom = "https://kipseli.quasar.win"
-	EndpointRsync        = "https://rsync-builder.xyz"
-	EndpointTitanAsia    = "https://ap.rpc.titanbuilder.xyz"
-	EndpointTitanEU      = "https://eu.rpc.titanbuilder.xyz"
-	EndpointTitanUS      = "https://us.rpc.titanbuilder.xyz"
+	EndpointBeaverbuild   = "https://rpc.beaverbuild.org"
+	EndpointBloxroute     = "https://mev.api.blxrbdn.com"
+	EndpointBTCS          = "https://rpc.btcs.com"
+	EndpointBuilderNet    = "https://direct-us.buildernet.org"
+	EndpointEureka        = "https://rpc.eurekabuilder.xyz"
+	EndpointFlashbot      = "https://relay.flashbots.net"
+	EndpointJetbldr       = "https://rpc.jetbldr.xyz"
+	EndpointLoki          = "https://rpc.lokibuilder.xyz"
+	EndpointMerkle        = "https://mempool.merkle.io/relay"
+	EndpointMevBlocker    = "https://rpc.mevblocker.io"
+	EndpointQuasar        = "https://rpc.quasar.win"
+	EndpointQuasarCustom  = "https://kipseli.quasar.win"
+	EndpointRsync         = "https://rsync-builder.xyz"
+	EndpointTitanAsia     = "https://ap.rpc.titanbuilder.xyz"
+	EndpointTitanEU       = "https://eu.rpc.titanbuilder.xyz"
+	EndpointTitanUS       = "https://us.rpc.titanbuilder.xyz"
+	EndpointBobTheBuilder = "https://rpc.bobthebuilder.xyz"
 )
 
 const (
@@ -35,4 +36,5 @@ const (
 	BuilderQuasarID      string = "builder-quasar"
 	BuilderRsyncID       string = "builder-rsync"
 	BuilderTitanID       string = "builder-titan"
+	BuilderBobTheBuilder string = "builder-bobthebuilder"
 )
