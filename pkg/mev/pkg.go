@@ -43,6 +43,7 @@ const (
 	BundleSenderTypeBloxrouteBackrunme
 	BundleSenderTypePublicMempool
 	BundleSenderBobTheBuilder
+	BundleSenderInternalMempool
 )
 
 const (
