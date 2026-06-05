@@ -42,6 +42,8 @@ type Message struct {
 	FlashbotMevshareEvent *FlashbotMevshareEvent       `json:"flashbot_mevshare_event,omitempty"`
 	Logs                  []SimulatedPrivateMempoolLog `json:"logs,omitempty"`
 	ExtraData             string                       `json:"extra_data"`
+	RawTx                 string                       `json:"raw_tx"`
+	BlockNumber           uint64                       `json:"block_number"` // valid in block
 }
 
 type Prestate struct {
