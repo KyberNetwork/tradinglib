@@ -111,6 +111,18 @@ type MinedBlock struct {
 	Transactions []Transaction `json:"transactions"`
 }
 
+func (m Message) GetLogsFromSimulatedLog() []*types.Log {
+	logs := make([]*types.Log, 0, len(m.Logs))
+	for _, log := range m.Logs {
+		logs = append(logs, &types.Log{
+			Address: log.Address,
+			Topics:  log.Topics,
+			Data:    log.Data,
+		})
+	}
+	return logs
+}
+
 func (m Message) GetAllLogs() []*types.Log {
 	switch m.Source {
 	case FlashbotMempool:
@@ -126,9 +138,11 @@ func (m Message) GetAllLogs() []*types.Log {
 			return results
 		}
 	case MevBlockerMempool, PublicMempool, BlinkMempool, MerkleMempool, BlinkV3Mempool, BloxRoute, InternalSolver:
+		logs := m.GetLogsFromSimulatedLog()
 		if m.InternalTx != nil {
-			return m.InternalTx.getLogs()
+			return append(logs, m.InternalTx.getLogs()...)
 		}
+		return logs
 	default:
 		return nil
 	}
