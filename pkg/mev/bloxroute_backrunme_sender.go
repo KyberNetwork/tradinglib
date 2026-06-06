@@ -154,10 +154,10 @@ func (s *BloxrouteBackrunmeSender) SendBackrunBundle(
 	}
 
 	// First, simulate the bundle using MevSimulateBundle
-	_, err := s.MevSimulateBundle(ctx, blockNumber, pendingTxHashes[0], txs[0])
-	if err != nil {
-		return SendBundleResponse{}, fmt.Errorf("simulate bundle failed: %w", err)
-	}
+	// _, err := s.MevSimulateBundle(ctx, blockNumber, pendingTxHashes[0], txs[0])
+	// if err != nil {
+	// 	return SendBundleResponse{}, fmt.Errorf("simulate bundle failed: %w", err)
+	// }
 
 	// If simulation passed, proceed with submission
 	// Build request params
