@@ -86,6 +86,7 @@ type MakerTraitsOption struct {
 	NonceOrEpoch          *big.Int `json:"nonce_or_epoch"`
 	Series                *big.Int `json:"series"`
 	AllowedSender         []byte   `json:"allowed_sender"`
+	IsPermit2             bool     `json:"is_permit2"`
 }
 
 func (mt *MakerTraits) Decode() MakerTraitsOption {
@@ -103,6 +104,7 @@ func (mt *MakerTraits) Decode() MakerTraitsOption {
 		NonceOrEpoch:          mt.NonceOrEpoch(),
 		Series:                mt.Series(),
 		AllowedSender:         mt.AllowedSender(),
+		IsPermit2:             mt.IsPermit2(),
 	}
 }
 
