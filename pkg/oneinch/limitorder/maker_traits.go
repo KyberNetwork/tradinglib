@@ -322,6 +322,7 @@ func (o MakerTraitsOption) MarshalJSON() ([]byte, error) {
 		NonceOrEpoch          string `json:"nonce_or_epoch"`
 		Series                string `json:"series"`
 		AllowedSender         string `json:"allowed_sender"`
+		IsPermit2             bool   `json:"is_permit2"`
 	}
 	dto := makerTraitsOptionJson{
 		AllowPartialFills:     o.AllowPartialFills,
@@ -333,6 +334,7 @@ func (o MakerTraitsOption) MarshalJSON() ([]byte, error) {
 		UnwrapWeth:            o.UnwrapWeth,
 		HasExtension:          o.HasExtension,
 		IsPrivate:             o.IsPrivate,
+		IsPermit2:             o.IsPermit2,
 	}
 
 	if o.Expiration != nil {
@@ -366,6 +368,7 @@ func (o *MakerTraitsOption) UnmarshalJSON(data []byte) error {
 		NonceOrEpoch          string `json:"nonce_or_epoch"`
 		Series                string `json:"series"`
 		AllowedSender         string `json:"allowed_sender"`
+		IsPermit2             bool   `json:"is_permit2"`
 	}
 	var dto makerTraitsOptionJson
 	if err := json.Unmarshal(data, &dto); err != nil {
