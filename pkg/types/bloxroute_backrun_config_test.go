@@ -1,9 +1,10 @@
-package types
+package types_test
 
 import (
 	"errors"
 	"testing"
 
+	"github.com/KyberNetwork/tradinglib/pkg/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -13,7 +14,7 @@ func TestParseBloxrouteBackrunConfig(t *testing.T) {
 		blxrAddress   = "0xF1Ce037Cc1d02c046e800C3265D2Efa91940864E"
 	)
 
-	cfg, err := ParseBloxrouteBackrunConfig([]string{"50", targetAddress, "15", blxrAddress, "20"})
+	cfg, err := types.ParseBloxrouteBackrunConfig([]string{"50", targetAddress, "15", blxrAddress, "20"})
 	require.NoError(t, err)
 	require.Equal(t, 50.0, cfg.ContractSplit)
 	require.Equal(t, targetAddress, cfg.TargetRewardAddress)
@@ -44,9 +45,9 @@ func TestParseBloxrouteBackrunConfigErrors(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			_, err := ParseBloxrouteBackrunConfig(tc.parts)
+			_, err := types.ParseBloxrouteBackrunConfig(tc.parts)
 			require.Error(t, err)
-			require.True(t, errors.Is(err, ErrInvalidBloxrouteBackrunConfig))
+			require.True(t, errors.Is(err, types.ErrInvalidBloxrouteBackrunConfig))
 		})
 	}
 }
