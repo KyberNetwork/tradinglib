@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -98,17 +99,28 @@ func (c *NodeClient) connectAndListen(ctx context.Context, resetRetryDelay func(
 	c.conn = conn
 	defer conn.Close()
 
+	// Gorilla websocket allows only one concurrent writer. Serialize all writes
+	// (outbound pings, pong responses) through this mutex.
+	var writeMu sync.Mutex
+	writeMessage := func(messageType int, data []byte) error {
+		writeMu.Lock()
+		defer writeMu.Unlock()
+		return conn.WriteMessage(messageType, data)
+	}
+
 	c.l.Info("Connected to flashblock stream, listening for events...")
 
 	// Reset retry delay after successful connection
 	resetRetryDelay()
 
 	// PING PONG
+	// The pong handler is invoked from within conn.ReadMessage (read goroutine),
+	// so it must go through the same write mutex as the ping goroutine.
 	conn.SetPingHandler(func(appData string) error {
 		c.l.Debugw("Ping received", "data", appData)
 		// nolint: errcheck
 		conn.SetReadDeadline(time.Now().Add(5 * time.Second))
-		return conn.WriteMessage(websocket.PongMessage, []byte{})
+		return writeMessage(websocket.PongMessage, []byte{})
 	})
 
 	// Create a context for the ping goroutine that will be cancelled when this function exits
@@ -123,7 +135,7 @@ func (c *NodeClient) connectAndListen(ctx context.Context, resetRetryDelay func(
 			case <-pingCtx.Done():
 				return
 			case <-pingTicker.C:
-				if err := conn.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+				if err := writeMessage(websocket.PingMessage, []byte{}); err != nil {
 					c.l.Errorw("Ping error", "error", err)
 					_ = conn.Close()
 					return

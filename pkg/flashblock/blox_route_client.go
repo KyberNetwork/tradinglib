@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"sync"
 	"syscall"
 	"time"
 
@@ -169,7 +170,19 @@ func (c *Client) connectAndListen(ctx context.Context, resetRetryDelay func(), s
 	c.conn = conn
 	defer conn.Close()
 
-	if err := conn.WriteJSON(subscribeMsg); err != nil {
+	// Gorilla websocket allows only one concurrent writer. Serialize all writes
+	// (subscribe, outbound pings, pong responses) through this mutex.
+	var writeMu sync.Mutex
+	writeMessage := func(messageType int, data []byte) error {
+		writeMu.Lock()
+		defer writeMu.Unlock()
+		return conn.WriteMessage(messageType, data)
+	}
+
+	writeMu.Lock()
+	err = conn.WriteJSON(subscribeMsg)
+	writeMu.Unlock()
+	if err != nil {
 		return fmt.Errorf("failed to send subscription message: %w", err)
 	}
 
@@ -179,9 +192,11 @@ func (c *Client) connectAndListen(ctx context.Context, resetRetryDelay func(), s
 	resetRetryDelay()
 
 	// PING PONG
+	// The pong handler is invoked from within conn.ReadMessage (read goroutine),
+	// so it must go through the same write mutex as the ping goroutine.
 	conn.SetPingHandler(func(appData string) error {
 		c.l.Debugw("Ping received", "data", appData)
-		return conn.WriteMessage(websocket.PongMessage, []byte{})
+		return writeMessage(websocket.PongMessage, []byte{})
 	})
 
 	// Create a context for the ping goroutine that will be cancelled when this function exits
@@ -196,7 +211,7 @@ func (c *Client) connectAndListen(ctx context.Context, resetRetryDelay func(), s
 			case <-pingCtx.Done():
 				return
 			case <-pingTicker.C:
-				if err := conn.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+				if err := writeMessage(websocket.PingMessage, []byte{}); err != nil {
 					c.l.Errorw("Ping error", "error", err)
 					_ = conn.Close()
 					return
