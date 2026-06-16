@@ -83,7 +83,7 @@ func (c *NodeClient) ListenFlashBlocks(ctx context.Context) error {
 	}
 }
 
-// nolint:cyclop
+// nolint:cyclop,funlen
 func (c *NodeClient) connectAndListen(ctx context.Context, resetRetryDelay func()) error {
 	c.l.Infow("Connecting to flashblock stream", "url", c.config.WebSocketURL)
 

@@ -155,7 +155,7 @@ func (c *Client) Listen(ctx context.Context, subscribeMsg interface{}, messageHa
 }
 
 // connectAndListen establishes connection and listens for bloxroute
-// nolint: lll
+// nolint: lll,funlen
 func (c *Client) connectAndListen(ctx context.Context, resetRetryDelay func(), subscribeMsg interface{}, messageHandler messageHandler) error {
 	c.l.Infow("Connecting to flashblock stream", "url", c.config.WebSocketURL)
 
