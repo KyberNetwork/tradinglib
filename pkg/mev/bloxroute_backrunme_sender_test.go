@@ -33,7 +33,7 @@ func TestBloxrouteBackrunmeSender_SendBackrunBundle(t *testing.T) {
 
 	pendingTXhash := common.HexToHash("0x79d48b1a25d7af0d815997d2ce3a127560080971c5ea98ca5a32424f604e09fb")
 
-	resp, err := sender.SendBackrunBundle(context.Background(), nil, 1, 1, []common.Hash{pendingTXhash}, []string{}, tx)
+	resp, err := sender.SendBackrunBundle(context.Background(), nil, 1, 1, []common.Hash{pendingTXhash}, []string{}, nil, tx)
 	require.NoError(t, err)
 	t.Log("resp", resp.Result.BundleHash)
 }

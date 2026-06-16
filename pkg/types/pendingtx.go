@@ -44,6 +44,9 @@ type Message struct {
 	ExtraData             string                       `json:"extra_data"`
 	RawTx                 string                       `json:"raw_tx"`
 	BlockNumber           uint64                       `json:"block_number"` // valid in block
+	// BloxrouteBackrunConfig is the per-tx BackRunMe profit-split config, set only for
+	// bloxroute arbOnlyMEV-sourced txs (nil otherwise).
+	BloxrouteBackrunConfig *BloxrouteBackrunConfig `json:"bloxroute_backrun_config,omitempty"`
 }
 
 type Prestate struct {

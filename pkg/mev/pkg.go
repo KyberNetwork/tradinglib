@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/big"
 	"net/http"
 	"strings"
 	"time"
@@ -91,6 +92,9 @@ type IBackrunSender interface {
 		maxBlockNumber uint64,
 		pendingTxHashes []common.Hash,
 		targetBuilders []string,
+		// coinbaseProfit is the wei amount paid to the BackRunMe contract, reported to
+		// bloxroute via submit_arb_only_bundle. nil for non-bloxroute senders (ignored).
+		coinbaseProfit *big.Int,
 		tx ...*types.Transaction,
 	) (SendBundleResponse, error)
 	// MevSimulateBundle only use for backrun simulate with pending tx hash

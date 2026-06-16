@@ -6,6 +6,7 @@ import (
 	"crypto/ecdsa"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -44,6 +45,7 @@ func (b MerkleClient) SendBackrunBundle(
 	_ uint64,
 	pendingTxHashes []common.Hash,
 	_ []string,
+	_ *big.Int,
 	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
 	req := SendRequest{
