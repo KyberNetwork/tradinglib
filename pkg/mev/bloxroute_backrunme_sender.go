@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"net/http"
 	"strings"
 
@@ -35,6 +36,8 @@ type backrunmeRequestParams struct {
 	Timestamp        *uint64  `json:"timestamp,omitempty"`
 	MinTimestamp     *uint64  `json:"min_timestamp,omitempty"`
 	MaxTimestamp     *uint64  `json:"max_timestamp,omitempty"`
+	// CoinbaseProfit is the wei paid to the BackRunMe contract (a JSON number).
+	CoinbaseProfit *big.Int `json:"coinbase_profit,omitempty"`
 }
 
 type backrunmeResponse struct {
@@ -130,6 +133,7 @@ func (s *BloxrouteBackrunmeSender) SendBackrunBundle(
 	maxBlockNumber uint64,
 	pendingTxHashes []common.Hash,
 	targetBuilders []string,
+	coinbaseProfit *big.Int,
 	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
 	// Validate inputs
@@ -165,6 +169,7 @@ func (s *BloxrouteBackrunmeSender) SendBackrunBundle(
 		TransactionHash: pendingTxHashes[0].Hex(),
 		Transaction:     transactions,
 		BlockNumber:     fmt.Sprintf("0x%x", blockNumber),
+		CoinbaseProfit:  coinbaseProfit,
 	}
 
 	// Build request

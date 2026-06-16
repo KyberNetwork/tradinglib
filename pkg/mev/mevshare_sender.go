@@ -3,6 +3,7 @@ package mev
 import (
 	"context"
 	"crypto/ecdsa"
+	"math/big"
 
 	"github.com/duoxehyon/mev-share-go/rpc"
 	"github.com/ethereum/go-ethereum/common"
@@ -39,6 +40,7 @@ func (m FlashbotMevShareSender) SendBackrunBundle(
 	maxBlockNumber uint64,
 	pendingTxHashes []common.Hash,
 	targetBuilders []string,
+	_ *big.Int,
 	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
 	if m.client == nil {
