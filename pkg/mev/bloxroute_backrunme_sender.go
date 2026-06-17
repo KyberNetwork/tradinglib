@@ -157,13 +157,6 @@ func (s *BloxrouteBackrunmeSender) SendBackrunBundle(
 		transactions = append(transactions, hexTx)
 	}
 
-	// First, simulate the bundle using MevSimulateBundle
-	_, err := s.MevSimulateBundle(ctx, blockNumber, pendingTxHashes[0], txs[0])
-	if err != nil {
-		return SendBundleResponse{}, fmt.Errorf("simulate bundle failed: %w", err)
-	}
-
-	// If simulation passed, proceed with submission
 	// Build request params
 	params := backrunmeRequestParams{
 		TransactionHash: pendingTxHashes[0].Hex(),
