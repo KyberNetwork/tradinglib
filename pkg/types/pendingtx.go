@@ -20,6 +20,7 @@ const (
 	BlinkV3Mempool
 	BloxRoute
 	InternalSolver
+	ReserveTaker
 )
 
 type Message struct {
@@ -142,7 +143,8 @@ func (m Message) GetAllLogs() []*types.Log {
 			}
 			return results
 		}
-	case MevBlockerMempool, PublicMempool, BlinkMempool, MerkleMempool, BlinkV3Mempool, BloxRoute, InternalSolver:
+	case MevBlockerMempool, PublicMempool, BlinkMempool, MerkleMempool, BlinkV3Mempool, BloxRoute,
+		InternalSolver, ReserveTaker:
 		logs := m.GetLogsFromSimulatedLog()
 		if m.InternalTx != nil {
 			return append(logs, m.InternalTx.getLogs()...)
