@@ -18,6 +18,10 @@ import (
 	"github.com/flashbots/mev-share-node/mevshare"
 )
 
+// alternative way
+// 1. go install github.com/dmarkham/enumer@latest
+// 2. enumer -type=BundleSenderType -linecomment
+
 //go:generate go run -mod=vendor github.com/dmarkham/enumer -type=BundleSenderType -linecomment
 type BundleSenderType int
 
@@ -43,8 +47,12 @@ const (
 	BundleSenderTypeL2
 	BundleSenderTypeBloxrouteBackrunme
 	BundleSenderTypePublicMempool
-	BundleSenderBobTheBuilder
-	BundleSenderInternalMempool
+	BundleSenderTypeBobTheBuilder
+	BundleSenderTypeInternalMempool
+	BundleSenderTypeQuickNode
+	BundleSenderType48Club
+	BundleSenderTypeBlockRazor
+	BundleSenderTypeNodeReal
 )
 
 const (

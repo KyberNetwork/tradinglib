@@ -27,12 +27,17 @@ const (
 	BuilderAll          BlxrBuilder = "all"
 )
 
+type BlxrBlockchainNetwork string
+
+const BlxrBSCMainnet = "BSC-Mainnet"
+
 type BloxrouteClient struct {
-	c               *http.Client
-	endpoint        string
-	auth            string
-	flashbotKey     *ecdsa.PrivateKey
-	enabledBuilders []BlxrBuilder
+	c                     *http.Client
+	endpoint              string
+	auth                  string
+	blxrBlockchainNetwork BlxrBlockchainNetwork
+	flashbotKey           *ecdsa.PrivateKey
+	enabledBuilders       []BlxrBuilder
 }
 
 func (s *BloxrouteClient) SimulateBundle(
@@ -58,14 +63,16 @@ func NewBloxrouteClient(
 	c *http.Client,
 	endpoint, auth string,
 	flashbotKey *ecdsa.PrivateKey,
+	blxrBlockchainNetwork BlxrBlockchainNetwork,
 	enabledBuilders ...BlxrBuilder,
 ) *BloxrouteClient {
 	return &BloxrouteClient{
-		c:               c,
-		endpoint:        endpoint,
-		auth:            auth,
-		flashbotKey:     flashbotKey,
-		enabledBuilders: enabledBuilders,
+		c:                     c,
+		endpoint:              endpoint,
+		auth:                  auth,
+		flashbotKey:           flashbotKey,
+		enabledBuilders:       enabledBuilders,
+		blxrBlockchainNetwork: blxrBlockchainNetwork,
 	}
 }
 
@@ -104,6 +111,8 @@ func (s *BloxrouteClient) SendBundleV2(
 	if req.UUID != nil {
 		p.SetUUID(*req.UUID)
 	}
+
+	p.BlockchainNetwork = s.blxrBlockchainNetwork
 
 	if err := p.Err(); err != nil {
 		return SendBundleResponse{}, err
@@ -199,15 +208,15 @@ type BLXRSubmitBundleRequest struct {
 }
 
 type BLXRSubmitBundleParams struct {
-	Transaction     []string               `json:"transaction,omitempty"`
-	BlockNumber     string                 `json:"block_number,omitempty"`
-	MinTimestamp    *uint64                `json:"min_timestamp,omitempty"`
-	MaxTimestamp    *uint64                `json:"max_timestamp,omitempty"`
-	RevertingHashes *[]string              `json:"reverting_hashes,omitempty"`
-	UUID            string                 `json:"uuid,omitempty"`
-	MEVBuilders     map[BlxrBuilder]string `json:"mev_builders,omitempty"`
-
-	Errors []error `json:"-"`
+	Transaction       []string               `json:"transaction,omitempty"`
+	BlockNumber       string                 `json:"block_number,omitempty"`
+	MinTimestamp      *uint64                `json:"min_timestamp,omitempty"`
+	MaxTimestamp      *uint64                `json:"max_timestamp,omitempty"`
+	RevertingHashes   *[]string              `json:"reverting_hashes,omitempty"`
+	UUID              string                 `json:"uuid,omitempty"`
+	MEVBuilders       map[BlxrBuilder]string `json:"mev_builders,omitempty"`
+	BlockchainNetwork BlxrBlockchainNetwork  `json:"blockchain_network,omitempty"`
+	Errors            []error                `json:"-"`
 }
 
 func (p *BLXRSubmitBundleParams) SetTransactions(txs ...*types.Transaction) *BLXRSubmitBundleParams {
