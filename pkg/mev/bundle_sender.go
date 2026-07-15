@@ -106,7 +106,11 @@ func (s *Client) SendBundleV2(
 		return SendBundleResponse{}, err
 	}
 
-	return s.sendRawBundle(ctx, ETHSendBundleMethod, p)
+	method := ETHSendBundleMethod
+	if s.senderType == BundleSenderTypeBlockRazor {
+		method = ETHSendMevBundle
+	}
+	return s.sendRawBundle(ctx, method, p)
 }
 
 // https://docs.48.club/puissant-builder/48-soulpoint-benefits
