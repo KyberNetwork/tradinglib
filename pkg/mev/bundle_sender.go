@@ -94,11 +94,29 @@ func (s *Client) SendBundleV2(
 		p = p.SetStateBlockNumber("latest")
 	}
 
+	if s.senderType == BundleSenderType48Club && s.flashbotKey != nil {
+		sig48Data, err := Sign48SPMember(s.flashbotKey, txs)
+		if err != nil {
+			return SendBundleResponse{}, fmt.Errorf("sign 48 club error: %w", err)
+		}
+		p.SoulPointSignature = sig48Data
+	}
+
 	if err := p.Err(); err != nil {
 		return SendBundleResponse{}, err
 	}
 
 	return s.sendRawBundle(ctx, ETHSendBundleMethod, p)
+}
+
+// https://docs.48.club/puissant-builder/48-soulpoint-benefits
+func Sign48SPMember(prvKey *ecdsa.PrivateKey, txs []*types.Transaction) (hexutil.Bytes, error) {
+	var hashes bytes.Buffer
+	hashes.Grow(common.HashLength * len(txs))
+	for _, tx := range txs {
+		hashes.Write(tx.Hash().Bytes())
+	}
+	return crypto.Sign(crypto.Keccak256(hashes.Bytes()), prvKey)
 }
 
 func (s *Client) SendBundleHex(
@@ -279,7 +297,7 @@ func (s *Client) sendRawBundle(ctx context.Context, method string, p *SendBundle
 	}
 
 	var headers [][2]string
-	if s.flashbotKey != nil {
+	if s.flashbotKey != nil && s.senderType != BundleSenderType48Club {
 		signature, err := requestSignature(s.flashbotKey, reqBody)
 		if err != nil {
 			return SendBundleResponse{}, fmt.Errorf("sign flashbot request error: %w", err)
@@ -492,9 +510,9 @@ type SendBundleParams struct {
 	// Optional. You can specify an address that will receive builderNet refunds in ETH
 	// when allowBuilderNetRefunds is not false.
 	// From 3rd November, 2025: must be set explicitly to be eligible for refunds.
-	BuilderNetRefundAddress string `json:"builderNetRefundAddress"`
-
-	Errors []error `json:"-"` // check when building bundle
+	BuilderNetRefundAddress string        `json:"builderNetRefundAddress"`
+	Errors                  []error       `json:"-"` // check when building bundle
+	SoulPointSignature      hexutil.Bytes `json:"48spSign,omitempty"`
 }
 
 func (p *SendBundleParams) SetStateBlockNumber(stateBlockNumber string) *SendBundleParams {
