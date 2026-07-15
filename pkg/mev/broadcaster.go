@@ -40,4 +40,6 @@ const (
 	BuilderRsyncID       string = "builder-rsync"
 	BuilderTitanID       string = "builder-titan"
 	BuilderBobTheBuilder string = "builder-bobthebuilder"
+	Builder48Club        string = "builder-48club"
+	BuilderBlockRazor    string = "builder-blockrazor"
 )
