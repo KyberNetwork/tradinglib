@@ -74,8 +74,8 @@ const (
 	FlashbotGetUserStatsV2       = "flashbots_getUserStatsV2"
 	TitanGetUserStats            = "titan_getUserStats"
 	ETHSendRawTransaction        = "eth_sendRawTransaction"
-
-	MaxBlockFromTarget = 3
+	ETHSendMevBundle             = "eth_sendMevBundle"
+	MaxBlockFromTarget           = 3
 )
 
 type ISendRawTransaction interface {
