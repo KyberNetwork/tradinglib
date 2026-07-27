@@ -320,7 +320,7 @@ func (s *Client) sendRawBundle(ctx context.Context, method string, p *SendBundle
 	}
 
 	if len(resp.Error.Messange) != 0 {
-		return SendBundleResponse{}, fmt.Errorf("response error, code: [%d], message: [%s]",
+		return resp, fmt.Errorf("response error, code: [%d], message: [%s]",
 			resp.Error.Code, resp.Error.Messange)
 	}
 
