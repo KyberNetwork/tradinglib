@@ -10,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
@@ -64,61 +65,27 @@ func (l *RPCListener) SubPendingLogs(
 
 func (l *RPCListener) ResubNewFlashblocks(
 	ctx context.Context,
-	delay time.Duration,
+	backoffMax time.Duration,
 	ch chan<- NewFlashblock,
-) error {
-	// first try
-	sub, err := l.SubNewFlashblocks(ctx, ch)
-	if err != nil {
-		return err
-	}
-
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-
-		case <-sub.Err():
-			for ctx.Err() == nil {
-				<-time.After(delay)
-				newSub, err := l.SubNewFlashblocks(ctx, ch)
-				if err == nil {
-					sub = newSub
-					break
-				}
-			}
-		}
-	}
+) event.Subscription {
+	return event.Resubscribe(backoffMax,
+		func(ctx context.Context) (event.Subscription, error) {
+			return l.SubNewFlashblocks(ctx, ch)
+		},
+	)
 }
 
 func (l *RPCListener) ResubPendingLogs(
 	ctx context.Context,
-	delay time.Duration,
+	backoffMax time.Duration,
 	q ethereum.FilterQuery,
 	ch chan<- types.Log,
-) error {
-	// first try
-	sub, err := l.SubPendingLogs(ctx, q, ch)
-	if err != nil {
-		return err
-	}
-
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-
-		case <-sub.Err():
-			for ctx.Err() == nil {
-				<-time.After(delay)
-				newSub, err := l.SubPendingLogs(ctx, q, ch)
-				if err == nil {
-					sub = newSub
-					break
-				}
-			}
-		}
-	}
+) event.Subscription {
+	return event.Resubscribe(backoffMax,
+		func(ctx context.Context) (event.Subscription, error) {
+			return l.SubPendingLogs(ctx, q, ch)
+		},
+	)
 }
 
 func toFilterArg(q ethereum.FilterQuery) (interface{}, error) {
