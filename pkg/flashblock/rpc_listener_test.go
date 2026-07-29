@@ -7,11 +7,16 @@ import (
 	"time"
 
 	"github.com/KyberNetwork/tradinglib/pkg/flashblock"
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// Uniswap V3 pool Swap event: Swap(address,address,int256,int256,uint160,uint128,int24)
+var uniswapV3SwapTopic = crypto.Keccak256Hash([]byte("Swap(address,address,int256,int256,uint160,uint128,int24)"))
 
 func TestRPCListener(t *testing.T) {
 	const nodeRPC = ""
@@ -61,7 +66,11 @@ func TestRPCListenerSubPendingLogs(t *testing.T) {
 	ctx, cancel := context.WithTimeout(t.Context(), time.Second*3)
 	defer cancel()
 
-	sub, err := c.SubPendingLogs(ctx, ch)
+	q := ethereum.FilterQuery{
+		Topics: [][]common.Hash{{uniswapV3SwapTopic}},
+	}
+
+	sub, err := c.SubPendingLogs(ctx, q, ch)
 	require.NoError(t, err)
 
 	received := false
