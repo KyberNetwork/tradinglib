@@ -22,7 +22,7 @@ func TestRPCListener(t *testing.T) {
 	c, err := flashblock.DialRPCListener(t.Context(), nodeRPC)
 	require.NoError(t, err)
 
-	ch := make(chan *flashblock.NewFlashblock)
+	ch := make(chan flashblock.NewFlashblock)
 	ctx, cancel := context.WithTimeout(t.Context(), time.Second*3)
 	defer cancel()
 

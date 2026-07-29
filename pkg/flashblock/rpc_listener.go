@@ -30,7 +30,7 @@ func DialRPCListener(ctx context.Context, url string) (*RPCListener, error) {
 
 // https://docs.base.org/base-chain/api-reference/flashblocks-api/newFlashblocks
 func (l *RPCListener) SubNewFlashblocks(
-	ctx context.Context, ch chan<- *NewFlashblock,
+	ctx context.Context, ch chan<- NewFlashblock,
 ) (ethereum.Subscription, error) {
 	const subscriptionType = "newFlashblocks"
 	sub, err := l.c.EthSubscribe(ctx, ch, subscriptionType)
