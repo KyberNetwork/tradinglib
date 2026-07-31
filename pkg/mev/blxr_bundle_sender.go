@@ -111,6 +111,9 @@ func (s *BloxrouteClient) SendBundleV2(
 	if req.UUID != nil {
 		p.SetUUID(*req.UUID)
 	}
+	if req.MaxBlockNumber != nil {
+		p.MaxBlockNumber = req.MaxBlockNumber
+	}
 
 	p.BlockchainNetwork = s.blxrBlockchainNetwork
 
@@ -210,6 +213,7 @@ type BLXRSubmitBundleRequest struct {
 type BLXRSubmitBundleParams struct {
 	Transaction       []string               `json:"transaction,omitempty"`
 	BlockNumber       string                 `json:"block_number,omitempty"`
+	MaxBlockNumber    *uint64                `json:"max_block_number,omitempty"`
 	MinTimestamp      *uint64                `json:"min_timestamp,omitempty"`
 	MaxTimestamp      *uint64                `json:"max_timestamp,omitempty"`
 	RevertingHashes   *[]string              `json:"reverting_hashes,omitempty"`

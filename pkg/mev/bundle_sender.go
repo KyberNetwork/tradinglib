@@ -87,6 +87,9 @@ func (s *Client) SendBundleV2(
 	if req.MaxTimestamp != nil {
 		p.MaxTimestamp = req.MaxTimestamp
 	}
+	if req.MaxBlockNumber != nil {
+		p.MaxBlockNumber = req.MaxBlockNumber
+	}
 	if req.RevertingTxs != nil {
 		p.RevertingTxs = req.RevertingTxs
 	}
@@ -495,6 +498,9 @@ type SendBundleParams struct {
 	Txs []string `json:"txs,omitempty"`
 	// String, a hex encoded block number for which this bundle is valid on
 	BlockNumber string `json:"blockNumber,omitempty"`
+
+	// (Optional) The maximum block number for the bundle to be valid
+	MaxBlockNumber *uint64 `json:"maxBlockNumber,omitempty"`
 	// (Optional) Number, the minimum timestamp for which this bundle is valid, in seconds since the unix epoch
 	MinTimestamp *uint64 `json:"minTimestamp,omitempty"`
 	// (Optional) Number, the maximum timestamp for which this bundle is valid, in seconds since the unix epoch
