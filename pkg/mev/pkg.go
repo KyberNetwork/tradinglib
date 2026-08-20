@@ -55,6 +55,7 @@ const (
 	BundleSenderTypeNodeReal
 	BundleSenderTypeBombora
 	BundleSenderTypeUltrasound
+	BundleSenderTypeServo
 )
 
 const (

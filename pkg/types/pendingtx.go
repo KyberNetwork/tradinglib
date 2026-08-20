@@ -21,6 +21,7 @@ const (
 	BloxRoute
 	InternalSolver
 	ReserveTaker
+	Servo
 )
 
 type Message struct {
@@ -48,6 +49,10 @@ type Message struct {
 	// BloxrouteBackrunConfig is the per-tx BackRunMe profit-split config, set only for
 	// bloxroute arbOnlyMEV-sourced txs (nil otherwise).
 	BloxrouteBackrunConfig *BloxrouteBackrunConfig `json:"bloxroute_backrun_config,omitempty"`
+	// AuthorizationList carries the EIP-7702 authorizations of a SetCodeTx (type 0x4) victim.
+	// Without it a re-simulation runs against an EOA that has no delegated code yet, which
+	// succeeds with no logs instead of failing — see internal/hunter victimCallsFromMessage.
+	AuthorizationList []types.SetCodeAuthorization `json:"authorization_list,omitempty"`
 }
 
 type Prestate struct {
@@ -85,6 +90,13 @@ type CallFrame struct {
 	RevertReason string          `json:"revertReason,omitempty"`
 	Calls        []*CallFrame    `json:"calls,omitempty"`
 	Logs         []*types.Log    `json:"logs,omitempty"`
+	// AuthorizationList carries the EIP-7702 authorizations of the transaction this frame
+	// represents. It exists on the FRAME, not only on Message, because a merged pending
+	// BUNDLE flattens its members into Calls: a bundle-level list could not say which
+	// member each authorization belongs to, and applying one member's delegation before an
+	// earlier member runs changes what that earlier call sees (and can flip the
+	// authorization's own nonce check).
+	AuthorizationList []types.SetCodeAuthorization `json:"authorizationList,omitempty"`
 	// Placed at end on purpose. The RLP will be decoded to 0 instead of
 	// nil if there are non-empty elements after in the struct.
 	Value *big.Int `json:"value,omitempty"`
@@ -144,7 +156,7 @@ func (m Message) GetAllLogs() []*types.Log {
 			return results
 		}
 	case MevBlockerMempool, PublicMempool, BlinkMempool, MerkleMempool, BlinkV3Mempool, BloxRoute,
-		InternalSolver, ReserveTaker:
+		InternalSolver, ReserveTaker, Servo:
 		logs := m.GetLogsFromSimulatedLog()
 		if m.InternalTx != nil {
 			return append(logs, m.InternalTx.getLogs()...)
