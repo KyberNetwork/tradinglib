@@ -1,60 +1,64 @@
-# MEV Integration Notes
+# MEV builder integration guide
 
-This file documents the Bombora MEV bundle sender, added in PR #218.
+This file is a guide for adding a new builder to `pkg/mev`.
 Read [CLAUDE.md](../CLAUDE.md) first for the general `pkg/mev` architecture.
+The Bombora builder (PR #218) is used below as a worked example only.
+Do not copy Bombora-specific names for a different builder.
 
-## Bombora as a builder
+## Step 1: register the builder in the 3 parallel lists
 
-Bombora is a new entry in the `BundleSenderType` enum in `pkg/mev/pkg.go`.
-It follows the three-list pattern that every builder must follow:
+Every builder needs an entry in each of these 3 lists, and the lists must stay in sync by hand:
 
-1. `BundleSenderTypeBombora` in the `BundleSenderType` enum (`pkg/mev/pkg.go`).
-2. `EndpointBombora = "https://rpc.bombora.build"` in `pkg/mev/broadcaster.go`.
-3. `BuilderBomboraID = "builder-bombora"` in `pkg/mev/broadcaster.go`.
+1. A `BundleSenderType` value in the enum in `pkg/mev/pkg.go`.
+2. An `Endpoint*` constant in `pkg/mev/broadcaster.go`, for example `EndpointBombora = "https://rpc.bombora.build"`.
+3. A `Builder*ID` constant in `pkg/mev/broadcaster.go`, for example `BuilderBomboraID = "builder-bombora"`.
 
-`pkg/mev/bundlesendertype_enumer.go` is generated.
-The PR regenerated it after the enum change.
+After you change the enum, regenerate `pkg/mev/bundlesendertype_enumer.go`:
 
-## Bombora-only bundle fields
+1. Run `go install github.com/dmarkham/enumer@latest`.
+2. Run `enumer -type=BundleSenderType -linecomment` from `pkg/mev`.
 
-`SendBundleV2Request` in `pkg/mev/pkg.go` gained 5 Bombora-only fields:
+Do not edit the generated file by hand.
 
-| Field | Type | Wire key | Meaning |
-| --- | --- | --- | --- |
-| `DroppingTxs` | `*[]string` | `droppingTxHashes` | Tx hashes that the builder can omit from the bundle, but must never include in a reverted state. |
-| `ReplacementSeqNumber` | `*uint64` | `replacementSeqNumber` | Monotonically increasing sequence number for bundles that share one replacement UUID. |
-| `RefundPercent` | `*uint64` | `refundPercent` | Percent of the bundle MEV profit to refund, 0 to 99. |
-| `RefundRecipient` | `string` | `refundRecipient` | Address that receives the refund. |
-| `RefundTxHashes` | `*[]string` | `refundTxHashes` | At most one tx hash that anchors the refund calculation. |
+## Step 2: decide whether the builder needs its own client file
 
-`SendBundleParams` (the wire type) carries the same 5 fields under a "Bombora-only bundle fields" comment block, placed after the pre-existing `StateBlockNumber` field.
+Most builders reuse the generic `Client` in `pkg/mev/bundle_sender.go`.
+Add a separate client file, such as `blxr_bundle_sender.go` or `merkle_sender.go`, only when the builder's request or auth shape does not fit `Client`.
 
-## How the fields reach the wire
+## Step 3: add builder-only bundle fields, if the builder needs them
 
-`Client.SendBundleV2` in `pkg/mev/bundle_sender.go` calls `SendBundleParams.SetBomboraFields(req)` only when `s.senderType == BundleSenderTypeBombora`.
-Other builders never see these 5 fields on the wire, because `SetBomboraFields` runs only for that one sender type.
+Some builders accept extra fields on `eth_sendBundle` that other builders do not support.
+Bombora is the current example: it added `DroppingTxs`, `ReplacementSeqNumber`, `RefundPercent`, `RefundRecipient`, and `RefundTxHashes`.
 
-`SetBomboraFields` does 2 checks and appends an error to `p.Errors` on failure, instead of returning an error directly:
+Follow this pattern for a new builder with similar needs:
 
-- If `RefundPercent` is above `BomboraMaxRefundPercent` (99, in `pkg/mev/constants.go`), it appends `ErrInvalidRefundPercent`.
-- If `RefundTxHashes` holds more than 1 hash, it appends `ErrInvalidLenRefundTxHashes`.
+1. Add the new fields to `SendBundleV2Request` in `pkg/mev/pkg.go`.
+   Comment each field with its purpose and the builder name, for example `// ... RefundPercent-style field. Bombora only.`
+2. Add matching wire fields to `SendBundleParams` in `pkg/mev/bundle_sender.go`, grouped under a comment naming the builder, for example `// Bombora-only bundle fields.`
+   Place the new group after existing fields; do not reorder pre-existing fields, since that makes the diff imply they are new.
+3. Write one `SetXFields(req SendBundleV2Request) *SendBundleParams` method on `SendBundleParams` that copies the fields from `req` and validates them.
+   On a validation failure, append a sentinel error to `p.Errors` instead of returning an error directly, so the method keeps returning `*SendBundleParams` for chaining.
+4. Add any new sentinel errors to `pkg/mev/errors.go`.
+5. Add any new numeric limits, such as a maximum percent, as named constants in `pkg/mev/constants.go`.
+6. In `Client.SendBundleV2`, call the new `SetXFields` method gated on `s.senderType == BundleSenderTypeX`, so other builders never see the new fields on the wire.
 
-Both errors live in `pkg/mev/errors.go`.
-`SendBundleV2` calls `p.Err()` right after building `p`, so a validation failure surfaces before the HTTP call, not after.
+`SendBundleV2` calls `p.Err()` right after building `p`, so a validation failure appended to `p.Errors` surfaces before the HTTP call.
 
-## The `ReplacementUuid` wire key fix
+## Step 4: check shared code before changing a JSON tag
 
-`SendBundleParams.ReplacementUUID` changed its JSON tag from `ReplacementUuid` to `replacementUuid` (lowercase first letter).
-This matches the real wire key that `CancelBundleParams` already used, and that Bombora's spec requires.
+Some fields on `SendBundleParams`, such as `ReplacementUUID`, are shared across builders through `SetUUID`.
+Before you change a JSON tag or a field's meaning, check every sender type that reaches the same field, not only the builder you are adding.
+For example, `SetUUID` writes to a different field (`UUID`, wire key `uuid`) for Beaver, Loki, and Jetbldr, and to `ReplacementUUID` for every other sender type; a tag change on `ReplacementUUID` therefore changes the wire output for all of those other senders at once.
 
-This tag is shared code: every sender that reaches `SetUUID` (`pkg/mev/bundle_sender.go`) and is not Beaver, Loki, or Jetbldr writes to `ReplacementUUID`, so this fix changes the wire key those senders send, not only Bombora's.
-Beaver, Loki, and Jetbldr write to the separate `UUID` field (wire key `uuid`) instead, so they are unaffected.
+## Step 5: verify
 
-## Adding another builder with refund or replacement fields
+Run, from the repository root:
 
-If a future builder needs fields similar to Bombora's, follow the same pattern:
+```sh
+go build ./...
+go test -race ./...
+golangci-lint run --config=.golangci.yml
+```
 
-1. Add request fields to `SendBundleV2Request`, each documented with a `// ... Builder-only.` comment.
-2. Add matching wire fields to `SendBundleParams`.
-3. Write a `SetXFields(req SendBundleV2Request) *SendBundleParams` method that copies and validates the fields, appending to `p.Errors` on a validation failure.
-4. Call that method from `SendBundleV2`, gated on `s.senderType == BundleSenderTypeX`, so other builders never see the fields on the wire.
+Do not add a new automated test file for the builder's HTTP calls.
+Existing builder clients use a manual `t.Skip()` test that needs a live builder endpoint; follow that pattern instead of an `httptest` harness.
