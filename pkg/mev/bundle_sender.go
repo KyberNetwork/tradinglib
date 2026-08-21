@@ -505,17 +505,16 @@ type SendBundleParams struct {
 	// (Optional) Array[String], A list of tx hashes that are allowed to revert
 	RevertingTxs *[]string `json:"revertingTxHashes,omitempty"`
 	// (Optional) String, UUID that can be used to cancel/replace this bundle
-	ReplacementUUID string `json:"ReplacementUuid,omitempty"`
+	ReplacementUUID string `json:"replacementUuid,omitempty"`
 	// (Optional) String, UUID that can be used to cancel/replace this bundle (For beaverbuild)
-	UUID string `json:"uuid,omitempty"`
-	// BomboraReplacementUUID carries the replacement UUID under Bombora's lowercase key.
-	BomboraReplacementUUID string    `json:"replacementUuid,omitempty"`
-	DroppingTxs            *[]string `json:"droppingTxHashes,omitempty"`
-	ReplacementSeqNumber   *uint64   `json:"replacementSeqNumber,omitempty"`
-	RefundPercent          *uint64   `json:"refundPercent,omitempty"`
-	RefundRecipient        string    `json:"refundRecipient,omitempty"`
-	RefundTxHashes         *[]string `json:"refundTxHashes,omitempty"`
-	StateBlockNumber       string    `json:"stateBlockNumber,omitempty"`
+	UUID             string `json:"uuid,omitempty"`
+	StateBlockNumber string `json:"stateBlockNumber,omitempty"`
+	// Bombora-only bundle fields.
+	DroppingTxHashes     *[]string `json:"droppingTxHashes,omitempty"`
+	ReplacementSeqNumber *uint64   `json:"replacementSeqNumber,omitempty"`
+	RefundPercent        *uint64   `json:"refundPercent,omitempty"`
+	RefundRecipient      *string   `json:"refundRecipient,omitempty"`
+	RefundTxHashes       *[]string `json:"refundTxHashes,omitempty"`
 
 	// A boolean, defaults to true since 1st May, 2025.
 	// If set to false, transactions may not be forwarded to BuilderNet for improved inclusion.
@@ -618,21 +617,16 @@ func (p *SendBundleParams) SetBuilderNetRefundAddress(addr string) *SendBundlePa
 	return p
 }
 
-// SetBomboraFields copies Bombora-only bundle options and uses Bombora's lowercase UUID key.
-// Call this method after SetUUID.
+// SetBomboraFields copies Bombora-only bundle options onto p.
 func (p *SendBundleParams) SetBomboraFields(req SendBundleV2Request) *SendBundleParams {
-	if p.ReplacementUUID != "" {
-		p.BomboraReplacementUUID = p.ReplacementUUID
-		p.ReplacementUUID = ""
-	}
 	if req.DroppingTxs != nil {
-		p.DroppingTxs = req.DroppingTxs
+		p.DroppingTxHashes = req.DroppingTxs
 	}
 	if req.ReplacementSeqNumber != nil {
 		p.ReplacementSeqNumber = req.ReplacementSeqNumber
 	}
 	if req.RefundRecipient != "" {
-		p.RefundRecipient = req.RefundRecipient
+		p.RefundRecipient = &req.RefundRecipient
 	}
 	if req.RefundPercent != nil {
 		if *req.RefundPercent > BomboraMaxRefundPercent {
