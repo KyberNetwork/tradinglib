@@ -90,6 +90,9 @@ func (s *Client) SendBundleV2(
 	if req.RevertingTxs != nil {
 		p.RevertingTxs = req.RevertingTxs
 	}
+	if s.senderType == BundleSenderTypeBombora {
+		p = p.SetBomboraFields(req)
+	}
 	if s.senderType == BundleSenderTypeFlashbot {
 		p = p.SetStateBlockNumber("latest")
 	}
@@ -504,8 +507,15 @@ type SendBundleParams struct {
 	// (Optional) String, UUID that can be used to cancel/replace this bundle
 	ReplacementUUID string `json:"ReplacementUuid,omitempty"`
 	// (Optional) String, UUID that can be used to cancel/replace this bundle (For beaverbuild)
-	UUID             string `json:"uuid,omitempty"`
-	StateBlockNumber string `json:"stateBlockNumber,omitempty"`
+	UUID string `json:"uuid,omitempty"`
+	// BomboraReplacementUUID carries the replacement UUID under Bombora's lowercase key.
+	BomboraReplacementUUID string    `json:"replacementUuid,omitempty"`
+	DroppingTxs            *[]string `json:"droppingTxHashes,omitempty"`
+	ReplacementSeqNumber   *uint64   `json:"replacementSeqNumber,omitempty"`
+	RefundPercent          *uint64   `json:"refundPercent,omitempty"`
+	RefundRecipient        string    `json:"refundRecipient,omitempty"`
+	RefundTxHashes         *[]string `json:"refundTxHashes,omitempty"`
+	StateBlockNumber       string    `json:"stateBlockNumber,omitempty"`
 
 	// A boolean, defaults to true since 1st May, 2025.
 	// If set to false, transactions may not be forwarded to BuilderNet for improved inclusion.
@@ -604,6 +614,40 @@ func (p *SendBundleParams) SetUUID(uuid string, senderType BundleSenderType) *Se
 func (p *SendBundleParams) SetBuilderNetRefundAddress(addr string) *SendBundleParams {
 	p.AllowBuilderNetRefunds = true
 	p.BuilderNetRefundAddress = addr
+
+	return p
+}
+
+// SetBomboraFields copies Bombora-only bundle options and uses Bombora's lowercase UUID key.
+// Call this method after SetUUID.
+func (p *SendBundleParams) SetBomboraFields(req SendBundleV2Request) *SendBundleParams {
+	if p.ReplacementUUID != "" {
+		p.BomboraReplacementUUID = p.ReplacementUUID
+		p.ReplacementUUID = ""
+	}
+	if req.DroppingTxs != nil {
+		p.DroppingTxs = req.DroppingTxs
+	}
+	if req.ReplacementSeqNumber != nil {
+		p.ReplacementSeqNumber = req.ReplacementSeqNumber
+	}
+	if req.RefundRecipient != "" {
+		p.RefundRecipient = req.RefundRecipient
+	}
+	if req.RefundPercent != nil {
+		if *req.RefundPercent > BomboraMaxRefundPercent {
+			p.Errors = append(p.Errors, ErrInvalidRefundPercent)
+		} else {
+			p.RefundPercent = req.RefundPercent
+		}
+	}
+	if req.RefundTxHashes != nil {
+		if len(*req.RefundTxHashes) > 1 {
+			p.Errors = append(p.Errors, ErrInvalidLenRefundTxHashes)
+		} else {
+			p.RefundTxHashes = req.RefundTxHashes
+		}
+	}
 
 	return p
 }

@@ -38,3 +38,7 @@ command
 
 # test folder
 test
+
+# AI
+/.claude/plans
+/.claude/plans/*
