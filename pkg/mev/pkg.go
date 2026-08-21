@@ -54,6 +54,7 @@ const (
 	BundleSenderTypeBlockRazor
 	BundleSenderTypeNodeReal
 	BundleSenderTypeBombora
+	BundleSenderTypeUltrasound
 )
 
 const (
@@ -393,16 +394,16 @@ type SendBundleV2Request struct {
 	// (Optional) Array[String], A list of tx hashes that are allowed to revert
 	RevertingTxs *[]string `json:"revertingTxHashes,omitempty"`
 	// (Optional) Array[String], A list of tx hashes that may be omitted from the bundle,
-	// but must never be included in a reverted state. Bombora only.
+	// but must never be included in a reverted state. Bombora and Ultrasound only.
 	DroppingTxs *[]string `json:"droppingTxHashes,omitempty"`
 	// (Optional) Number, monotonically increasing sequence number for bundles sharing
 	// one replacement UUID. Bombora only.
 	ReplacementSeqNumber *uint64 `json:"replacementSeqNumber,omitempty"`
-	// (Optional) Number, percentage of the bundle MEV profit to refund, 0 to 99. Bombora only.
+	// (Optional) Number, percentage of the bundle MEV profit to refund, 0 to 99. Bombora and Ultrasound only.
 	RefundPercent *uint64 `json:"refundPercent,omitempty"`
-	// (Optional) String, the address that receives the refund. Bombora only.
+	// (Optional) String, the address that receives the refund. Bombora and Ultrasound only.
 	RefundRecipient string `json:"refundRecipient,omitempty"`
-	// (Optional) Array[String], one tx hash that anchors the refund calculation. Bombora only.
+	// (Optional) Array[String], one tx hash that anchors the refund calculation. Bombora and Ultrasound only.
 	RefundTxHashes *[]string `json:"refundTxHashes,omitempty"`
 	// (Optional) String, UUID that can be used to cancel/replace this bundle
 	ReplacementUUID *string `json:"ReplacementUuid,omitempty"`

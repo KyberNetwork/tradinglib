@@ -96,6 +96,9 @@ func (s *Client) SendBundleV2(
 	if s.senderType == BundleSenderTypeBombora {
 		p = p.SetBomboraFields(req)
 	}
+	if s.senderType == BundleSenderTypeUltrasound {
+		p = p.SetUltrasoundFields(req)
+	}
 	if s.senderType == BundleSenderTypeFlashbot {
 		p = p.SetStateBlockNumber("latest")
 	}
@@ -515,7 +518,8 @@ type SendBundleParams struct {
 	// (Optional) String, UUID that can be used to cancel/replace this bundle (For beaverbuild)
 	UUID             string `json:"uuid,omitempty"`
 	StateBlockNumber string `json:"stateBlockNumber,omitempty"`
-	// Bombora-only bundle fields.
+	// Bundle fields that only Bombora and Ultrasound accept.
+	// ReplacementSeqNumber is Bombora only.
 	DroppingTxHashes     *[]string `json:"droppingTxHashes,omitempty"`
 	ReplacementSeqNumber *uint64   `json:"replacementSeqNumber,omitempty"`
 	RefundPercent        *uint64   `json:"refundPercent,omitempty"`
@@ -636,6 +640,33 @@ func (p *SendBundleParams) SetBomboraFields(req SendBundleV2Request) *SendBundle
 	}
 	if req.RefundPercent != nil {
 		if *req.RefundPercent > BomboraMaxRefundPercent {
+			p.Errors = append(p.Errors, ErrInvalidRefundPercent)
+		} else {
+			p.RefundPercent = req.RefundPercent
+		}
+	}
+	if req.RefundTxHashes != nil {
+		if len(*req.RefundTxHashes) > 1 {
+			p.Errors = append(p.Errors, ErrInvalidLenRefundTxHashes)
+		} else {
+			p.RefundTxHashes = req.RefundTxHashes
+		}
+	}
+
+	return p
+}
+
+// SetUltrasoundFields copies the dropping-transaction and refund options that Ultrasound accepts onto p.
+// Ultrasound does not accept ReplacementSeqNumber, so this method never sets it.
+func (p *SendBundleParams) SetUltrasoundFields(req SendBundleV2Request) *SendBundleParams {
+	if req.DroppingTxs != nil {
+		p.DroppingTxHashes = req.DroppingTxs
+	}
+	if req.RefundRecipient != "" {
+		p.RefundRecipient = &req.RefundRecipient
+	}
+	if req.RefundPercent != nil {
+		if *req.RefundPercent > UltrasoundMaxRefundPercent {
 			p.Errors = append(p.Errors, ErrInvalidRefundPercent)
 		} else {
 			p.RefundPercent = req.RefundPercent
