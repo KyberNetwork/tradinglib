@@ -87,6 +87,8 @@ Three parallel lists must stay in sync by hand when you add a builder:
 2. The `Endpoint*` constants in `broadcaster.go`.
 3. The `Builder*ID` constants in `broadcaster.go`.
 
+See [.claude/MEV_Integration.md](.claude/MEV_Integration.md) for the Bombora builder, its builder-only bundle fields, and the pattern to follow for a new builder with similar fields.
+
 `bundlesendertype_enumer.go` is generated. Regenerate it after you change the enum.
 
 ### `pkg/flashblock` — flashblock ingestion
