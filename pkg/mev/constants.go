@@ -26,3 +26,6 @@ const (
 
 // BomboraMaxRefundPercent is the highest refund percent Bombora accepts.
 const BomboraMaxRefundPercent = 99
+
+// UltrasoundMaxRefundPercent is the highest refund percent Ultrasound accepts.
+const UltrasoundMaxRefundPercent = 99
