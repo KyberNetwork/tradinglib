@@ -3,6 +3,7 @@ package mev
 const (
 	EndpointBeaverbuild                = "https://rpc.beaverbuild.org"
 	EndpointBloxroute                  = "https://mev.api.blxrbdn.com"
+	EndpointBombora                    = "https://rpc.bombora.build"
 	EndpointBTCS                       = "https://rpc.btcs.com"
 	EndpointBuilderNet                 = "https://direct-us.buildernet.org"
 	EndpointEureka                     = "https://rpc.eurekabuilder.xyz"
@@ -27,6 +28,7 @@ const (
 	BuilderBeaverbuildID string = "builder-beaverbuild"
 	BuilderBlinkID       string = "builder-blink"
 	BuilderBloxrouteID   string = "builder-bloxroute"
+	BuilderBomboraID     string = "builder-bombora"
 	BuilderBTCS          string = "builder-btcs"
 	BuilderEureka        string = "builder-eureka"
 	BuilderFlashbotID    string = "builder-flashbot"

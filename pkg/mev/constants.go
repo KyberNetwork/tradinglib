@@ -23,3 +23,6 @@ const (
 	XFlashbotSignatureHeader                 = "X-Flashbots-Signature"
 	XBlinkSignatureHeader                    = "X-Blink-Signature"
 )
+
+// BomboraMaxRefundPercent is the highest refund percent Bombora accepts.
+const BomboraMaxRefundPercent = 99
