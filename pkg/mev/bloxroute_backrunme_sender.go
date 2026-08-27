@@ -3,8 +3,8 @@ package mev
 import (
 	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/big"
 	"net/http"
@@ -83,6 +83,8 @@ type backrunmeResponseError struct {
 	Message string `json:"message"`
 }
 
+var errDefaultTransportType = errors.New("http.DefaultTransport is not an *http.Transport")
+
 const (
 	DefaultEndpoint             = "https://backrunme.blxrbdn.com"
 	SubmitArbOnlyBundleMethod   = "submit_arb_only_bundle"
@@ -94,30 +96,20 @@ func NewBloxrouteBackrunmeSender(authHeader, endpoint string) (*BloxrouteBackrun
 		endpoint = DefaultEndpoint
 	}
 
-	/*
-			curl https://backrunme.blxrbdn.com \
-		    --insecure \
-		    -X POST \
-		    -H "Content-Type: application/json" \
-		    -H "Authorization: <YOUR-AUTHORIZATION-HEADER>" \
-		    -d '{"method": "simulate_arb_only_bundle",
-		         "id": "1",
-		         "params": {
-		            "transaction_hash": "ab..ab"
-		            "transaction": ["cd..cd", "ef..ef"],
-		            "block_number": "0xba10d0",
-		            "state_block_number": "latest",
-		            "timestamp": 1617806320
-		         }
-		        }'
-	*/
-	// Create HTTP client with insecure TLS (as shown in curl --insecure)
-	httpClient := &http.Client{
-		Transport: &http.Transport{
-			// nolint:gosec
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
+	// Clone the stdlib default rather than build a Transport from scratch: a zero-value
+	// http.Transport has no ForceAttemptHTTP2, no IdleConnTimeout (idle conns never expire), no
+	// proxy and no dial timeouts.
+	//
+	// This used to set TLSClientConfig{InsecureSkipVerify: true}, mirroring the `curl --insecure`
+	// in bloxroute's docs. That silently forced HTTP/1.1: net/http only negotiates h2 when it may
+	// append "h2" to TLSClientConfig.NextProtos, which it refuses to do on a caller-supplied config
+	// (see Transport.protocols, Go issue 14275). The endpoint serves h2 under normal verification,
+	// so the skip bought nothing and cost both the protocol and MITM protection.
+	base, ok := http.DefaultTransport.(*http.Transport)
+	if !ok {
+		return nil, errDefaultTransportType
 	}
+	httpClient := &http.Client{Transport: base.Clone()}
 
 	return &BloxrouteBackrunmeSender{
 		httpClient: httpClient,
