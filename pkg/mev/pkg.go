@@ -66,19 +66,20 @@ const (
 	BloxrouteSimulationBundleMethod = "blxr_simulate_bundle"
 	// FlashbotGetBundleStatsMethod
 	// nolint: gosec
-	FlashbotGetBundleStatsMethod = "flashbots_getBundleStatsV2"
-	ETHSendBundleMethod          = "eth_sendBundle"
-	EthCallBundleMethod          = "eth_callBundle"
-	ETHCancelBundleMethod        = "eth_cancelBundle"
-	ETHEstimateGasBundleMethod   = "eth_estimateGasBundle"
-	ETHSendPrivateRawTransaction = "eth_sendPrivateRawTransaction"
-	MevSendBundleMethod          = "mev_sendBundle"
-	FlashbotGetUserStats         = "flashbots_getUserStats"
-	FlashbotGetUserStatsV2       = "flashbots_getUserStatsV2"
-	TitanGetUserStats            = "titan_getUserStats"
-	ETHSendRawTransaction        = "eth_sendRawTransaction"
-	ETHSendMevBundle             = "eth_sendMevBundle"
-	MaxBlockFromTarget           = 3
+	FlashbotGetBundleStatsMethod  = "flashbots_getBundleStatsV2"
+	ETHSendBundleMethod           = "eth_sendBundle"
+	EthCallBundleMethod           = "eth_callBundle"
+	ETHCancelBundleMethod         = "eth_cancelBundle"
+	ETHEstimateGasBundleMethod    = "eth_estimateGasBundle"
+	ETHSendPrivateRawTransaction  = "eth_sendPrivateRawTransaction"
+	MevSendBundleMethod           = "mev_sendBundle"
+	FlashbotGetUserStats          = "flashbots_getUserStats"
+	FlashbotGetUserStatsV2        = "flashbots_getUserStatsV2"
+	TitanGetUserStats             = "titan_getUserStats"
+	ETHSendRawTransaction         = "eth_sendRawTransaction"
+	ETHSendMevBundle              = "eth_sendMevBundle"
+	ETHSendEndOfBlockBundleMethod = "eth_sendEndOfBlockBundle"
+	MaxBlockFromTarget            = 3
 )
 
 type ISendRawTransaction interface {
