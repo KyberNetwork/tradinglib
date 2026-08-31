@@ -58,7 +58,7 @@ func (s *BloxrouteClient) EstimateBundleGas(
 
 // NewBloxrouteClient set flashbotKey to nil if you don't want to send to flashbot builders
 // With BuilderAll still need to add the flashbot key & the flashbot builder separately
-// https://docs.bloxroute.com/apis/mev-solution/bundle-submission
+// https://docs.bloxroute.com/eth/submit-bundles/bundle-submission
 func NewBloxrouteClient(
 	c *http.Client,
 	endpoint, auth string,
@@ -220,7 +220,38 @@ type BLXRSubmitBundleParams struct {
 	UUID              string                 `json:"uuid,omitempty"`
 	MEVBuilders       map[BlxrBuilder]string `json:"mev_builders,omitempty"`
 	BlockchainNetwork BlxrBlockchainNetwork  `json:"blockchain_network,omitempty"`
-	Errors            []error                `json:"-"`
+	// TargetAddresses is the list of contract addresses (e.g. AMM pools) whose state the
+	// bundle targets. Setting it routes the bundle only to the builders that support
+	// target-pool backrunning; builders named in MEVBuilders that do not are skipped.
+	//
+	// These three fields are bloXroute's Target Pool Backrunning feature. bloXroute has
+	// no eth_sendEndOfBlockBundle: TargetAddresses with Bottom=true is what stands in for
+	// it. See the "Target Pool Backrunning" section of
+	// https://docs.bloxroute.com/eth/submit-bundles/bundle-submission
+	TargetAddresses []string `json:"target_addresses,omitempty"`
+	// TargetSlots are the hex encoded storage slots to target per address, index aligned
+	// with TargetAddresses. An empty entry targets every slot of that address.
+	TargetSlots [][]string `json:"target_slots,omitempty"`
+	// Bottom only matters alongside TargetAddresses/TargetSlots: true targets the bottom
+	// of the block, false targets intrablock placement. bloXroute defaults it to true.
+	Bottom *bool   `json:"bottom,omitempty"`
+	Errors []error `json:"-"`
+}
+
+func (p *BLXRSubmitBundleParams) SetTargetAddresses(addresses ...common.Address) *BLXRSubmitBundleParams {
+	if len(addresses) == 0 {
+		return p
+	}
+
+	p.TargetAddresses = hexAddresses(addresses)
+
+	return p
+}
+
+func (p *BLXRSubmitBundleParams) SetBottom(bottom bool) *BLXRSubmitBundleParams {
+	p.Bottom = &bottom
+
+	return p
 }
 
 func (p *BLXRSubmitBundleParams) SetTransactions(txs ...*types.Transaction) *BLXRSubmitBundleParams {
