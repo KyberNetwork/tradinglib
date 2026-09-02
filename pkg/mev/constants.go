@@ -29,3 +29,12 @@ const BomboraMaxRefundPercent = 99
 
 // UltrasoundMaxRefundPercent is the highest refund percent Ultrasound accepts.
 const UltrasoundMaxRefundPercent = 99
+
+// UltrasoundSendBundleRPS and UltrasoundSendBundleBurst are the eth_sendBundle rate
+// limit each Ultrasound builder endpoint accepts: 50 requests per second. The limit is
+// per endpoint, so a caller that sends to EndpointUltrasoundEU, EndpointUltrasoundUS
+// and EndpointUltrasoundJP builds one Client with its own limit for each.
+const (
+	UltrasoundSendBundleRPS   = 50
+	UltrasoundSendBundleBurst = 50
+)

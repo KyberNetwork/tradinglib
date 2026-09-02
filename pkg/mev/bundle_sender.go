@@ -301,7 +301,14 @@ func (s *Client) sendRawBundle(ctx context.Context, method string, p *SendBundle
 
 // postBundle sends param as the single entry of the JSON-RPC params array, signing the
 // body with the flashbot key when the client holds one, and normalises the response.
+// A client built with WithSendBundleRateLimit rejects an eth_sendBundle request with
+// ErrSendBundleRateLimited when the limiter has no token. No other method is limited.
 func (s *Client) postBundle(ctx context.Context, method string, param any) (SendBundleResponse, error) {
+	if method == ETHSendBundleMethod && s.opts.sendBundleLimiter != nil &&
+		!s.opts.sendBundleLimiter.Allow() {
+		return SendBundleResponse{}, ErrSendBundleRateLimited
+	}
+
 	req := SendRequest{
 		ID:      SendBundleID,
 		JSONRPC: JSONRPC2,
