@@ -16,4 +16,5 @@ var (
 	ErrInvalidLenRefundTxHashes       = fmt.Errorf("only one refund tx hash is allowed")
 	ErrMissingTargetPools             = fmt.Errorf("missing target pools")
 	ErrReplacementSeqNumberNotSupport = fmt.Errorf("replacement seq number not support")
+	ErrSendBundleRateLimited          = fmt.Errorf("send bundle rate limit exceeded")
 )
