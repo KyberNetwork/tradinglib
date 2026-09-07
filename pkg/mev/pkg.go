@@ -156,6 +156,15 @@ type IBundleSender interface {
 	) (map[string]any, error)
 }
 
+type IEndOfBlockBundleSender interface {
+	SendEndOfBlockBundle(
+		ctx context.Context,
+		req SendEndOfBlockBundleRequest,
+		txs ...*types.Transaction,
+	) (SendBundleResponse, error)
+	GetSenderType() BundleSenderType
+}
+
 type IGasBundleEstimator interface {
 	// EstimateBundleGas is used to estimate the gas for a bundle of transactions
 	// Note that this method is expected only works with custom ethereum node which
@@ -171,6 +180,9 @@ type IGasBundleEstimator interface {
 var (
 	_ IBundleSender = &Client{}
 	_ IBundleSender = &BloxrouteClient{}
+
+	_ IEndOfBlockBundleSender = &Client{}
+	_ IEndOfBlockBundleSender = &BloxrouteClient{}
 )
 
 var defaultHeaders = [][2]string{ // nolint: gochecknoglobals

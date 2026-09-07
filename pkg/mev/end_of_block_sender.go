@@ -9,30 +9,6 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
-// IEndOfBlockBundleSender submits a bundle that the builder simulates against the
-// END-OF-BLOCK state instead of the state the block was being built on.
-//
-// After a block is built, an end-of-block bundle whose target pool was touched by that
-// block is simulated on the final state and appended when the simulation succeeds.
-// Atomicity and revert guarantees are the same as for a normal bundle.
-//
-// https://docs.titanbuilder.xyz/api/eth_sendendofblockbundle
-// https://docs.quasar.win/api/eth_sendendofblockbundle
-type IEndOfBlockBundleSender interface {
-	SendEndOfBlockBundle(
-		ctx context.Context,
-		req SendEndOfBlockBundleRequest,
-		txs ...*types.Transaction,
-	) (SendBundleResponse, error)
-	GetSenderType() BundleSenderType
-}
-
-// nolint: gochecknoglobals
-var (
-	_ IEndOfBlockBundleSender = &Client{}
-	_ IEndOfBlockBundleSender = &BloxrouteClient{}
-)
-
 // endOfBlockBundleSenderTypes are the builders documented to accept the method.
 // nolint: gochecknoglobals
 var endOfBlockBundleSenderTypes = map[BundleSenderType]struct{}{
