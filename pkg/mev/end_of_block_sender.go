@@ -33,19 +33,6 @@ var (
 	_ IEndOfBlockBundleSender = &BloxrouteClient{}
 )
 
-// endOfBlockBundleSenderTypes are the builders documented to accept the method.
-// nolint: gochecknoglobals
-var endOfBlockBundleSenderTypes = map[BundleSenderType]struct{}{
-	BundleSenderTypeTitan:  {},
-	BundleSenderTypeQuasar: {},
-}
-
-// SupportsEndOfBlockBundle reports whether t accepts eth_sendEndOfBlockBundle.
-func (i BundleSenderType) SupportsEndOfBlockBundle() bool {
-	_, ok := endOfBlockBundleSenderTypes[i]
-	return ok
-}
-
 type SendEndOfBlockBundleRequest struct {
 	// TargetPools is required: the pool addresses whose end-of-block state this bundle
 	// targets. The bundle is only simulated for a block that modified one of them.
@@ -56,8 +43,9 @@ type SendEndOfBlockBundleRequest struct {
 	// (Optional) tx hashes that are allowed to revert or be discarded.
 	RevertingTxHashes []common.Hash
 	// (Optional) an arbitrary string used to replace or cancel this bundle. Passing an
-	// empty tx list with a replacement UUID cancels the bundle that holds it.
-	ReplacementUUID string
+	// empty tx list with a replacement UUID cancels the bundle that holds it. nil leaves
+	// the field out.
+	ReplacementUUID *string
 	// (Optional) monotonically increasing sequence for bundles sharing one
 	// ReplacementUUID. A bundle whose sequence is not higher than the last one is
 	// dropped. 0 falls back to ordering by builder receive time.
@@ -72,25 +60,21 @@ type endOfBlockBundleParams struct {
 	BlockNumber          string   `json:"blockNumber,omitempty"`
 	RevertingTxHashes    []string `json:"revertingTxHashes,omitempty"`
 	TargetPools          []string `json:"targetPools"`
-	ReplacementUUID      string   `json:"replacementUuid,omitempty"`
+	ReplacementUUID      *string  `json:"replacementUuid,omitempty"`
 	ReplacementSeqNumber *uint64  `json:"replacementSeqNumber,omitempty"`
 }
 
-// SendEndOfBlockBundle sends eth_sendEndOfBlockBundle. The endpoint requires the
-// X-Flashbots-Signature header, so the client must have been built with a flashbot key.
+// SendEndOfBlockBundle sends eth_sendEndOfBlockBundle. Titan and Quasar are the
+// builders that document the method, but the request is not gated on the sender type:
+// the caller decides which endpoint gets it. postBundle attaches the
+// X-Flashbots-Signature header only when the client was built with a flashbot key.
 func (s *Client) SendEndOfBlockBundle(
 	ctx context.Context,
 	req SendEndOfBlockBundleRequest,
 	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
-	if !s.senderType.SupportsEndOfBlockBundle() {
-		return SendBundleResponse{}, ErrMethodNotSupport
-	}
 	if len(req.TargetPools) == 0 {
 		return SendBundleResponse{}, ErrMissingTargetPools
-	}
-	if s.flashbotKey == nil {
-		return SendBundleResponse{}, ErrMissingPrivKey
 	}
 
 	rawTxs, err := marshalTxs(txs)
@@ -126,8 +110,9 @@ func (s *Client) SendEndOfBlockBundle(
 // no such parameter, so SendEndOfBlockBundleRequest does not carry one; set
 // BLXRSubmitBundleParams.TargetSlots directly if you need it.
 //
-// ReplacementSeqNumber has no bloXroute equivalent and is rejected rather than
-// dropped, because dropping it would let a stale bundle replace a newer one.
+// ReplacementSeqNumber has no bloXroute equivalent and is dropped. A bundle sharing a
+// UUID is ordered by bloXroute receive time, so a delayed submission can replace a
+// newer one.
 func (s *BloxrouteClient) SendEndOfBlockBundle(
 	ctx context.Context,
 	req SendEndOfBlockBundleRequest,
@@ -136,16 +121,14 @@ func (s *BloxrouteClient) SendEndOfBlockBundle(
 	if len(req.TargetPools) == 0 {
 		return SendBundleResponse{}, ErrMissingTargetPools
 	}
-	if req.ReplacementSeqNumber != nil {
-		return SendBundleResponse{}, ErrReplacementSeqNumberNotSupport
-	}
-
 	p := new(BLXRSubmitBundleParams).
 		SetBlockNumber(req.BlockNumber).
 		SetTransactions(txs...).
 		SetTargetAddresses(req.TargetPools...).
-		SetBottom(true).
-		SetUUID(req.ReplacementUUID)
+		SetBottom(true)
+	if req.ReplacementUUID != nil {
+		p.SetUUID(*req.ReplacementUUID)
+	}
 	if len(req.RevertingTxHashes) != 0 {
 		reverting := hexHashes(req.RevertingTxHashes)
 		p.RevertingHashes = &reverting
