@@ -93,15 +93,10 @@ func (s *Client) SendBundleV2(
 	if req.RevertingTxs != nil {
 		p.RevertingTxs = req.RevertingTxs
 	}
-	if s.senderType == BundleSenderTypeBombora {
-		p = p.SetBomboraFields(req)
+	if s.opts.builderNetRefundAddress != "" {
+		p = p.SetBuilderNetRefundAddress(s.opts.builderNetRefundAddress)
 	}
-	if s.senderType == BundleSenderTypeUltrasound {
-		p = p.SetUltrasoundFields(req)
-	}
-	if s.senderType == BundleSenderTypeFlashbot {
-		p = p.SetStateBlockNumber("latest")
-	}
+	p = p.setSenderSpecificFields(s.senderType, req)
 
 	if s.senderType == BundleSenderType48Club && s.flashbotKey != nil {
 		sig48Data, err := Sign48SPMember(s.flashbotKey, txs)
@@ -549,6 +544,44 @@ type SendBundleParams struct {
 	BuilderNetRefundAddress string        `json:"builderNetRefundAddress"`
 	Errors                  []error       `json:"-"` // check when building bundle
 	SoulPointSignature      hexutil.Bytes `json:"48spSign,omitempty"`
+
+	// 48Club Puissant fields. Optional, and absent is not the same as false to a builder that
+	// treats the key's presence as the opt-in, so they stay nil unless the caller asked for one.
+	NoMerge       *bool `json:"noMerge,omitempty"`
+	PositionFirst *bool `json:"positionFirst,omitempty"`
+}
+
+// Set48ClubFields carries the scheduling fields 48Club's eth_sendBundle documents.
+//
+// BlockRazor is deliberately not included. Its two products take different methods on different
+// endpoints: the free bsc.blockrazor.xyz RPC serves eth_sendMevBundle, which documents only txs,
+// revertingTxHashes and maxBlockNumber, while noMerge and positionFirst belong to the paid
+// virginia.builder.blockrazor.io builder on eth_sendBundle. This library targets the free RPC, so
+// sending either field there is an unknown parameter.
+func (p *SendBundleParams) Set48ClubFields(req SendBundleV2Request) *SendBundleParams {
+	p.NoMerge = req.NoMerge
+	p.PositionFirst = req.PositionFirst
+
+	return p
+}
+
+// setSenderSpecificFields applies the fields only one builder family accepts, so that no sender is
+// sent another's: an unknown parameter is a rejection risk on a builder that validates strictly.
+func (p *SendBundleParams) setSenderSpecificFields(
+	senderType BundleSenderType, req SendBundleV2Request,
+) *SendBundleParams {
+	switch senderType {
+	case BundleSenderTypeBombora:
+		return p.SetBomboraFields(req)
+	case BundleSenderTypeUltrasound:
+		return p.SetUltrasoundFields(req)
+	case BundleSenderTypeFlashbot:
+		return p.SetStateBlockNumber("latest")
+	case BundleSenderType48Club:
+		return p.Set48ClubFields(req)
+	default:
+		return p
+	}
 }
 
 func (p *SendBundleParams) SetStateBlockNumber(stateBlockNumber string) *SendBundleParams {

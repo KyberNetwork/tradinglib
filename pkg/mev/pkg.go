@@ -411,4 +411,10 @@ type SendBundleV2Request struct {
 	ReplacementUUID *string `json:"ReplacementUuid,omitempty"`
 	// (Optional) String, UUID that can be used to cancel/replace this bundle (For beaverbuild)
 	UUID *string `json:"uuid,omitempty"`
+	// (Optional) Bool, forbid the builder from merging this bundle with others. 48Club only;
+	// unset means false, which is the higher-inclusion setting.
+	NoMerge *bool `json:"noMerge,omitempty"`
+	// (Optional) Bool, order strictly by priority fee instead of letting a late bundle be
+	// appended to the block tail. 48Club only.
+	PositionFirst *bool `json:"positionFirst,omitempty"`
 }
