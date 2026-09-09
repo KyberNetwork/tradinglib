@@ -19,7 +19,10 @@ type captured struct {
 	params map[string]any
 }
 
-func sendOne(t *testing.T, senderType mev.BundleSenderType, req mev.SendBundleV2Request) *captured {
+func sendOne(
+	t *testing.T, senderType mev.BundleSenderType, req mev.SendBundleV2Request,
+	opts ...mev.NewBundleSendleClientOption,
+) *captured {
 	t.Helper()
 	got := &captured{}
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -39,12 +42,38 @@ func sendOne(t *testing.T, senderType mev.BundleSenderType, req mev.SendBundleV2
 	}))
 	t.Cleanup(srv.Close)
 
-	c, err := mev.NewClient(srv.Client(), srv.URL, nil, senderType, false)
+	c, err := mev.NewClient(srv.Client(), srv.URL, nil, senderType, false, opts...)
 	require.NoError(t, err)
 	_, err = c.SendBundleV2(context.Background(), req)
 	require.NoError(t, err)
 
 	return got
+}
+
+// TestSendBundleV2_HonoursTheBuilderNetRefundOption: the option is a property of the client, but
+// only sendBundle applied it, so a caller on SendBundleV2 configured a refund recipient and
+// silently never sent one — forgoing the refunds it had opted into.
+func TestSendBundleV2_HonoursTheBuilderNetRefundOption(t *testing.T) {
+	t.Parallel()
+	blockNumber := uint64(1)
+	addr := "0x0000000000000000000000000000000000001234"
+
+	got := sendOne(t, mev.BundleSenderTypeBeaver, mev.SendBundleV2Request{BlockNumber: &blockNumber},
+		mev.WithBuilderNetRefundAddress(addr))
+
+	require.Equal(t, addr, got.params["builderNetRefundAddress"])
+	require.Equal(t, true, got.params["allowBuilderNetRefunds"])
+}
+
+// TestSendBundleV2_LeavesTheRefundUnsetWithoutTheOption: a client that never opted in must not
+// claim refunds for an empty address.
+func TestSendBundleV2_LeavesTheRefundUnsetWithoutTheOption(t *testing.T) {
+	t.Parallel()
+	blockNumber := uint64(1)
+	got := sendOne(t, mev.BundleSenderTypeBeaver, mev.SendBundleV2Request{BlockNumber: &blockNumber})
+
+	require.Empty(t, got.params["builderNetRefundAddress"])
+	require.Equal(t, false, got.params["allowBuilderNetRefunds"])
 }
 
 // TestSendBundleV2_48ClubSchedulingFieldsAreCarried pins the two fields 48Club's eth_sendBundle

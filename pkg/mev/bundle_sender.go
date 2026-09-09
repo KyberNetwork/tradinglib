@@ -93,6 +93,9 @@ func (s *Client) SendBundleV2(
 	if req.RevertingTxs != nil {
 		p.RevertingTxs = req.RevertingTxs
 	}
+	if s.opts.builderNetRefundAddress != "" {
+		p = p.SetBuilderNetRefundAddress(s.opts.builderNetRefundAddress)
+	}
 	p = p.setSenderSpecificFields(s.senderType, req)
 
 	if s.senderType == BundleSenderType48Club && s.flashbotKey != nil {
