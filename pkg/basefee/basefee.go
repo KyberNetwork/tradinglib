@@ -31,7 +31,10 @@ func CalcNextBaseFee(chainId uint64, header *types.Header) (*big.Int, error) {
 	case BaseChainID: // Base mainnet
 		return baseChainEIP1559.CalcBaseFee(baseChainParams.OptimismTestConfig, header, header.Time), nil
 	case BscChainID: // BSC mainnet
-		return bscChainEIP1559.CalcBaseFee(bscChainParams.MainnetChainConfig, header), nil
+		// BSCChainConfig, not MainnetChainConfig: the latter is Ethereum (ChainID 1) and carries no
+		// Parlia, so CalcBaseFee skips its Parlia short-circuit and runs Ethereum's EIP-1559 math
+		// over a chain whose base fee is fixed at zero.
+		return bscChainEIP1559.CalcBaseFee(bscChainParams.BSCChainConfig, header), nil
 	case PolygonChainID:
 		return polChainEIP1559.CalcBaseFee(polChainParams.BorMainnetChainConfig, header), nil
 	default:
