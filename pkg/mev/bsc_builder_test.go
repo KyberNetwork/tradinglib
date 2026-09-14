@@ -138,3 +138,77 @@ func TestSendBundleV2_48ClubFieldsStayOffOtherBuilders(t *testing.T) {
 
 	require.NotContains(t, got.params, "noMerge")
 }
+
+// captureMethod records the JSON-RPC method of whatever call send makes.
+func captureMethod(
+	t *testing.T, senderType mev.BundleSenderType, send func(*mev.Client) error,
+) string {
+	t.Helper()
+	var method string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		require.NoError(t, err)
+
+		var parsed struct {
+			Method string `json:"method"`
+		}
+		require.NoError(t, json.Unmarshal(body, &parsed))
+		method = parsed.Method
+		_, _ = w.Write([]byte(`{"jsonrpc":"2.0","id":1,"result":"0xdead"}`))
+	}))
+	t.Cleanup(srv.Close)
+
+	c, err := mev.NewClient(srv.Client(), srv.URL, nil, senderType, false)
+	require.NoError(t, err)
+	require.NoError(t, send(c))
+
+	return method
+}
+
+// TestSendBundle_BlockRazorTakesTheFreeRPCMethod is the regression this pair of entry points
+// needed: SendBundleV2 picked eth_sendMevBundle for BlockRazor while SendBundle and SendBundleHex
+// hardcoded eth_sendBundle. The free bsc.blockrazor.xyz RPC serves only the former, so a caller on
+// the plain path reached a method that endpoint does not implement — the bundle never lands and the
+// send itself looks fine.
+func TestSendBundle_BlockRazorTakesTheFreeRPCMethod(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		send func(*mev.Client) error
+	}{
+		{"SendBundle", func(c *mev.Client) error {
+			_, err := c.SendBundle(context.Background(), nil, 1)
+			return err
+		}},
+		{"SendBundleHex", func(c *mev.Client) error {
+			_, err := c.SendBundleHex(context.Background(), nil, 1, "0x01")
+			return err
+		}},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			require.Equal(t, "eth_sendMevBundle",
+				captureMethod(t, mev.BundleSenderTypeBlockRazor, tc.send),
+				"BlockRazor's free RPC serves eth_sendMevBundle on every submit path")
+			require.Equal(t, "eth_sendBundle",
+				captureMethod(t, mev.BundleSenderTypeFlashbot, tc.send),
+				"every other sender keeps eth_sendBundle")
+		})
+	}
+}
+
+// TestBlockRazor_NonSubmitPathsKeepTheirOwnMethod: the swap belongs to bundle SUBMISSION only.
+// Simulation and cancellation pass a method of their own, and rewriting those would turn a
+// simulate into a submit.
+func TestBlockRazor_NonSubmitPathsKeepTheirOwnMethod(t *testing.T) {
+	t.Parallel()
+
+	require.Equal(t, "eth_callBundle", captureMethod(t, mev.BundleSenderTypeBlockRazor,
+		func(c *mev.Client) error {
+			_, err := c.SimulateBundle(context.Background(), 1)
+			return err
+		}), "a simulation must never be rewritten into a send")
+}

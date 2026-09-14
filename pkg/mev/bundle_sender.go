@@ -64,7 +64,19 @@ func (s *Client) SendBundle(
 	blockNumber uint64,
 	txs ...*types.Transaction,
 ) (SendBundleResponse, error) {
-	return s.sendBundle(ctx, ETHSendBundleMethod, uuid, blockNumber, txs, nil)
+	return s.sendBundle(ctx, s.submitBundleMethod(), uuid, blockNumber, txs, nil)
+}
+
+// submitBundleMethod is the JSON-RPC method this sender accepts for a bundle SUBMISSION.
+//
+// Only submissions: cancellation and eth_callBundle pass their own method and must keep it, so
+// this is applied at the submit entry points rather than inside sendBundle.
+func (s *Client) submitBundleMethod() string {
+	if s.senderType == BundleSenderTypeBlockRazor {
+		return ETHSendMevBundle
+	}
+
+	return ETHSendBundleMethod
 }
 
 func (s *Client) SendBundleV2(
@@ -110,11 +122,7 @@ func (s *Client) SendBundleV2(
 		return SendBundleResponse{}, err
 	}
 
-	method := ETHSendBundleMethod
-	if s.senderType == BundleSenderTypeBlockRazor {
-		method = ETHSendMevBundle
-	}
-	return s.sendRawBundle(ctx, method, p)
+	return s.sendRawBundle(ctx, s.submitBundleMethod(), p)
 }
 
 // https://docs.48.club/puissant-builder/48-soulpoint-benefits
@@ -133,7 +141,7 @@ func (s *Client) SendBundleHex(
 	blockNumber uint64,
 	hexEncodedTxs ...string,
 ) (SendBundleResponse, error) {
-	return s.sendBundle(ctx, ETHSendBundleMethod, uuid, blockNumber, nil, hexEncodedTxs)
+	return s.sendBundle(ctx, s.submitBundleMethod(), uuid, blockNumber, nil, hexEncodedTxs)
 }
 
 // getGetBundleStatsMethod
