@@ -274,4 +274,35 @@ func TestWrapEVM(t *testing.T) {
 		_, err = env.client.CallContract(ctx, msg, nil)
 		assert.Error(t, err)
 	})
+
+	t.Run("wrapper itself receives native swap output", func(t *testing.T) {
+		// Some routers pay swap output to msg.sender rather than an explicit
+		// recipient argument. Since the wrapper is msg.sender of the call to
+		// target, that means the payout lands on the wrapper contract
+		// itself; without a receive() function the plain ETH transfer would
+		// revert and the whole simulated call would fail.
+		//
+		// mockRouterAddr pays out of its own pre-funded balance (rather than
+		// forwarding wrap's msg.value) so that wrapperAddr's balanceBefore
+		// snapshot isn't itself inflated by the value of this very call.
+		env.sendValue(ctx, t, mockRouterAddr, amount)
+
+		payOutToWrapperData, err := mockRouterABI.Pack("payOut", wrapperAddr, amount)
+		require.NoError(t, err)
+
+		selfWrapCalldata, err := EncodeWrapCalldata(
+			mockRouterAddr, payOutToWrapperData, NativeTokenAddress, wrapperAddr,
+		)
+		require.NoError(t, err)
+
+		msg := ethereum.CallMsg{From: env.from, To: &wrapperAddr, Data: selfWrapCalldata}
+
+		result, err := env.client.CallContract(ctx, msg, nil)
+		require.NoError(t, err)
+
+		returnAmount, gasUsed, err := DecodeWrapOutput(result)
+		require.NoError(t, err)
+		assert.Equal(t, 0, amount.Cmp(returnAmount))
+		assert.Positive(t, gasUsed)
+	})
 }

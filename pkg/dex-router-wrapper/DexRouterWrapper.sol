@@ -71,4 +71,10 @@ contract DexRouterWrapper {
         }
         revert("DexRouterWrapper: target call reverted");
     }
+
+    // Some routers pay swap output to msg.sender rather than an explicit
+    // recipient argument; since this contract is msg.sender of the call to
+    // target, that output lands here. Without this, such a payout would
+    // revert the whole simulated call for having no way to accept it.
+    receive() external payable {}
 }
