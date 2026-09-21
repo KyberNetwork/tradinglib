@@ -28,4 +28,16 @@ contract MockRouter {
     function fail() external pure {
         revert MockRouterFail("mock router failure");
     }
+
+    // payOut sends amount of this contract's own native ETH balance to an
+    // address other than the caller-supplied recipient, so tests can drive
+    // DexRouterWrapper.wrap's recipient (= address(this)) balance down
+    // across the call instead of up.
+    function payOut(address payable to, uint256 amount) external {
+        // solhint-disable-next-line avoid-low-level-calls
+        (bool success, ) = to.call{value: amount}("");
+        require(success, "MockRouter: payout failed");
+    }
+
+    receive() external payable {}
 }

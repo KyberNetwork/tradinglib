@@ -42,6 +42,11 @@ contract DexRouterWrapper {
         }
 
         uint256 balanceAfter = _balanceOf(outputToken, recipient);
+        // Solidity 0.8's checked arithmetic would otherwise turn this into an
+        // opaque Panic(0x11) if the call left recipient with less outputToken
+        // than it started with; a named revert reason is more useful to a
+        // caller trying to interpret a failed quote.
+        require(balanceAfter >= balanceBefore, "DexRouterWrapper: output balance decreased");
         returnAmount = balanceAfter - balanceBefore;
         gasUsed = gasStart - gasleft();
     }

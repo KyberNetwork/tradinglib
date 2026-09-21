@@ -76,9 +76,8 @@ func newEVMTestEnv(t *testing.T) *evmTestEnv {
 
 // deploy sends creationBytecode as a contract-creation transaction and
 // returns the resulting contract address.
-func (env *evmTestEnv) deploy(t *testing.T, creationBytecode []byte) common.Address {
+func (env *evmTestEnv) deploy(ctx context.Context, t *testing.T, creationBytecode []byte) common.Address {
 	t.Helper()
-	ctx := context.Background()
 
 	nonce, err := env.client.PendingNonceAt(ctx, env.from)
 	require.NoError(t, err)
@@ -109,6 +108,39 @@ func (env *evmTestEnv) deploy(t *testing.T, creationBytecode []byte) common.Addr
 	return receipt.ContractAddress
 }
 
+// sendValue sends amount of native ETH from env.from to addr as a plain
+// transaction, e.g. to pre-fund a contract before a test calls it.
+func (env *evmTestEnv) sendValue(ctx context.Context, t *testing.T, addr common.Address, amount *big.Int) {
+	t.Helper()
+
+	nonce, err := env.client.PendingNonceAt(ctx, env.from)
+	require.NoError(t, err)
+
+	head, err := env.client.HeaderByNumber(ctx, nil)
+	require.NoError(t, err)
+
+	gasFeeCap := new(big.Int).Add(head.BaseFee, big.NewInt(params.GWei))
+	tx := types.NewTx(&types.DynamicFeeTx{
+		ChainID:   env.chainID,
+		Nonce:     nonce,
+		GasTipCap: big.NewInt(params.GWei),
+		GasFeeCap: gasFeeCap,
+		Gas:       100_000,
+		To:        &addr,
+		Value:     amount,
+	})
+
+	signedTx, err := types.SignTx(tx, types.LatestSignerForChainID(env.chainID), env.key)
+	require.NoError(t, err)
+
+	require.NoError(t, env.client.SendTransaction(ctx, signedTx))
+	env.backend.Commit()
+
+	receipt, err := env.client.TransactionReceipt(ctx, signedTx.Hash())
+	require.NoError(t, err)
+	require.Equal(t, types.ReceiptStatusSuccessful, receipt.Status, "pre-funding transfer must succeed")
+}
+
 // simulateV1Caller is the subset of *ethclient.Client's SimulateV1 method
 // that simulated.Client's interface doesn't expose statically, even though
 // the backend's concrete client implements it.
@@ -121,14 +153,14 @@ type simulateV1Caller interface {
 // callWithOverride runs msg through eth_simulateV1 with the given state
 // overrides applied and returns the call's raw return data.
 func (env *evmTestEnv) callWithOverride(
-	t *testing.T, msg ethereum.CallMsg, overrides map[common.Address]ethereum.OverrideAccount,
+	ctx context.Context, t *testing.T, msg ethereum.CallMsg, overrides map[common.Address]ethereum.OverrideAccount,
 ) ([]byte, error) {
 	t.Helper()
 
 	caller, ok := env.client.(simulateV1Caller)
 	require.True(t, ok, "simulated client must support eth_simulateV1")
 
-	results, err := caller.SimulateV1(context.Background(), ethclient.SimulateOptions{
+	results, err := caller.SimulateV1(ctx, ethclient.SimulateOptions{
 		BlockStateCalls: []ethclient.SimulateBlock{
 			{
 				StateOverrides: overrides,
@@ -171,8 +203,8 @@ func TestWrapEVM(t *testing.T) {
 	mockRouterABI := mustParseABI(t, mockRouterABIJSON)
 	mockRouterCreation := mustDecodeHexBytecode(t, mockRouterCreationBytecodeHex)
 
-	mockRouterAddr := env.deploy(t, mockRouterCreation)
-	wrapperAddr := env.deploy(t, CreationBytecode())
+	mockRouterAddr := env.deploy(ctx, t, mockRouterCreation)
+	wrapperAddr := env.deploy(ctx, t, CreationBytecode())
 
 	recipient := common.HexToAddress("0x00000000000000000000000000000000000c0de")
 	amount := big.NewInt(1_000_000_000_000_000) // 0.001 ETH
@@ -201,7 +233,7 @@ func TestWrapEVM(t *testing.T) {
 		overrideAddr := common.HexToAddress("0x00000000000000000000000000000000badc0d")
 		msg := ethereum.CallMsg{From: env.from, To: &overrideAddr, Data: wrapCalldata, Value: amount}
 
-		result, err := env.callWithOverride(t, msg, StateOverride(overrideAddr))
+		result, err := env.callWithOverride(ctx, t, msg, StateOverride(overrideAddr))
 		require.NoError(t, err)
 
 		returnAmount, gasUsed, err := DecodeWrapOutput(result)
@@ -218,6 +250,26 @@ func TestWrapEVM(t *testing.T) {
 		require.NoError(t, err)
 
 		msg := ethereum.CallMsg{From: env.from, To: &wrapperAddr, Data: failCalldata}
+
+		_, err = env.client.CallContract(ctx, msg, nil)
+		assert.Error(t, err)
+	})
+
+	t.Run("reverts when output balance decreases", func(t *testing.T) {
+		// Pre-fund mockRouterAddr, then have it pay part of its own balance
+		// out to a third party. With recipient == mockRouterAddr, wrap's
+		// balance-diff goes negative, which must be a clean revert rather
+		// than an underflow panic.
+		env.sendValue(ctx, t, mockRouterAddr, big.NewInt(1_000_000_000_000_000))
+
+		bystander := common.HexToAddress("0x0000000000000000000000000000000000b7a5")
+		payOutData, err := mockRouterABI.Pack("payOut", bystander, big.NewInt(1))
+		require.NoError(t, err)
+
+		payOutCalldata, err := EncodeWrapCalldata(mockRouterAddr, payOutData, NativeTokenAddress, mockRouterAddr)
+		require.NoError(t, err)
+
+		msg := ethereum.CallMsg{From: env.from, To: &wrapperAddr, Data: payOutCalldata}
 
 		_, err = env.client.CallContract(ctx, msg, nil)
 		assert.Error(t, err)
