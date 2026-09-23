@@ -5,11 +5,36 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/KyberNetwork/aggregator-encoding/pkg/encode/v3/router"
+	"github.com/KyberNetwork/aggregator-encoding/pkg/encode/v2/router"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func TestDecodeMetaAggregationSwapOutput(t *testing.T) {
+	// MetaAggregationRouterV2 returns two ABI words: returnAmount and gasUsed.
+	data := hexutil.MustDecode("0x000000000000000000000000000000000000000000000000000000000000002a00000000000000000000000000000000000000000000000000000000000186a0")
+
+	t.Run("valid V2 output", func(t *testing.T) {
+		amount, gas, err := DecodeMetaAggregationSwapOutput(data)
+		require.NoError(t, err)
+		assert.Equal(t, big.NewInt(42), amount)
+		assert.Equal(t, uint64(100000), gas)
+	})
+
+	t.Run("zero gas", func(t *testing.T) {
+		zeroGas := make([]byte, len(data))
+		copy(zeroGas[:32], data[:32])
+		_, _, err := DecodeMetaAggregationSwapOutput(zeroGas)
+		require.EqualError(t, err, "gas is zero")
+	})
+
+	t.Run("truncated output", func(t *testing.T) {
+		_, _, err := DecodeMetaAggregationSwapOutput(data[:32])
+		require.Error(t, err)
+	})
+}
 
 func TestEncodeMetaAggregationRouterSwap(t *testing.T) {
 	testCases := []struct {

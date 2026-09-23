@@ -6,7 +6,7 @@ import (
 	"math/big"
 
 	"github.com/KyberNetwork/aggregator-encoding/pkg/abis"
-	"github.com/KyberNetwork/aggregator-encoding/pkg/encode/v3/router"
+	"github.com/KyberNetwork/aggregator-encoding/pkg/encode/v2/router"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
