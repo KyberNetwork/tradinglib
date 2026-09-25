@@ -6,6 +6,7 @@ require (
 	github.com/KyberNetwork/aggregator-encoding v0.73.96
 	github.com/KyberNetwork/cclog v1.1.2
 	github.com/KyberNetwork/kyber-trace-go v0.1.2
+	github.com/KyberNetwork/kyberswap-dex-lib v0.134.7
 	github.com/TheZeroSlave/zapsentry v1.23.0
 	github.com/andybalholm/brotli v1.2.0
 	github.com/duoxehyon/mev-share-go v0.3.0
@@ -34,7 +35,6 @@ require (
 	github.com/KyberNetwork/ethrpc v0.7.5-0.20260526072403-c0b3de05e48b // indirect
 	github.com/KyberNetwork/int256 v0.1.4 // indirect
 	github.com/KyberNetwork/kutils v0.4.2 // indirect
-	github.com/KyberNetwork/kyberswap-dex-lib v0.134.7 // indirect
 	github.com/KyberNetwork/logger v1.0.3 // indirect
 	github.com/KyberNetwork/uniswapv3-sdk-uint256 v0.5.5 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
