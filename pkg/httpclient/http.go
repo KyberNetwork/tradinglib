@@ -10,7 +10,7 @@ import (
 	"net/url"
 )
 
-func DoHTTPRequest(client *http.Client, req *http.Request, out interface{}, options ...Option) (*http.Response, error) {
+func DoHTTPRequest(client *http.Client, req *http.Request, out any, options ...Option) (*http.Response, error) {
 	if client == nil {
 		return nil, fmt.Errorf("client must not be nil")
 	}
@@ -19,7 +19,7 @@ func DoHTTPRequest(client *http.Client, req *http.Request, out interface{}, opti
 	}
 	option := defaultOption()
 	option.apply(options...)
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) // nolint: gosec
 	if err != nil {
 		return nil, err
 	}
@@ -85,12 +85,12 @@ func NewPostWithContext(
 	return NewRequestWithContext(ctx, http.MethodPost, baseURL, path, query, body)
 }
 
-func NewPostJSON(baseURL, path string, query Query, body interface{}) (*http.Request, error) {
+func NewPostJSON(baseURL, path string, query Query, body any) (*http.Request, error) {
 	return NewPostJSONWithContext(context.Background(), baseURL, path, query, body)
 }
 
 func NewPostJSONWithContext(
-	ctx context.Context, baseURL, path string, query Query, body interface{},
+	ctx context.Context, baseURL, path string, query Query, body any,
 ) (*http.Request, error) {
 	var buff io.Reader
 	if body != nil {

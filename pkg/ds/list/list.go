@@ -1,5 +1,7 @@
 package list
 
+import "slices"
+
 type List[T any] []T
 
 func (l List[T]) Filter(pre func(e T) bool) List[T] {
@@ -39,10 +41,5 @@ func (l List[T]) ForEach(f func(e T)) {
 }
 
 func (l List[T]) FindFn(f func(e T) bool) bool {
-	for _, v := range l {
-		if f(v) {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(l, f)
 }

@@ -14,7 +14,7 @@ func TestWorker(t *testing.T) {
 		return v, nil
 	})
 	go w.Start()
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		c, at := w.Get()
 		t.Log(c, at)
 		time.Sleep(time.Millisecond)

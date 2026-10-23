@@ -9,11 +9,11 @@ import (
 
 func TestCycleBuffer(t *testing.T) {
 	c := list.NewRing[int](5)
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		c.Append(i)
 	}
 	assert.Equal(t, list.List[int]{0, 1, 2, 3, 4}, c.Filter(func(e int) bool { return true }))
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		c.Append(i + 5)
 	}
 	assert.Equal(t, list.List[int]{0, 1, 2, 3, 4, 5, 6, 7}, c.Filter(func(e int) bool { return true }))

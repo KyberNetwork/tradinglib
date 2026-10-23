@@ -1,6 +1,9 @@
 package kipselipmm
 
-import "fmt"
+import (
+	"fmt"
+	"slices"
+)
 
 type PairState struct {
 	SoldAmount   float64
@@ -117,8 +120,7 @@ func (p Path) CalcAmountIn(amountOut float64) (float64, []SwapLog, error) {
 	swapLogs := make([]SwapLog, 0, p.numOfPairs)
 	var err error
 	// reverse order
-	for i := len(p.pairs) - 1; i >= 0; i-- {
-		pair := p.pairs[i]
+	for i, pair := range slices.Backward(p.pairs) {
 		isSell := p.isSells[i]
 		pairState := p.pairStates[i]
 		minTradeBaseAmount := p.minTradeBaseAmounts[i]

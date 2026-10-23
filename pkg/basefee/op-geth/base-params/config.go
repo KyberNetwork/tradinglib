@@ -37,7 +37,8 @@ var (
 	HoodiGenesisHash   = common.HexToHash("0xbbe312868b376a3001692a646dd2d7d1e4406380dfd86b98aa8a34d1557c971b")
 )
 
-func newUint64(val uint64) *uint64 { return &val }
+//go:fix inline
+func newUint64(val uint64) *uint64 { return new(val) }
 
 var (
 	MainnetTerminalTotalDifficulty, _ = new(big.Int).SetString("58_750_000_000_000_000_000_000", 0)

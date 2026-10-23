@@ -15,11 +15,9 @@ func TestSyncMap(t *testing.T) {
 		k string
 		v int
 	}
-	var (
-		tests     []testData
-		testRange = 1_000_000
-	)
-	for i := 0; i < testRange; i++ {
+	testRange := 1_000_000
+	tests := make([]testData, 0, testRange)
+	for i := range testRange {
 		tests = append(tests, testData{
 			k: strconv.Itoa(i),
 			v: i,

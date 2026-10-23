@@ -24,6 +24,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const testPendingTxHash = "0x2e038916d175d9028c87d59e33f79ac96cb487e90aad6cd501dc9675b64d7245"
+
 func TestSendBundle(t *testing.T) {
 	t.Skip()
 
@@ -89,8 +91,9 @@ func TestSendBundle(t *testing.T) {
 	require.NoError(t, sender.CancelBundle(ctx, uuid))
 }
 
+//go:fix inline
 func Ptr[T any](v T) *T {
-	return &v
+	return new(v)
 }
 
 func TestSendBundleV2(t *testing.T) {
@@ -145,9 +148,9 @@ func TestSendBundleV2(t *testing.T) {
 	require.NoError(t, err)
 
 	resp, err := sender.SendBundleV2(ctx, mev.SendBundleV2Request{
-		MinTimestamp: Ptr(head.Time + 1),
-		MaxTimestamp: Ptr(head.Time + 5),
-		UUID:         Ptr(uuid),
+		MinTimestamp: new(head.Time + 1),
+		MaxTimestamp: new(head.Time + 5),
+		UUID:         new(uuid),
 	})
 	require.NoError(t, err) // sepolia: code: [-32000], message: [internal server error]
 	t.Log("send bundle response", resp)
@@ -199,7 +202,7 @@ func Test_SimulateBundle(t *testing.T) {
 	// Transaction hashes you want to fetch from the node
 	txHashes := []string{
 		"0x5deec444557cb413fc483e517454eb2f7a717e922af60cd79a223ea9741299b3",
-		"0x2e038916d175d9028c87d59e33f79ac96cb487e90aad6cd501dc9675b64d7245",
+		testPendingTxHash,
 	}
 	blockNumber := 19738428
 	txs := make([]*types.Transaction, 0, len(txHashes))
@@ -247,7 +250,7 @@ func TestMevSendBundle(t *testing.T) {
 
 	// Transaction hashes you want to fetch from the node
 	txHashes := []string{
-		"0x2e038916d175d9028c87d59e33f79ac96cb487e90aad6cd501dc9675b64d7245",
+		testPendingTxHash,
 	}
 	tx, isPending, err := ethClient.TransactionByHash(context.Background(), common.HexToHash(txHashes[0]))
 	require.NoError(t, err)
@@ -270,7 +273,7 @@ func TestMevSendBundle(t *testing.T) {
 
 	txBytes := hexutil.Bytes(rlpEncodedTx)
 
-	pendingTXhash := common.HexToHash("0x2e038916d175d9028c87d59e33f79ac96cb487e90aad6cd501dc9675b64d7245")
+	pendingTXhash := common.HexToHash(testPendingTxHash)
 	// Define the bundle transactions
 	txns := []mevshare.MevBundleBody{
 		{
@@ -308,7 +311,7 @@ func TestClient_GetBundleStats(t *testing.T) {
 
 	// Transaction hashes you want to fetch from the node
 	txHashes := []string{
-		"0x2e038916d175d9028c87d59e33f79ac96cb487e90aad6cd501dc9675b64d7245",
+		testPendingTxHash,
 	}
 	tx, isPending, err := ethClient.TransactionByHash(context.Background(), common.HexToHash(txHashes[0]))
 	require.NoError(t, err)

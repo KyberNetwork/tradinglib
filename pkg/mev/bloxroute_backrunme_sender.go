@@ -43,7 +43,7 @@ type backrunmeRequestParams struct {
 type backrunmeResponse struct {
 	JSONRPC string                  `json:"jsonrpc"`
 	ID      string                  `json:"id"`
-	Result  backrunmeResponseResult `json:"result,omitempty"`
+	Result  backrunmeResponseResult `json:"result"`
 	Error   *backrunmeResponseError `json:"error,omitempty"`
 }
 
@@ -74,7 +74,7 @@ type simulateTxResult struct {
 type simulateResponse struct {
 	JSONRPC string                  `json:"jsonrpc"`
 	ID      string                  `json:"id"`
-	Result  simulateResult          `json:"result,omitempty"`
+	Result  simulateResult          `json:"result"`
 	Error   *backrunmeResponseError `json:"error,omitempty"`
 }
 

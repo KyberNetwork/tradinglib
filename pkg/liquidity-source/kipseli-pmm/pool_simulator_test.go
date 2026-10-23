@@ -11,18 +11,23 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	tokenUSDT = "USDT"
+	tokenENS  = "ENS"
+)
+
 // nolint: funlen,maintidx
 func TestPoolSimulator_for_single_pair(t *testing.T) {
 	pricingData := PricingData{
 		Tokens: map[string]Token{
-			"ENS": {
-				Symbol:         "ENS",
+			tokenENS: {
+				Symbol:         tokenENS,
 				Address:        "0xc18360217d8f7ab5e7c516566761ea12ce7f9d72",
 				Decimals:       18,
 				MinTradeAmount: 0.7025215869872952,
 			},
-			"USDT": {
-				Symbol:         "USDT",
+			tokenUSDT: {
+				Symbol:         tokenUSDT,
 				Address:        "0xdac17f958d2ee523a2206206994597c13d831ec7",
 				Decimals:       6,
 				MinTradeAmount: 11.0,
@@ -30,8 +35,8 @@ func TestPoolSimulator_for_single_pair(t *testing.T) {
 		},
 		Pairs: []Pair{
 			{
-				Base:  "ENS",
-				Quote: "USDT",
+				Base:  tokenENS,
+				Quote: tokenUSDT,
 				Sell: []PriceLevel{
 					{Rate: 15.652117523955797, Quantity: 125.21656894068956},
 					{Rate: 15.662881770167372, Quantity: 375.623309584493},
@@ -53,13 +58,13 @@ func TestPoolSimulator_for_single_pair(t *testing.T) {
 		},
 	}
 
-	priorityQuotes := []string{"USDT"}
+	priorityQuotes := []string{tokenUSDT}
 
 	poolSimulator, err := NewPoolSimulator(pricingData, priorityQuotes)
 	require.NoError(t, err)
 
-	usdtToken := pricingData.Tokens["USDT"]
-	ensToken := pricingData.Tokens["ENS"]
+	usdtToken := pricingData.Tokens[tokenUSDT]
+	ensToken := pricingData.Tokens[tokenENS]
 	pair := pricingData.Pairs[0]
 
 	t.Run("buy ENS with USDT but not enough min trade amount", func(t *testing.T) {

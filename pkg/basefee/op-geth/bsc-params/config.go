@@ -35,7 +35,8 @@ var (
 	RialtoGenesisHash = common.HexToHash("0xee835a629f9cf5510b48b6ba41d69e0ff7d6ef10f977166ef939db41f59f5501")
 )
 
-func newUint64(val uint64) *uint64 { return &val }
+//go:fix inline
+func newUint64(val uint64) *uint64 { return new(val) }
 
 var (
 	MainnetTerminalTotalDifficulty, _ = new(big.Int).SetString("58_750_000_000_000_000_000_000", 0)
@@ -747,7 +748,7 @@ func (c *ChainConfig) Description() string {
 
 // String implements the fmt.Stringer interface.
 func (c *ChainConfig) String() string {
-	var engine interface{}
+	var engine any
 
 	switch {
 	case c.Ethash != nil:

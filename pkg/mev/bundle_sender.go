@@ -183,7 +183,7 @@ func (s *Client) CancelBundle(
 			return fmt.Errorf("sign flashbot request error: %w", err)
 		}
 
-		headers = append(headers, [2]string{"X-Flashbots-Signature", signature})
+		headers = append(headers, [2]string{XFlashbotSignatureHeader, signature})
 	}
 
 	// do
@@ -250,7 +250,7 @@ func (s *Client) GetBundleStats(
 		if err != nil {
 			return GetBundleStatsResponse{}, fmt.Errorf("sign flashbot request error: %w", err)
 		}
-		headers = append(headers, [2]string{"X-Flashbots-Signature", signature})
+		headers = append(headers, [2]string{XFlashbotSignatureHeader, signature})
 	}
 
 	resp, err := doRequest[GetBundleStatsResponse](s.c, httpReq, headers...)
@@ -323,7 +323,7 @@ func (s *Client) postBundle(ctx context.Context, method string, param any) (Send
 		if err != nil {
 			return SendBundleResponse{}, fmt.Errorf("sign flashbot request error: %w", err)
 		}
-		headers = append(headers, [2]string{"X-Flashbots-Signature", signature})
+		headers = append(headers, [2]string{XFlashbotSignatureHeader, signature})
 	}
 
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, s.endpoint, bytes.NewBuffer(reqBody))
@@ -389,7 +389,7 @@ func (s *Client) SendPrivateRawTransaction(
 		if err != nil {
 			return SendPrivateRawTransactionResponse{}, fmt.Errorf("sign flashbot request error: %w", err)
 		}
-		headers = append(headers, [2]string{"X-Flashbots-Signature", signature})
+		headers = append(headers, [2]string{XFlashbotSignatureHeader, signature})
 	}
 
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, s.endpoint, bytes.NewBuffer(reqBody))
@@ -457,7 +457,7 @@ func (s *Client) GetUserStats(
 		if err != nil {
 			return nil, fmt.Errorf("sign flashbot request error: %w", err)
 		}
-		headers = append(headers, [2]string{"X-Flashbots-Signature", signature})
+		headers = append(headers, [2]string{XFlashbotSignatureHeader, signature})
 	}
 
 	resp, err := doRequest[map[string]any](s.c, httpReq, headers...)

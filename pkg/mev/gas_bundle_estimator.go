@@ -25,7 +25,7 @@ func (g GasBundleEstimator) EstimateBundleGas(
 	messages []ethereum.CallMsg,
 	overrides *map[common.Address]gethclient.OverrideAccount,
 ) ([]uint64, error) {
-	bundles := make([]interface{}, 0, len(messages))
+	bundles := make([]any, 0, len(messages))
 	for _, msg := range messages {
 		bundles = append(bundles, ToCallArg(msg))
 	}
@@ -34,7 +34,7 @@ func (g GasBundleEstimator) EstimateBundleGas(
 
 	err := g.client.Call(
 		&gasEstimateCost, ETHEstimateGasBundleMethod,
-		map[string]interface{}{
+		map[string]any{
 			"transactions": bundles,
 		}, "latest", overrides,
 	)

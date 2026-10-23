@@ -32,7 +32,7 @@ func (r *Ring[T]) Len() int {
 // Append add item at right position of the buffer, expand it if needed.
 func (r *Ring[T]) Append(item T) {
 	currentSize := len(r.items)
-	if (r.itemCount) == currentSize {
+	if r.itemCount == currentSize {
 		if currentSize == 0 {
 			r.expand(defaultInitSize)
 		} else {

@@ -88,8 +88,8 @@ func (l *RPCListener) ResubPendingLogs(
 	)
 }
 
-func toFilterArg(q ethereum.FilterQuery) (interface{}, error) {
-	arg := map[string]interface{}{}
+func toFilterArg(q ethereum.FilterQuery) (any, error) {
+	arg := map[string]any{}
 	// Only include "address" when there are actual address filters.
 	// An empty slice is treated the same as nil (no filter), and omitting
 	// the field avoids sending "address":[] to nodes that reject empty arrays

@@ -70,8 +70,9 @@ func TestEncodeMetaAggregationRouterSwap(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			input := metaAggregationSwapInputs{}
-			input.SwapInputs = tc.input
+			input := metaAggregationSwapInputs{
+				SwapInputs: tc.input,
+			}
 			result, err := EncodeMetaAggregationRouterSwapData(&input)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expected, result)
