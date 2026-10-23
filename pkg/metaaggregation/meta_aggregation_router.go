@@ -45,6 +45,10 @@ func (m *metaAggregationSwapInputs) Type() InputsTypes {
 }
 
 func DecodeMetaAggregationRouterSwapData(data []byte) (MetaAggregationRouterSwapInputs, error) {
+	if isSwapV3Calldata(data) {
+		return decodeSwapV3Inputs(data)
+	}
+
 	method, err := abis.MetaAggregationRouterV2.MethodById(data)
 	if err != nil {
 		return nil, err
@@ -71,6 +75,8 @@ func EncodeMetaAggregationRouterSwapData(
 	switch input.Type() {
 	case Swap:
 		return router.PackSwapInputs(input.(*metaAggregationSwapInputs).SwapInputs)
+	case SwapV3:
+		return packSwapV3Inputs(input.(*metaAggregationSwapV3Inputs).SwapV3Params)
 	default:
 		return nil, ErrUnsupportedType
 	}
