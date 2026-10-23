@@ -6,7 +6,10 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
-var RouterV2ABI abi.ABI
+var (
+	RouterV2ABI abi.ABI
+	RouterV3ABI abi.ABI
+)
 
 //nolint:gochecknoinits
 func init() {
@@ -15,6 +18,7 @@ func init() {
 		data []byte
 	}{
 		{&RouterV2ABI, metaAggregationRouterV2JSON},
+		{&RouterV3ABI, ksAggregationRouterV3JSON},
 	}
 
 	for _, b := range builder {
