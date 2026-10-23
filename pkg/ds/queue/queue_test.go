@@ -133,7 +133,7 @@ func TestQueue(t *testing.T) {
 	q.PushFront(6)
 	assert.Equal(t, []int{6, 2, 1, 3}, q.List())
 
-	for i := 0; i < 20; i++ {
+	for range 20 {
 		q.PopBack()
 	}
 	v, ok = q.PopBack()

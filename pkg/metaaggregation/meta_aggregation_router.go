@@ -106,7 +106,7 @@ func UnpackSwapInputs(data []byte) (router.SwapInputs, error) {
 }
 
 func DecodeMetaAggregationSwapOutput(data []byte) (*big.Int, uint64, error) {
-	var res [2]interface{}
+	var res [2]any
 	err := RouterV2ABI.UnpackIntoInterface(&res, methodSwap, data)
 	if err != nil {
 		return nil, 0, fmt.Errorf("unpack data: %w", err)

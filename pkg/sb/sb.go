@@ -18,7 +18,7 @@ func Concat(elements ...string) string {
 	return b.String()
 }
 
-func ConcatAny(elements ...interface{}) string {
+func ConcatAny(elements ...any) string {
 	tmp := make([]string, 0, len(elements))
 	for _, v := range elements {
 		tmp = append(tmp, fmt.Sprint(v))

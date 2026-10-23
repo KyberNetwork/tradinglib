@@ -93,7 +93,7 @@ type SendRawTransactionResponse struct {
 	Jsonrpc string        `json:"jsonrpc"`
 	ID      int           `json:"id"`
 	Result  string        `json:"result"`
-	Error   ErrorResponse `json:"error,omitempty"`
+	Error   ErrorResponse `json:"error"`
 }
 
 type IBackrunSender interface {
@@ -231,8 +231,8 @@ func doRequest[T any](c *http.Client, req *http.Request, headers ...[2]string) (
 type GetBundleStatsResult struct {
 	IsHighPriority bool      `json:"isHighPriority,omitempty"`
 	IsSimulated    bool      `json:"isSimulated,omitempty"`
-	SimulatedAt    time.Time `json:"simulatedAt,omitempty"`
-	ReceivedAt     time.Time `json:"receivedAt,omitempty"`
+	SimulatedAt    time.Time `json:"simulatedAt"`
+	ReceivedAt     time.Time `json:"receivedAt"`
 
 	ConsideredByBuildersAt []*struct {
 		Pubkey    string    `json:"pubkey,omitempty"`
@@ -247,29 +247,29 @@ type GetBundleStatsResult struct {
 type GetBundleStatsResponse struct {
 	Jsonrpc string               `json:"jsonrpc,omitempty"`
 	ID      int                  `json:"id,omitempty"`
-	Result  GetBundleStatsResult `json:"result,omitempty"`
-	Error   GetBundleStatsError  `json:"error,omitempty"`
+	Result  GetBundleStatsResult `json:"result"`
+	Error   GetBundleStatsError  `json:"error"`
 }
 
 type SendBundleResponse struct {
 	Jsonrpc string           `json:"jsonrpc,omitempty"`
 	ID      int              `json:"id,omitempty"`
-	Result  SendBundleResult `json:"result,omitempty"`
-	Error   ErrorResponse    `json:"error,omitempty"`
+	Result  SendBundleResult `json:"result"`
+	Error   ErrorResponse    `json:"error"`
 }
 
 type SendPrivateRawTransactionResponse struct {
 	Jsonrpc string        `json:"jsonrpc"`
 	ID      int           `json:"id"`
 	Result  string        `json:"result"`
-	Error   ErrorResponse `json:"error,omitempty"`
+	Error   ErrorResponse `json:"error"`
 }
 
 type MerkleSendBundleResponse struct {
 	Jsonrpc string        `json:"jsonrpc,omitempty"`
 	ID      int           `json:"id,omitempty"`
 	Result  string        `json:"result,omitempty"`
-	Error   ErrorResponse `json:"error,omitempty"`
+	Error   ErrorResponse `json:"error"`
 }
 
 type ErrorResponse struct {
@@ -332,7 +332,7 @@ type FlashbotCancelBundleResponse struct {
 	Jsonrpc string        `json:"jsonrpc,omitempty"`
 	ID      int           `json:"id,omitempty"`
 	Result  []string      `json:"result,omitempty"`
-	Error   ErrorResponse `json:"error,omitempty"`
+	Error   ErrorResponse `json:"error"`
 }
 
 func (resp FlashbotCancelBundleResponse) ToSendBundleResponse() SendBundleResponse {
@@ -352,11 +352,11 @@ type TitanCancelBundleResponse struct {
 	Jsonrpc string        `json:"jsonrpc,omitempty"`
 	ID      int           `json:"id,omitempty"`
 	Result  int           `json:"result,omitempty"`
-	Error   ErrorResponse `json:"error,omitempty"`
+	Error   ErrorResponse `json:"error"`
 }
 
-func ToCallArg(msg ethereum.CallMsg) interface{} {
-	arg := map[string]interface{}{
+func ToCallArg(msg ethereum.CallMsg) any {
+	arg := map[string]any{
 		"from": msg.From,
 		"to":   msg.To,
 	}

@@ -87,9 +87,9 @@ func sign(msg, secret []byte) (string, error) {
 
 func constructHeader(headers []string, keyID, signature string) string {
 	var signBuffer bytes.Buffer
-	signBuffer.WriteString(fmt.Sprintf(`keyId="%s",`, keyID))
+	fmt.Fprintf(&signBuffer, `keyId="%s",`, keyID)
 	signBuffer.WriteString(`algorithm="hmac-sha512",`)
-	signBuffer.WriteString(fmt.Sprintf(`headers="%s",`, strings.Join(headers, " ")))
-	signBuffer.WriteString(fmt.Sprintf(`signature="%s"`, signature))
+	fmt.Fprintf(&signBuffer, `headers="%s",`, strings.Join(headers, " "))
+	fmt.Fprintf(&signBuffer, `signature="%s"`, signature)
 	return signBuffer.String()
 }

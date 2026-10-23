@@ -299,7 +299,7 @@ func TestPath_CalcAmountOut(t *testing.T) {
 	t.Run("AAVE/USDT", func(t *testing.T) {
 		pair := Pair{
 			Base:  "AAVE",
-			Quote: "USDT",
+			Quote: tokenUSDT,
 			Buy: []PriceLevel{
 				{Rate: 240.78546237552965, Quantity: 8.311422745967896},
 				{Rate: 240.72491476246017, Quantity: 33.24806746344619},

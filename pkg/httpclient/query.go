@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -16,13 +17,13 @@ const (
 
 type Query url.Values
 
-func NewQuery(keyValues ...interface{}) Query {
+func NewQuery(keyValues ...any) Query {
 	q := make(Query)
 	q.Pair(keyValues...)
 	return q
 }
 
-func (q Query) Pair(keyValues ...interface{}) Query {
+func (q Query) Pair(keyValues ...any) Query {
 	for i := 0; i+1 < len(keyValues); {
 		key := keyValues[i]
 		value := keyValues[i+1]
@@ -43,12 +44,7 @@ func (q Query) AddString(key, value string) Query {
 }
 
 func stringsContains(ss []string, token string) bool {
-	for _, s := range ss {
-		if s == token {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(ss, token)
 }
 
 func isOmitEmpty(options []string) bool {
@@ -56,7 +52,7 @@ func isOmitEmpty(options []string) bool {
 }
 
 func (q Query) url() url.Values {
-	return (url.Values)(q)
+	return url.Values(q)
 }
 
 func (q Query) setString(key, value string, options []string) Query { //nolint: unparam
@@ -116,7 +112,7 @@ func (q Query) UnixMillis(key string, value time.Time) Query {
 	return q
 }
 
-func (q Query) Struct(object interface{}) Query {
+func (q Query) Struct(object any) Query {
 	if object == nil {
 		return q
 	}
@@ -157,8 +153,8 @@ func (q Query) String() string {
 }
 
 var (
-	stringer = reflect.TypeOf((*fmt.Stringer)(nil)).Elem() // nolint: gochecknoglobals
-	timeType = reflect.TypeOf(time.Time{})                 // nolint: gochecknoglobals
+	stringer = reflect.TypeFor[fmt.Stringer]() // nolint: gochecknoglobals
+	timeType = reflect.TypeFor[time.Time]()    // nolint: gochecknoglobals
 )
 
 func unwrapValue(v reflect.Value) reflect.Value {
@@ -168,7 +164,7 @@ func unwrapValue(v reflect.Value) reflect.Value {
 	return v
 }
 
-func (q Query) setWithStruct(object interface{}) { // nolint: funlen,cyclop
+func (q Query) setWithStruct(object any) { // nolint: funlen,cyclop
 	oValue := unwrapValue(reflect.ValueOf(object))
 	oType := oValue.Type()
 	for i := 0; i < oValue.NumField(); i++ {
@@ -217,7 +213,7 @@ func isEmptyValue(v reflect.Value) bool {
 		return v.Uint() == 0
 	case reflect.Float32, reflect.Float64:
 		return v.Float() == 0
-	case reflect.Interface, reflect.Ptr:
+	case reflect.Interface, reflect.Pointer:
 		return v.IsNil()
 	default:
 		return false

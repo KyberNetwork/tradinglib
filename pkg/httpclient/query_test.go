@@ -8,10 +8,6 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func strPtr(s string) *string {
-	return &s
-}
-
 func TestClient(t *testing.T) {
 	opt := struct {
 		unexported int
@@ -36,7 +32,7 @@ func TestClient(t *testing.T) {
 
 		Created time.Time `json:"created,unixMilli"` // nolint: staticcheck
 	}{
-		Name:    strPtr("booss"),
+		Name:    new("booss"),
 		Age:     120,
 		Balance: decimal.NewFromInt(1000000),
 

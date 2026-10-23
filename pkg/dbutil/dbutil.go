@@ -25,12 +25,12 @@ func NewDB(dsn string) (*sqlx.DB, error) {
 }
 
 // FormatDSN ..
-func FormatDSN(props map[string]interface{}) string {
+func FormatDSN(props map[string]any) string {
 	var s strings.Builder
 	for k, v := range props {
 		s.WriteString(k)
 		s.WriteString("=")
-		s.WriteString(fmt.Sprintf("%+v", v))
+		fmt.Fprintf(&s, "%+v", v)
 		s.WriteString(" ")
 	}
 

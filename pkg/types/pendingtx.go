@@ -106,9 +106,9 @@ type CallFrame struct {
 }
 
 type ContractCallParam struct {
-	Name  string      `json:"name"`
-	Value interface{} `json:"value"`
-	Type  string      `json:"type"`
+	Name  string `json:"name"`
+	Value any    `json:"value"`
+	Type  string `json:"type"`
 }
 
 type ContractCall struct {

@@ -25,7 +25,7 @@ func TestBloxrouteBackrunmeSender_SendBackrunBundle(t *testing.T) {
 
 	// Transaction hashes you want to fetch from the node
 	txHashes := []string{
-		"0x2e038916d175d9028c87d59e33f79ac96cb487e90aad6cd501dc9675b64d7245",
+		testPendingTxHash,
 	}
 	tx, isPending, err := ethClient.TransactionByHash(context.Background(), common.HexToHash(txHashes[0]))
 	require.NoError(t, err)

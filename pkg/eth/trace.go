@@ -37,9 +37,9 @@ func (c *TraceClient) DebugTraceTransaction(ctx context.Context, txHash string) 
 	if err := c.rpcClient.CallContext(ctx, &result,
 		method,
 		txHash,
-		map[string]interface{}{
+		map[string]any{
 			"tracer": tracer,
-			"tracerConfig": map[string]interface{}{
+			"tracerConfig": map[string]any{
 				"withLog": true,
 			},
 		},
@@ -95,7 +95,7 @@ func (c *TraceClient) DebugTraceCall(
 		blockStr,
 		map[string]any{
 			"tracer": tracer,
-			"tracerConfig": map[string]interface{}{
+			"tracerConfig": map[string]any{
 				"onlyTopCall": false,
 				"withLog":     true,
 			},

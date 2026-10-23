@@ -86,7 +86,7 @@ func RandomString(n int) string {
 	return string(b)
 }
 
-func MustJsonify(data interface{}) string {
+func MustJsonify(data any) string {
 	d, err := json.MarshalIndent(data, "", " ")
 	if err != nil {
 		panic(err)

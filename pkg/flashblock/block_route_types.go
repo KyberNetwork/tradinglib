@@ -162,7 +162,7 @@ type Log struct {
 // StreamerApiClient is the gRPC client interface
 // nolint:lll
 type StreamerApiClient interface {
-	GetParsedBdnFlashBlockStream(ctx interface{}, in *GetParsedBdnFlashBlockStreamRequest, opts ...interface{}) (StreamerApi_GetParsedBdnFlashBlockStreamClient, error)
+	GetParsedBdnFlashBlockStream(ctx any, in *GetParsedBdnFlashBlockStreamRequest, opts ...any) (StreamerApi_GetParsedBdnFlashBlockStreamClient, error)
 }
 
 // StreamerApi_GetParsedBdnFlashBlockStreamClient is the stream client interface

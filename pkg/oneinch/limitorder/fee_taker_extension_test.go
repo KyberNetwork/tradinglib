@@ -10,6 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const normalCaseTakerInWhitelist = "normal case, taker is in white list"
+
 func TestCalculateTakingAmount(t *testing.T) {
 	testCase := []struct {
 		name         string
@@ -19,7 +21,7 @@ func TestCalculateTakingAmount(t *testing.T) {
 		expected     *big.Int
 	}{
 		{
-			name: "normal case, taker is in white list",
+			name: normalCaseTakerInWhitelist,
 			feeTakerEx: FeeTakerExtension{
 				Address: common.HexToAddress("0x1"),
 				Fees: Fees{
@@ -65,7 +67,7 @@ func TestCalculateResolverFee(t *testing.T) {
 		expected     *big.Int
 	}{
 		{
-			name: "normal case, taker is in white list",
+			name: normalCaseTakerInWhitelist,
 			feeTakerEx: FeeTakerExtension{
 				Address: common.HexToAddress("0x1"),
 				Fees: Fees{
@@ -110,7 +112,7 @@ func TestCalculateIntegratorFee(t *testing.T) {
 		expected      *big.Int
 	}{
 		{
-			name: "normal case, taker is in white list",
+			name: normalCaseTakerInWhitelist,
 			feeTakerEx: FeeTakerExtension{
 				Address: common.HexToAddress("0x1"),
 				Fees: Fees{
@@ -158,7 +160,7 @@ func TestGetProtocolFee(t *testing.T) {
 		expected     *big.Int
 	}{
 		{
-			name: "normal case, taker is in white list",
+			name: normalCaseTakerInWhitelist,
 			feeTakerEx: FeeTakerExtension{
 				Address: common.HexToAddress("0x1"),
 				Fees: Fees{

@@ -44,10 +44,10 @@ type Client struct {
 
 // WebSocketMessage represents the WebSocket subscription message
 type WebSocketMessage struct {
-	JSONRPC string        `json:"jsonrpc"`
-	ID      int           `json:"id"`
-	Method  string        `json:"method"`
-	Params  []interface{} `json:"params"`
+	JSONRPC string `json:"jsonrpc"`
+	ID      int    `json:"id"`
+	Method  string `json:"method"`
+	Params  []any  `json:"params"`
 }
 
 // WebSocketParsedBdnFlashBlockResponse represents the WebSocket response
@@ -87,7 +87,7 @@ func (c *Client) ListenParsedBdnFlashBlock(ctx context.Context) error {
 		JSONRPC: "2.0",
 		ID:      1,
 		Method:  "subscribe",
-		Params:  []interface{}{"GetParsedBdnFlashBlockStream", map[string]interface{}{}},
+		Params:  []any{"GetParsedBdnFlashBlockStream", map[string]any{}},
 	}
 
 	return c.Listen(ctx, subscribeMsg, c.processParsedFlashblock)
@@ -98,14 +98,14 @@ func (c *Client) ListenFlashBlock(ctx context.Context) error {
 		JSONRPC: "2.0",
 		ID:      1,
 		Method:  "subscribe",
-		Params:  []interface{}{"GetBdnFlashBlockStream", map[string]interface{}{}},
+		Params:  []any{"GetBdnFlashBlockStream", map[string]any{}},
 	}
 
 	return c.Listen(ctx, subscribeMsg, c.processFlashBlock)
 }
 
 // Listen connects to the WebSocket stream and listens for bloxroute with automatic retry
-func (c *Client) Listen(ctx context.Context, subscribeMsg interface{}, messageHandler messageHandler) error {
+func (c *Client) Listen(ctx context.Context, subscribeMsg any, messageHandler messageHandler) error {
 	c.l.Infow("Starting bloxroute block listener with retry", "url", c.config.WebSocketURL)
 
 	retryWait := 3 * time.Second
@@ -156,7 +156,7 @@ func (c *Client) Listen(ctx context.Context, subscribeMsg interface{}, messageHa
 
 // connectAndListen establishes connection and listens for bloxroute
 // nolint: lll,funlen
-func (c *Client) connectAndListen(ctx context.Context, resetRetryDelay func(), subscribeMsg interface{}, messageHandler messageHandler) error {
+func (c *Client) connectAndListen(ctx context.Context, resetRetryDelay func(), subscribeMsg any, messageHandler messageHandler) error {
 	c.l.Infow("Connecting to flashblock stream", "url", c.config.WebSocketURL)
 
 	// Create WebSocket connection with authorization header

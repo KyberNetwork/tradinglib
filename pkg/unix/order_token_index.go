@@ -72,7 +72,7 @@ func unpackTokenOutputIndex(input *big.Int) ([]OrderTokenIndex, error) {
 	orders := int(new(big.Int).Rsh(input, 248).Uint64())
 
 	var result []OrderTokenIndex
-	for order := 0; order < orders; order++ {
+	for order := range orders {
 		// Process totalToken token indices
 		orderTokenIndex := getOrderTokenIndex(input, order)
 		if err := orderTokenIndex.Validate(); err != nil {

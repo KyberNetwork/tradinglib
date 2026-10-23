@@ -24,7 +24,7 @@ var exps10 = buildCalculateExp10(exp10PrebuildSize)
 
 func buildCalculateExp10(n int64) []*big.Int {
 	res := make([]*big.Int, n)
-	for i := int64(0); i < n; i++ {
+	for i := range n {
 		res[i] = exp10(i)
 	}
 	return res
