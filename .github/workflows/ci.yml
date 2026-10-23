@@ -18,8 +18,10 @@ env:
   SERVICE: tradinglib
 
 jobs:
-  placeholder:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Report disabled checks
-        run: echo "Lint and test jobs are disabled."
+  lint:
+    uses: KyberNetwork/service-framework/.github/workflows/lint-v2.yaml@main
+    with:
+      runs-on: ubuntu-latest
+      version: v2.14.0
+      args: --config=.golangci.yml --timeout=10m
+    secrets: inherit
