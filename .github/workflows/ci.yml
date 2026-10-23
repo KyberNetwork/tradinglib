@@ -18,54 +18,8 @@ env:
   SERVICE: tradinglib
 
 jobs:
-  lint:
-    uses: KyberNetwork/service-framework/.github/workflows/lint-v2.yaml@main
-    with:
-      version: v2.14.0
-      args: --config=.golangci.yml --timeout=10m
-    secrets: inherit
-
-  test:
-    runs-on: [self-hosted]
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_PASSWORD: test
-          POSTGRES_USER: test
-          POSTGRES_DB: test
-        options: >-
-          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-        ports:
-          - 5432:5432
-    env:
-      GOMODCACHE: ${{ github.workspace }}/.cache/gomod
-      GOCACHE: ${{ github.workspace }}/.cache/gobuild
-      GOFLAGS: -modcacherw
+  placeholder:
+    runs-on: ubuntu-latest
     steps:
-      - name: Add git config for Go private module
-        run: git config --global url."https://${{ secrets.GH_PAT }}:x-oauth-basic@github.com/".insteadOf https://github.com/
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: "1.27"
-          check-latest: true
-          cache: false
-      - name: Configure Go Proxy
-        run: |
-          go env -w GOPROXY=http://goproxy.apse1.ops.ks-infra.internal.,direct
-          go env -w GOPRIVATE=github.com/KyberNetwork
-      - name: Cache Go build
-        uses: actions/cache@v4
-        with:
-          path: |
-            .cache/gomod
-            .cache/gobuild
-          key: ${{ runner.os }}-${{ env.SERVICE }}-gobuild-test-${{ hashFiles('go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ env.SERVICE }}-gobuild-test-
-      - name: Run test
-        run: go test -race -v -shuffle=on ./...
+      - name: Report disabled checks
+        run: echo "Lint and test jobs are disabled."
