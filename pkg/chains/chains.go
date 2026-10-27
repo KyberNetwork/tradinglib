@@ -35,6 +35,7 @@ const (
 	Ronin        ChainID = 2020       // ronin
 	Kava         ChainID = 2222       // kava
 	Abstract     ChainID = 2741       // abstract
+	Robinhood    ChainID = 4663       // robinhood
 	Mantle       ChainID = 5000       // mantle
 	Canto        ChainID = 7700       // canto
 	Klaytn       ChainID = 8217       // klaytn
