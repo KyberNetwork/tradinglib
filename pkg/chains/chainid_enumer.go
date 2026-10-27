@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-const _ChainIDName = "ethereumoptimismcronosbscetctomognosisvelaspolygonbttcfantomkccnearintentnearmoonbeamkavacantoklaytnethwfusionarbitrumcelooasisavaxaurora"
-const _ChainIDLowerName = "ethereumoptimismcronosbscetctomognosisvelaspolygonbttcfantomkccnearintentnearmoonbeamkavacantoklaytnethwfusionarbitrumcelooasisavaxaurora"
+const _ChainIDName = "ethereumoptimismcronosbscetctomognosisvelasunichainpolygonsonicmantabttcopbnbfantomfraxtalkcczksyncnearintentnearworldchainhyperevmmetispolygonzkevmmoonbeammoonriverseisoneiumroninkavaabstractrobinhoodmantlecantoklaytnbaseethwfusionmodearbitrumcelooasisavaxinklineaberachainblasttaikoscrollzoraaurora"
+const _ChainIDLowerName = "ethereumoptimismcronosbscetctomognosisvelasunichainpolygonsonicmantabttcopbnbfantomfraxtalkcczksyncnearintentnearworldchainhyperevmmetispolygonzkevmmoonbeammoonriverseisoneiumroninkavaabstractrobinhoodmantlecantoklaytnbaseethwfusionmodearbitrumcelooasisavaxinklineaberachainblasttaikoscrollzoraaurora"
 
 var _ChainIDMap = map[ChainID]string{
 	1:          _ChainIDName[0:8],
@@ -21,23 +21,49 @@ var _ChainIDMap = map[ChainID]string{
 	88:         _ChainIDName[28:32],
 	100:        _ChainIDName[32:38],
 	106:        _ChainIDName[38:43],
-	137:        _ChainIDName[43:50],
-	199:        _ChainIDName[50:54],
-	250:        _ChainIDName[54:60],
-	321:        _ChainIDName[60:63],
-	397:        _ChainIDName[63:67],
-	398:        _ChainIDName[67:77],
-	1284:       _ChainIDName[77:85],
-	2222:       _ChainIDName[85:89],
-	7700:       _ChainIDName[89:94],
-	8217:       _ChainIDName[94:100],
-	10001:      _ChainIDName[100:104],
-	32659:      _ChainIDName[104:110],
-	42161:      _ChainIDName[110:118],
-	42220:      _ChainIDName[118:122],
-	42262:      _ChainIDName[122:127],
-	43114:      _ChainIDName[127:131],
-	1313161554: _ChainIDName[131:137],
+	130:        _ChainIDName[43:51],
+	137:        _ChainIDName[51:58],
+	146:        _ChainIDName[58:63],
+	169:        _ChainIDName[63:68],
+	199:        _ChainIDName[68:72],
+	204:        _ChainIDName[72:77],
+	250:        _ChainIDName[77:83],
+	252:        _ChainIDName[83:90],
+	321:        _ChainIDName[90:93],
+	324:        _ChainIDName[93:99],
+	397:        _ChainIDName[99:103],
+	398:        _ChainIDName[103:113],
+	480:        _ChainIDName[113:123],
+	999:        _ChainIDName[123:131],
+	1088:       _ChainIDName[131:136],
+	1101:       _ChainIDName[136:148],
+	1284:       _ChainIDName[148:156],
+	1285:       _ChainIDName[156:165],
+	1329:       _ChainIDName[165:168],
+	1868:       _ChainIDName[168:175],
+	2020:       _ChainIDName[175:180],
+	2222:       _ChainIDName[180:184],
+	2741:       _ChainIDName[184:192],
+	4663:       _ChainIDName[192:201],
+	5000:       _ChainIDName[201:207],
+	7700:       _ChainIDName[207:212],
+	8217:       _ChainIDName[212:218],
+	8453:       _ChainIDName[218:222],
+	10001:      _ChainIDName[222:226],
+	32659:      _ChainIDName[226:232],
+	34443:      _ChainIDName[232:236],
+	42161:      _ChainIDName[236:244],
+	42220:      _ChainIDName[244:248],
+	42262:      _ChainIDName[248:253],
+	43114:      _ChainIDName[253:257],
+	57073:      _ChainIDName[257:260],
+	59144:      _ChainIDName[260:265],
+	80094:      _ChainIDName[265:274],
+	81457:      _ChainIDName[274:279],
+	167000:     _ChainIDName[279:284],
+	534352:     _ChainIDName[284:290],
+	7777777:    _ChainIDName[290:294],
+	1313161554: _ChainIDName[294:300],
 }
 
 func (i ChainID) String() string {
@@ -59,78 +85,159 @@ func _ChainIDNoOp() {
 	_ = x[Tomo-(88)]
 	_ = x[Gnosis-(100)]
 	_ = x[Velas-(106)]
+	_ = x[Unichain-(130)]
 	_ = x[Polygon-(137)]
+	_ = x[Sonic-(146)]
+	_ = x[Manta-(169)]
 	_ = x[BTTC-(199)]
+	_ = x[OpBNB-(204)]
 	_ = x[Fantom-(250)]
+	_ = x[Fraxtal-(252)]
 	_ = x[KCC-(321)]
+	_ = x[ZkSync-(324)]
 	_ = x[Near-(397)]
 	_ = x[IntentNear-(398)]
+	_ = x[WorldChain-(480)]
+	_ = x[HyperEVM-(999)]
+	_ = x[Metis-(1088)]
+	_ = x[PolygonZkEVM-(1101)]
 	_ = x[Moonbeam-(1284)]
+	_ = x[Moonriver-(1285)]
+	_ = x[Sei-(1329)]
+	_ = x[Soneium-(1868)]
+	_ = x[Ronin-(2020)]
 	_ = x[Kava-(2222)]
+	_ = x[Abstract-(2741)]
+	_ = x[Robinhood-(4663)]
+	_ = x[Mantle-(5000)]
 	_ = x[Canto-(7700)]
 	_ = x[Klaytn-(8217)]
+	_ = x[Base-(8453)]
 	_ = x[EthereumPow-(10001)]
 	_ = x[Fusion-(32659)]
+	_ = x[Mode-(34443)]
 	_ = x[Arbitrum-(42161)]
 	_ = x[Celo-(42220)]
 	_ = x[Oasis-(42262)]
 	_ = x[Avax-(43114)]
+	_ = x[Ink-(57073)]
+	_ = x[Linea-(59144)]
+	_ = x[Berachain-(80094)]
+	_ = x[Blast-(81457)]
+	_ = x[Taiko-(167000)]
+	_ = x[Scroll-(534352)]
+	_ = x[Zora-(7777777)]
 	_ = x[Aurora-(1313161554)]
 }
 
-var _ChainIDValues = []ChainID{Ethereum, Optimism, Cronos, BSC, ETC, Tomo, Gnosis, Velas, Polygon, BTTC, Fantom, KCC, Near, IntentNear, Moonbeam, Kava, Canto, Klaytn, EthereumPow, Fusion, Arbitrum, Celo, Oasis, Avax, Aurora}
+var _ChainIDValues = []ChainID{Ethereum, Optimism, Cronos, BSC, ETC, Tomo, Gnosis, Velas, Unichain, Polygon, Sonic, Manta, BTTC, OpBNB, Fantom, Fraxtal, KCC, ZkSync, Near, IntentNear, WorldChain, HyperEVM, Metis, PolygonZkEVM, Moonbeam, Moonriver, Sei, Soneium, Ronin, Kava, Abstract, Robinhood, Mantle, Canto, Klaytn, Base, EthereumPow, Fusion, Mode, Arbitrum, Celo, Oasis, Avax, Ink, Linea, Berachain, Blast, Taiko, Scroll, Zora, Aurora}
 
 var _ChainIDNameToValueMap = map[string]ChainID{
-	_ChainIDName[0:8]:          Ethereum,
+	_ChainIDName[0:8]:     Ethereum,
+	_ChainIDName[8:16]:    Optimism,
+	_ChainIDName[16:22]:   Cronos,
+	_ChainIDName[22:25]:   BSC,
+	_ChainIDName[25:28]:   ETC,
+	_ChainIDName[28:32]:   Tomo,
+	_ChainIDName[32:38]:   Gnosis,
+	_ChainIDName[38:43]:   Velas,
+	_ChainIDName[43:51]:   Unichain,
+	_ChainIDName[51:58]:   Polygon,
+	_ChainIDName[58:63]:   Sonic,
+	_ChainIDName[63:68]:   Manta,
+	_ChainIDName[68:72]:   BTTC,
+	_ChainIDName[72:77]:   OpBNB,
+	_ChainIDName[77:83]:   Fantom,
+	_ChainIDName[83:90]:   Fraxtal,
+	_ChainIDName[90:93]:   KCC,
+	_ChainIDName[93:99]:   ZkSync,
+	_ChainIDName[99:103]:  Near,
+	_ChainIDName[103:113]: IntentNear,
+	_ChainIDName[113:123]: WorldChain,
+	_ChainIDName[123:131]: HyperEVM,
+	_ChainIDName[131:136]: Metis,
+	_ChainIDName[136:148]: PolygonZkEVM,
+	_ChainIDName[148:156]: Moonbeam,
+	_ChainIDName[156:165]: Moonriver,
+	_ChainIDName[165:168]: Sei,
+	_ChainIDName[168:175]: Soneium,
+	_ChainIDName[175:180]: Ronin,
+	_ChainIDName[180:184]: Kava,
+	_ChainIDName[184:192]: Abstract,
+	_ChainIDName[192:201]: Robinhood,
+	_ChainIDName[201:207]: Mantle,
+	_ChainIDName[207:212]: Canto,
+	_ChainIDName[212:218]: Klaytn,
+	_ChainIDName[218:222]: Base,
+	_ChainIDName[222:226]: EthereumPow,
+	_ChainIDName[226:232]: Fusion,
+	_ChainIDName[232:236]: Mode,
+	_ChainIDName[236:244]: Arbitrum,
+	_ChainIDName[244:248]: Celo,
+	_ChainIDName[248:253]: Oasis,
+	_ChainIDName[253:257]: Avax,
+	_ChainIDName[257:260]: Ink,
+	_ChainIDName[260:265]: Linea,
+	_ChainIDName[265:274]: Berachain,
+	_ChainIDName[274:279]: Blast,
+	_ChainIDName[279:284]: Taiko,
+	_ChainIDName[284:290]: Scroll,
+	_ChainIDName[290:294]: Zora,
+	_ChainIDName[294:300]: Aurora,
+}
+
+var _ChainIDLowerNameToValueMap = map[string]ChainID{
 	_ChainIDLowerName[0:8]:     Ethereum,
-	_ChainIDName[8:16]:         Optimism,
 	_ChainIDLowerName[8:16]:    Optimism,
-	_ChainIDName[16:22]:        Cronos,
 	_ChainIDLowerName[16:22]:   Cronos,
-	_ChainIDName[22:25]:        BSC,
 	_ChainIDLowerName[22:25]:   BSC,
-	_ChainIDName[25:28]:        ETC,
 	_ChainIDLowerName[25:28]:   ETC,
-	_ChainIDName[28:32]:        Tomo,
 	_ChainIDLowerName[28:32]:   Tomo,
-	_ChainIDName[32:38]:        Gnosis,
 	_ChainIDLowerName[32:38]:   Gnosis,
-	_ChainIDName[38:43]:        Velas,
 	_ChainIDLowerName[38:43]:   Velas,
-	_ChainIDName[43:50]:        Polygon,
-	_ChainIDLowerName[43:50]:   Polygon,
-	_ChainIDName[50:54]:        BTTC,
-	_ChainIDLowerName[50:54]:   BTTC,
-	_ChainIDName[54:60]:        Fantom,
-	_ChainIDLowerName[54:60]:   Fantom,
-	_ChainIDName[60:63]:        KCC,
-	_ChainIDLowerName[60:63]:   KCC,
-	_ChainIDName[63:67]:        Near,
-	_ChainIDLowerName[63:67]:   Near,
-	_ChainIDName[67:77]:        IntentNear,
-	_ChainIDLowerName[67:77]:   IntentNear,
-	_ChainIDName[77:85]:        Moonbeam,
-	_ChainIDLowerName[77:85]:   Moonbeam,
-	_ChainIDName[85:89]:        Kava,
-	_ChainIDLowerName[85:89]:   Kava,
-	_ChainIDName[89:94]:        Canto,
-	_ChainIDLowerName[89:94]:   Canto,
-	_ChainIDName[94:100]:       Klaytn,
-	_ChainIDLowerName[94:100]:  Klaytn,
-	_ChainIDName[100:104]:      EthereumPow,
-	_ChainIDLowerName[100:104]: EthereumPow,
-	_ChainIDName[104:110]:      Fusion,
-	_ChainIDLowerName[104:110]: Fusion,
-	_ChainIDName[110:118]:      Arbitrum,
-	_ChainIDLowerName[110:118]: Arbitrum,
-	_ChainIDName[118:122]:      Celo,
-	_ChainIDLowerName[118:122]: Celo,
-	_ChainIDName[122:127]:      Oasis,
-	_ChainIDLowerName[122:127]: Oasis,
-	_ChainIDName[127:131]:      Avax,
-	_ChainIDLowerName[127:131]: Avax,
-	_ChainIDName[131:137]:      Aurora,
-	_ChainIDLowerName[131:137]: Aurora,
+	_ChainIDLowerName[43:51]:   Unichain,
+	_ChainIDLowerName[51:58]:   Polygon,
+	_ChainIDLowerName[58:63]:   Sonic,
+	_ChainIDLowerName[63:68]:   Manta,
+	_ChainIDLowerName[68:72]:   BTTC,
+	_ChainIDLowerName[72:77]:   OpBNB,
+	_ChainIDLowerName[77:83]:   Fantom,
+	_ChainIDLowerName[83:90]:   Fraxtal,
+	_ChainIDLowerName[90:93]:   KCC,
+	_ChainIDLowerName[93:99]:   ZkSync,
+	_ChainIDLowerName[99:103]:  Near,
+	_ChainIDLowerName[103:113]: IntentNear,
+	_ChainIDLowerName[113:123]: WorldChain,
+	_ChainIDLowerName[123:131]: HyperEVM,
+	_ChainIDLowerName[131:136]: Metis,
+	_ChainIDLowerName[136:148]: PolygonZkEVM,
+	_ChainIDLowerName[148:156]: Moonbeam,
+	_ChainIDLowerName[156:165]: Moonriver,
+	_ChainIDLowerName[165:168]: Sei,
+	_ChainIDLowerName[168:175]: Soneium,
+	_ChainIDLowerName[175:180]: Ronin,
+	_ChainIDLowerName[180:184]: Kava,
+	_ChainIDLowerName[184:192]: Abstract,
+	_ChainIDLowerName[192:201]: Robinhood,
+	_ChainIDLowerName[201:207]: Mantle,
+	_ChainIDLowerName[207:212]: Canto,
+	_ChainIDLowerName[212:218]: Klaytn,
+	_ChainIDLowerName[218:222]: Base,
+	_ChainIDLowerName[222:226]: EthereumPow,
+	_ChainIDLowerName[226:232]: Fusion,
+	_ChainIDLowerName[232:236]: Mode,
+	_ChainIDLowerName[236:244]: Arbitrum,
+	_ChainIDLowerName[244:248]: Celo,
+	_ChainIDLowerName[248:253]: Oasis,
+	_ChainIDLowerName[253:257]: Avax,
+	_ChainIDLowerName[257:260]: Ink,
+	_ChainIDLowerName[260:265]: Linea,
+	_ChainIDLowerName[265:274]: Berachain,
+	_ChainIDLowerName[274:279]: Blast,
+	_ChainIDLowerName[279:284]: Taiko,
+	_ChainIDLowerName[284:290]: Scroll,
+	_ChainIDLowerName[290:294]: Zora,
+	_ChainIDLowerName[294:300]: Aurora,
 }
 
 var _ChainIDNames = []string{
@@ -142,23 +249,49 @@ var _ChainIDNames = []string{
 	_ChainIDName[28:32],
 	_ChainIDName[32:38],
 	_ChainIDName[38:43],
-	_ChainIDName[43:50],
-	_ChainIDName[50:54],
-	_ChainIDName[54:60],
-	_ChainIDName[60:63],
-	_ChainIDName[63:67],
-	_ChainIDName[67:77],
-	_ChainIDName[77:85],
-	_ChainIDName[85:89],
-	_ChainIDName[89:94],
-	_ChainIDName[94:100],
-	_ChainIDName[100:104],
-	_ChainIDName[104:110],
-	_ChainIDName[110:118],
-	_ChainIDName[118:122],
-	_ChainIDName[122:127],
-	_ChainIDName[127:131],
-	_ChainIDName[131:137],
+	_ChainIDName[43:51],
+	_ChainIDName[51:58],
+	_ChainIDName[58:63],
+	_ChainIDName[63:68],
+	_ChainIDName[68:72],
+	_ChainIDName[72:77],
+	_ChainIDName[77:83],
+	_ChainIDName[83:90],
+	_ChainIDName[90:93],
+	_ChainIDName[93:99],
+	_ChainIDName[99:103],
+	_ChainIDName[103:113],
+	_ChainIDName[113:123],
+	_ChainIDName[123:131],
+	_ChainIDName[131:136],
+	_ChainIDName[136:148],
+	_ChainIDName[148:156],
+	_ChainIDName[156:165],
+	_ChainIDName[165:168],
+	_ChainIDName[168:175],
+	_ChainIDName[175:180],
+	_ChainIDName[180:184],
+	_ChainIDName[184:192],
+	_ChainIDName[192:201],
+	_ChainIDName[201:207],
+	_ChainIDName[207:212],
+	_ChainIDName[212:218],
+	_ChainIDName[218:222],
+	_ChainIDName[222:226],
+	_ChainIDName[226:232],
+	_ChainIDName[232:236],
+	_ChainIDName[236:244],
+	_ChainIDName[244:248],
+	_ChainIDName[248:253],
+	_ChainIDName[253:257],
+	_ChainIDName[257:260],
+	_ChainIDName[260:265],
+	_ChainIDName[265:274],
+	_ChainIDName[274:279],
+	_ChainIDName[279:284],
+	_ChainIDName[284:290],
+	_ChainIDName[290:294],
+	_ChainIDName[294:300],
 }
 
 // ChainIDString retrieves an enum value from the enum constants string name.
@@ -168,7 +301,7 @@ func ChainIDString(s string) (ChainID, error) {
 		return val, nil
 	}
 
-	if val, ok := _ChainIDNameToValueMap[strings.ToLower(s)]; ok {
+	if val, ok := _ChainIDLowerNameToValueMap[strings.ToLower(s)]; ok {
 		return val, nil
 	}
 	return 0, fmt.Errorf("%s does not belong to ChainID values", s)
