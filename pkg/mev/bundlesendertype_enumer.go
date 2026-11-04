@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-const _BundleSenderTypeName = "BundleSenderTypeFlashbotBundleSenderTypeBeaverBundleSenderTypeRsyncBundleSenderTypeTitanBundleSenderTypeBloxrouteBundleSenderTypeAllBundleSenderTypeMevShareBundleSenderTypeBackrunPublicBundleSenderTypeMevBlockerBundleSenderTypeBlinkBundleSenderTypeMerkleBundleSenderTypeJetbldrBundleSenderTypePenguinBundleSenderTypeLokiBundleSenderTypeQuasarBundleSenderTypeBuilderNetBundleSenderTypeBTCSBundleSenderTypeEurekaBundleSenderTypeL2BundleSenderTypeBloxrouteBackrunmeBundleSenderTypePublicMempoolBundleSenderTypeBobTheBuilderBundleSenderTypeInternalMempoolBundleSenderTypeQuickNodeBundleSenderType48ClubBundleSenderTypeBlockRazorBundleSenderTypeNodeRealBundleSenderTypeBomboraBundleSenderTypeUltrasoundBundleSenderTypeServo"
+const _BundleSenderTypeName = "BundleSenderTypeFlashbotBundleSenderTypeBeaverBundleSenderTypeRsyncBundleSenderTypeTitanBundleSenderTypeBloxrouteBundleSenderTypeAllBundleSenderTypeMevShareBundleSenderTypeBackrunPublicBundleSenderTypeMevBlockerBundleSenderTypeBlinkBundleSenderTypeMerkleBundleSenderTypeJetbldrBundleSenderTypePenguinBundleSenderTypeLokiBundleSenderTypeQuasarBundleSenderTypeBuilderNetBundleSenderTypeBTCSBundleSenderTypeEurekaBundleSenderTypeL2BundleSenderTypeBloxrouteBackrunmeBundleSenderTypePublicMempoolBundleSenderTypeBobTheBuilderBundleSenderTypeInternalMempoolBundleSenderTypeQuickNodeBundleSenderType48ClubBundleSenderTypeBlockRazorBundleSenderTypeNodeRealBundleSenderTypeBomboraBundleSenderTypeUltrasoundBundleSenderTypeServoBundleSenderTypeEthGas"
 
-var _BundleSenderTypeIndex = [...]uint16{0, 24, 46, 67, 88, 113, 132, 156, 185, 211, 232, 254, 277, 300, 320, 342, 368, 388, 410, 428, 462, 491, 520, 551, 576, 598, 624, 648, 671, 697, 718}
+var _BundleSenderTypeIndex = [...]uint16{0, 24, 46, 67, 88, 113, 132, 156, 185, 211, 232, 254, 277, 300, 320, 342, 368, 388, 410, 428, 462, 491, 520, 551, 576, 598, 624, 648, 671, 697, 718, 740}
 
-const _BundleSenderTypeLowerName = "bundlesendertypeflashbotbundlesendertypebeaverbundlesendertypersyncbundlesendertypetitanbundlesendertypebloxroutebundlesendertypeallbundlesendertypemevsharebundlesendertypebackrunpublicbundlesendertypemevblockerbundlesendertypeblinkbundlesendertypemerklebundlesendertypejetbldrbundlesendertypepenguinbundlesendertypelokibundlesendertypequasarbundlesendertypebuildernetbundlesendertypebtcsbundlesendertypeeurekabundlesendertypel2bundlesendertypebloxroutebackrunmebundlesendertypepublicmempoolbundlesendertypebobthebuilderbundlesendertypeinternalmempoolbundlesendertypequicknodebundlesendertype48clubbundlesendertypeblockrazorbundlesendertypenoderealbundlesendertypebomborabundlesendertypeultrasoundbundlesendertypeservo"
+const _BundleSenderTypeLowerName = "bundlesendertypeflashbotbundlesendertypebeaverbundlesendertypersyncbundlesendertypetitanbundlesendertypebloxroutebundlesendertypeallbundlesendertypemevsharebundlesendertypebackrunpublicbundlesendertypemevblockerbundlesendertypeblinkbundlesendertypemerklebundlesendertypejetbldrbundlesendertypepenguinbundlesendertypelokibundlesendertypequasarbundlesendertypebuildernetbundlesendertypebtcsbundlesendertypeeurekabundlesendertypel2bundlesendertypebloxroutebackrunmebundlesendertypepublicmempoolbundlesendertypebobthebuilderbundlesendertypeinternalmempoolbundlesendertypequicknodebundlesendertype48clubbundlesendertypeblockrazorbundlesendertypenoderealbundlesendertypebomborabundlesendertypeultrasoundbundlesendertypeservobundlesendertypeethgas"
 
 func (i BundleSenderType) String() string {
 	i -= 1
@@ -55,71 +55,77 @@ func _BundleSenderTypeNoOp() {
 	_ = x[BundleSenderTypeBombora-(28)]
 	_ = x[BundleSenderTypeUltrasound-(29)]
 	_ = x[BundleSenderTypeServo-(30)]
+	_ = x[BundleSenderTypeEthGas-(31)]
 }
 
-var _BundleSenderTypeValues = []BundleSenderType{BundleSenderTypeFlashbot, BundleSenderTypeBeaver, BundleSenderTypeRsync, BundleSenderTypeTitan, BundleSenderTypeBloxroute, BundleSenderTypeAll, BundleSenderTypeMevShare, BundleSenderTypeBackrunPublic, BundleSenderTypeMevBlocker, BundleSenderTypeBlink, BundleSenderTypeMerkle, BundleSenderTypeJetbldr, BundleSenderTypePenguin, BundleSenderTypeLoki, BundleSenderTypeQuasar, BundleSenderTypeBuilderNet, BundleSenderTypeBTCS, BundleSenderTypeEureka, BundleSenderTypeL2, BundleSenderTypeBloxrouteBackrunme, BundleSenderTypePublicMempool, BundleSenderTypeBobTheBuilder, BundleSenderTypeInternalMempool, BundleSenderTypeQuickNode, BundleSenderType48Club, BundleSenderTypeBlockRazor, BundleSenderTypeNodeReal, BundleSenderTypeBombora, BundleSenderTypeUltrasound, BundleSenderTypeServo}
+var _BundleSenderTypeValues = []BundleSenderType{BundleSenderTypeFlashbot, BundleSenderTypeBeaver, BundleSenderTypeRsync, BundleSenderTypeTitan, BundleSenderTypeBloxroute, BundleSenderTypeAll, BundleSenderTypeMevShare, BundleSenderTypeBackrunPublic, BundleSenderTypeMevBlocker, BundleSenderTypeBlink, BundleSenderTypeMerkle, BundleSenderTypeJetbldr, BundleSenderTypePenguin, BundleSenderTypeLoki, BundleSenderTypeQuasar, BundleSenderTypeBuilderNet, BundleSenderTypeBTCS, BundleSenderTypeEureka, BundleSenderTypeL2, BundleSenderTypeBloxrouteBackrunme, BundleSenderTypePublicMempool, BundleSenderTypeBobTheBuilder, BundleSenderTypeInternalMempool, BundleSenderTypeQuickNode, BundleSenderType48Club, BundleSenderTypeBlockRazor, BundleSenderTypeNodeReal, BundleSenderTypeBombora, BundleSenderTypeUltrasound, BundleSenderTypeServo, BundleSenderTypeEthGas}
 
 var _BundleSenderTypeNameToValueMap = map[string]BundleSenderType{
-	_BundleSenderTypeName[0:24]:         BundleSenderTypeFlashbot,
+	_BundleSenderTypeName[0:24]:    BundleSenderTypeFlashbot,
+	_BundleSenderTypeName[24:46]:   BundleSenderTypeBeaver,
+	_BundleSenderTypeName[46:67]:   BundleSenderTypeRsync,
+	_BundleSenderTypeName[67:88]:   BundleSenderTypeTitan,
+	_BundleSenderTypeName[88:113]:  BundleSenderTypeBloxroute,
+	_BundleSenderTypeName[113:132]: BundleSenderTypeAll,
+	_BundleSenderTypeName[132:156]: BundleSenderTypeMevShare,
+	_BundleSenderTypeName[156:185]: BundleSenderTypeBackrunPublic,
+	_BundleSenderTypeName[185:211]: BundleSenderTypeMevBlocker,
+	_BundleSenderTypeName[211:232]: BundleSenderTypeBlink,
+	_BundleSenderTypeName[232:254]: BundleSenderTypeMerkle,
+	_BundleSenderTypeName[254:277]: BundleSenderTypeJetbldr,
+	_BundleSenderTypeName[277:300]: BundleSenderTypePenguin,
+	_BundleSenderTypeName[300:320]: BundleSenderTypeLoki,
+	_BundleSenderTypeName[320:342]: BundleSenderTypeQuasar,
+	_BundleSenderTypeName[342:368]: BundleSenderTypeBuilderNet,
+	_BundleSenderTypeName[368:388]: BundleSenderTypeBTCS,
+	_BundleSenderTypeName[388:410]: BundleSenderTypeEureka,
+	_BundleSenderTypeName[410:428]: BundleSenderTypeL2,
+	_BundleSenderTypeName[428:462]: BundleSenderTypeBloxrouteBackrunme,
+	_BundleSenderTypeName[462:491]: BundleSenderTypePublicMempool,
+	_BundleSenderTypeName[491:520]: BundleSenderTypeBobTheBuilder,
+	_BundleSenderTypeName[520:551]: BundleSenderTypeInternalMempool,
+	_BundleSenderTypeName[551:576]: BundleSenderTypeQuickNode,
+	_BundleSenderTypeName[576:598]: BundleSenderType48Club,
+	_BundleSenderTypeName[598:624]: BundleSenderTypeBlockRazor,
+	_BundleSenderTypeName[624:648]: BundleSenderTypeNodeReal,
+	_BundleSenderTypeName[648:671]: BundleSenderTypeBombora,
+	_BundleSenderTypeName[671:697]: BundleSenderTypeUltrasound,
+	_BundleSenderTypeName[697:718]: BundleSenderTypeServo,
+	_BundleSenderTypeName[718:740]: BundleSenderTypeEthGas,
+}
+
+var _BundleSenderTypeLowerNameToValueMap = map[string]BundleSenderType{
 	_BundleSenderTypeLowerName[0:24]:    BundleSenderTypeFlashbot,
-	_BundleSenderTypeName[24:46]:        BundleSenderTypeBeaver,
 	_BundleSenderTypeLowerName[24:46]:   BundleSenderTypeBeaver,
-	_BundleSenderTypeName[46:67]:        BundleSenderTypeRsync,
 	_BundleSenderTypeLowerName[46:67]:   BundleSenderTypeRsync,
-	_BundleSenderTypeName[67:88]:        BundleSenderTypeTitan,
 	_BundleSenderTypeLowerName[67:88]:   BundleSenderTypeTitan,
-	_BundleSenderTypeName[88:113]:       BundleSenderTypeBloxroute,
 	_BundleSenderTypeLowerName[88:113]:  BundleSenderTypeBloxroute,
-	_BundleSenderTypeName[113:132]:      BundleSenderTypeAll,
 	_BundleSenderTypeLowerName[113:132]: BundleSenderTypeAll,
-	_BundleSenderTypeName[132:156]:      BundleSenderTypeMevShare,
 	_BundleSenderTypeLowerName[132:156]: BundleSenderTypeMevShare,
-	_BundleSenderTypeName[156:185]:      BundleSenderTypeBackrunPublic,
 	_BundleSenderTypeLowerName[156:185]: BundleSenderTypeBackrunPublic,
-	_BundleSenderTypeName[185:211]:      BundleSenderTypeMevBlocker,
 	_BundleSenderTypeLowerName[185:211]: BundleSenderTypeMevBlocker,
-	_BundleSenderTypeName[211:232]:      BundleSenderTypeBlink,
 	_BundleSenderTypeLowerName[211:232]: BundleSenderTypeBlink,
-	_BundleSenderTypeName[232:254]:      BundleSenderTypeMerkle,
 	_BundleSenderTypeLowerName[232:254]: BundleSenderTypeMerkle,
-	_BundleSenderTypeName[254:277]:      BundleSenderTypeJetbldr,
 	_BundleSenderTypeLowerName[254:277]: BundleSenderTypeJetbldr,
-	_BundleSenderTypeName[277:300]:      BundleSenderTypePenguin,
 	_BundleSenderTypeLowerName[277:300]: BundleSenderTypePenguin,
-	_BundleSenderTypeName[300:320]:      BundleSenderTypeLoki,
 	_BundleSenderTypeLowerName[300:320]: BundleSenderTypeLoki,
-	_BundleSenderTypeName[320:342]:      BundleSenderTypeQuasar,
 	_BundleSenderTypeLowerName[320:342]: BundleSenderTypeQuasar,
-	_BundleSenderTypeName[342:368]:      BundleSenderTypeBuilderNet,
 	_BundleSenderTypeLowerName[342:368]: BundleSenderTypeBuilderNet,
-	_BundleSenderTypeName[368:388]:      BundleSenderTypeBTCS,
 	_BundleSenderTypeLowerName[368:388]: BundleSenderTypeBTCS,
-	_BundleSenderTypeName[388:410]:      BundleSenderTypeEureka,
 	_BundleSenderTypeLowerName[388:410]: BundleSenderTypeEureka,
-	_BundleSenderTypeName[410:428]:      BundleSenderTypeL2,
 	_BundleSenderTypeLowerName[410:428]: BundleSenderTypeL2,
-	_BundleSenderTypeName[428:462]:      BundleSenderTypeBloxrouteBackrunme,
 	_BundleSenderTypeLowerName[428:462]: BundleSenderTypeBloxrouteBackrunme,
-	_BundleSenderTypeName[462:491]:      BundleSenderTypePublicMempool,
 	_BundleSenderTypeLowerName[462:491]: BundleSenderTypePublicMempool,
-	_BundleSenderTypeName[491:520]:      BundleSenderTypeBobTheBuilder,
 	_BundleSenderTypeLowerName[491:520]: BundleSenderTypeBobTheBuilder,
-	_BundleSenderTypeName[520:551]:      BundleSenderTypeInternalMempool,
 	_BundleSenderTypeLowerName[520:551]: BundleSenderTypeInternalMempool,
-	_BundleSenderTypeName[551:576]:      BundleSenderTypeQuickNode,
 	_BundleSenderTypeLowerName[551:576]: BundleSenderTypeQuickNode,
-	_BundleSenderTypeName[576:598]:      BundleSenderType48Club,
 	_BundleSenderTypeLowerName[576:598]: BundleSenderType48Club,
-	_BundleSenderTypeName[598:624]:      BundleSenderTypeBlockRazor,
 	_BundleSenderTypeLowerName[598:624]: BundleSenderTypeBlockRazor,
-	_BundleSenderTypeName[624:648]:      BundleSenderTypeNodeReal,
 	_BundleSenderTypeLowerName[624:648]: BundleSenderTypeNodeReal,
-	_BundleSenderTypeName[648:671]:      BundleSenderTypeBombora,
 	_BundleSenderTypeLowerName[648:671]: BundleSenderTypeBombora,
-	_BundleSenderTypeName[671:697]:      BundleSenderTypeUltrasound,
 	_BundleSenderTypeLowerName[671:697]: BundleSenderTypeUltrasound,
-	_BundleSenderTypeName[697:718]:      BundleSenderTypeServo,
 	_BundleSenderTypeLowerName[697:718]: BundleSenderTypeServo,
+	_BundleSenderTypeLowerName[718:740]: BundleSenderTypeEthGas,
 }
 
 var _BundleSenderTypeNames = []string{
@@ -153,6 +159,7 @@ var _BundleSenderTypeNames = []string{
 	_BundleSenderTypeName[648:671],
 	_BundleSenderTypeName[671:697],
 	_BundleSenderTypeName[697:718],
+	_BundleSenderTypeName[718:740],
 }
 
 // BundleSenderTypeString retrieves an enum value from the enum constants string name.
@@ -162,7 +169,7 @@ func BundleSenderTypeString(s string) (BundleSenderType, error) {
 		return val, nil
 	}
 
-	if val, ok := _BundleSenderTypeNameToValueMap[strings.ToLower(s)]; ok {
+	if val, ok := _BundleSenderTypeLowerNameToValueMap[strings.ToLower(s)]; ok {
 		return val, nil
 	}
 	return 0, fmt.Errorf("%s does not belong to BundleSenderType values", s)

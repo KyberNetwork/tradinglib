@@ -25,6 +25,10 @@ const (
 	Endpoint48Club                     = "https://puissant-builder.48.club"
 	EndpointBlockRazor                 = "https://bsc.blockrazor.xyz"
 	EndpointBloxRouteBundleSubmissions = "https://api.blxrbdn.com"
+	EndpointEthGasUS                   = "https://us.builder.ethgas.com"
+	EndpointEthGasEU                   = "https://eu.builder.ethgas.com"
+	EndpointEthGasAP                   = "https://ap.builder.ethgas.com"
+	EndpointEthGasAP2                  = "https://ap-2.builder.ethgas.com"
 )
 
 const (
@@ -48,4 +52,5 @@ const (
 	BuilderBobTheBuilder string = "builder-bobthebuilder"
 	Builder48Club        string = "builder-48club"
 	BuilderBlockRazor    string = "builder-blockrazor"
+	BuilderEthGasID      string = "builder-ethgas"
 )

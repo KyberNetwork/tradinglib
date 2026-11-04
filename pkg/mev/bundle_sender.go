@@ -526,8 +526,8 @@ type SendBundleParams struct {
 	// (Optional) String, UUID that can be used to cancel/replace this bundle (For beaverbuild)
 	UUID             string `json:"uuid,omitempty"`
 	StateBlockNumber string `json:"stateBlockNumber,omitempty"`
-	// Bundle fields that only Bombora and Ultrasound accept.
-	// ReplacementSeqNumber is Bombora only.
+	// Bundle fields that only Bombora, EthGas and Ultrasound accept.
+	// ReplacementSeqNumber is Bombora and EthGas only.
 	DroppingTxHashes     *[]string `json:"droppingTxHashes,omitempty"`
 	ReplacementSeqNumber *uint64   `json:"replacementSeqNumber,omitempty"`
 	RefundPercent        *uint64   `json:"refundPercent,omitempty"`
@@ -571,7 +571,7 @@ func (p *SendBundleParams) setSenderSpecificFields(
 	senderType BundleSenderType, req SendBundleV2Request,
 ) *SendBundleParams {
 	switch senderType {
-	case BundleSenderTypeBombora:
+	case BundleSenderTypeBombora, BundleSenderTypeEthGas:
 		return p.SetBomboraFields(req)
 	case BundleSenderTypeUltrasound:
 		return p.SetUltrasoundFields(req)
@@ -674,6 +674,8 @@ func (p *SendBundleParams) SetBuilderNetRefundAddress(addr string) *SendBundlePa
 }
 
 // SetBomboraFields copies Bombora-only bundle options onto p.
+// EthGas accepts the same fields with the same limits, so it shares this method.
+// ref: https://docs.ethgas.com/get-started/searchers/builder-endpoint
 func (p *SendBundleParams) SetBomboraFields(req SendBundleV2Request) *SendBundleParams {
 	if req.DroppingTxs != nil {
 		p.DroppingTxHashes = req.DroppingTxs

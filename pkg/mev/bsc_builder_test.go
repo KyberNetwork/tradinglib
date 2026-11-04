@@ -138,3 +138,22 @@ func TestSendBundleV2_48ClubFieldsStayOffOtherBuilders(t *testing.T) {
 
 	require.NotContains(t, got.params, "noMerge")
 }
+
+// TestSendBundleV2_EthGasGetsBomboraFields: EthGas accepts the same optional fields as Bombora,
+// including replacementSeqNumber, which Ultrasound does not.
+func TestSendBundleV2_EthGasGetsBomboraFields(t *testing.T) {
+	t.Parallel()
+	blockNumber, seq, refund := uint64(1), uint64(2), uint64(90)
+	dropping := []string{"0x01"}
+	got := sendOne(t, mev.BundleSenderTypeEthGas, mev.SendBundleV2Request{
+		BlockNumber:          &blockNumber,
+		DroppingTxs:          &dropping,
+		ReplacementSeqNumber: &seq,
+		RefundPercent:        &refund,
+	})
+
+	require.Equal(t, mev.ETHSendBundleMethod, got.method)
+	require.Equal(t, []any{"0x01"}, got.params["droppingTxHashes"])
+	require.InDelta(t, float64(seq), got.params["replacementSeqNumber"], 0)
+	require.InDelta(t, float64(refund), got.params["refundPercent"], 0)
+}
