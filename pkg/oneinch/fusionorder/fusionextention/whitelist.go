@@ -71,7 +71,9 @@ func (wl Whitelist) CanExecuteAt(executor common.Address, executionTime int64) b
 		}
 	}
 
-	return false
+	// Not whitelisted: SimpleSettlement lets an access-NFT holder fill once the
+	// last whitelist slot has opened; the NFT balance is checked on-chain.
+	return executionTime >= allowedFrom
 }
 
 func (wl Whitelist) CanAnySolverExecuteAt(executionTime int64) bool {
