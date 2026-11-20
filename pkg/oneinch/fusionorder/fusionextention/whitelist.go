@@ -57,11 +57,23 @@ func (wl Whitelist) Length() int {
 	return len(wl.Whitelist)
 }
 
-// CanExecuteAt always returns true: the settlement extension also lets a taker
-// that holds the access NFT fill the order, so the whitelist alone cannot rule
-// an executor out.
-func (wl Whitelist) CanExecuteAt(_ common.Address, _ int64) bool {
-	return true
+func (wl Whitelist) CanExecuteAt(executor common.Address, executionTime int64) bool {
+	addressHalf := util.HalfAddressFromAddress(executor)
+	allowedFrom := wl.ResolvingStartTime
+
+	for _, item := range wl.Whitelist {
+		allowedFrom += item.Delay
+
+		if addressHalf == item.AddressHalf {
+			return executionTime >= allowedFrom
+		} else if executionTime < allowedFrom {
+			return false
+		}
+	}
+
+	// Not whitelisted: SimpleSettlement lets an access-NFT holder fill once the
+	// last whitelist slot has opened; the NFT balance is checked on-chain.
+	return executionTime >= allowedFrom
 }
 
 func (wl Whitelist) CanAnySolverExecuteAt(executionTime int64) bool {
