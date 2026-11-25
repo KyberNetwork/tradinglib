@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/lo1inch"
-	helper1inch "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/lo1inch/helper"
+	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/1inch/lo"
+	helper1inch "github.com/KyberNetwork/kyberswap-dex-lib/pkg/liquidity-source/1inch/lo/helper"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/util/bignumber"
 	"github.com/KyberNetwork/kyberswap-dex-lib/pkg/valueobject"
 	"github.com/KyberNetwork/tradinglib/pkg/oneinch/limitorder"
